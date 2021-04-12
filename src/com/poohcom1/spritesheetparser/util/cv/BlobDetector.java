@@ -14,8 +14,8 @@ public class BlobDetector {
 
         ArrayList<Blob> blobList = new ArrayList<>();
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 boolean skip = false;
 
                 int pixel = image.getRGB(x, y);
@@ -37,7 +37,7 @@ public class BlobDetector {
                     }
                 }
 
-                if (minDist < distanceThreshold) {
+                if (minDist < distanceThreshold*distanceThreshold) {
                     nearestBlob.add(x, y);
                 } else {
                     blobList.add(new Blob(x, y));

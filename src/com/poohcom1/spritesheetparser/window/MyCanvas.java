@@ -50,7 +50,7 @@ public class MyCanvas extends JPanel {
         }
 
         for (Point point: points) {
-            g.setColor(new Color(0, 0, 255, 82));
+            g.setColor(new Color(0, 0, 255, 47));
             g.drawRect(point.x, point.y, 1, 1);
         }
 

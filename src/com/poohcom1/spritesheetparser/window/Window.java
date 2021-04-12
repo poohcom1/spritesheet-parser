@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class Window  {
     private final MyCanvas canvas;
-    private int distance = 10;
+    private int distance = 8;
 
     private final BufferedImage image;
     private int[] backgroundColors;

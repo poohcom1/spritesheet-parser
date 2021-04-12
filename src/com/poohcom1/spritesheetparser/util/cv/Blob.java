@@ -40,10 +40,6 @@ public class Blob {
         points.add(new Point(x, y));
     }
 
-    public int squareDistanceFromCenter(int x, int y) {
-        return PointHelper.squareDistance(center(), new Point(x, y));
-    }
-
     public int squareDistance(int x, int y) {
         int clampX = Math.min(max.x, Math.max(min.x, x));
         int clampY = Math.min(max.y, Math.max(min.y, y));
@@ -55,10 +51,7 @@ public class Blob {
         return squareDistance(x, y) < threshold;
     }
 
-    private Point center() {
-        int cx = (min.x + max.x) / 2;
-        int cy = (min.y + max.y) / 2;
-
-        return new Point(cx, cy);
+    public String toString() {
+        return toRect().toString();
     }
 }

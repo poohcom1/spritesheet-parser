@@ -19,9 +19,10 @@ public class Window  {
     private int[] backgroundColors;
 
     private final JLabel distanceLabel;
+    private final JLabel blobCountLabel;
 
     private int mouseClickTimer = 0;
-    private final int MOUSE_HOLD_MAX = 50;
+    private final int MOUSE_HOLD_MAX = 10;
     private boolean mousePressed = false;
 
     public Window(BufferedImage spriteSheet, int[] backgroundColors) {
@@ -30,6 +31,8 @@ public class Window  {
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
+
+        blobCountLabel = new JLabel("Count: ");
 
         canvas = new MyCanvas(spriteSheet);
 
@@ -41,6 +44,7 @@ public class Window  {
         JButton distanceUp = new JButton("Up");
         JButton distanceDown = new JButton("Down");
         distanceLabel = new JLabel(String.valueOf(distance));
+
 
         distanceUp.addMouseListener(new MouseListener() {
             public void mousePressed(MouseEvent e) {
@@ -80,6 +84,7 @@ public class Window  {
         panel.add(distanceUp);
         panel.add(distanceDown);
         panel.add(distanceLabel);
+        panel.add(blobCountLabel);
 
         mainPanel.add(canvas, BorderLayout.NORTH);
         mainPanel.add(panel, BorderLayout.SOUTH);
@@ -91,6 +96,7 @@ public class Window  {
 
     private void distanceButtonClickHandler(int value) {
         incrementDistance(value);
+        setCanvas();
         mouseClickTimer = 0;
 
         new Thread(() -> {
@@ -103,7 +109,7 @@ public class Window  {
                         setCanvas();
                     }
 
-                    Thread.sleep(10);
+                    Thread.sleep(70);
                 } catch (InterruptedException interruptedException) {
                     interruptedException.printStackTrace();
                 }
@@ -127,7 +133,8 @@ public class Window  {
         Rect[] borders = BlobDetector.blobsToRect(blobs);
         Point[] points = BlobDetector.blobsToPoints(blobs);
 
-        System.out.println(blobs.size());
+
+        blobCountLabel.setText("Count: " + blobs.size());
 
         canvas.setBorders(borders);
         canvas.setPoints(points);

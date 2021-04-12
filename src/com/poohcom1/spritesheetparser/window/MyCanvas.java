@@ -5,6 +5,7 @@ import com.poohcom1.spritesheetparser.util.Point;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class MyCanvas extends JPanel {
@@ -16,6 +17,7 @@ public class MyCanvas extends JPanel {
         this.image = image;
         this.borders = new Rect[0];
         this.points = new Point[0];
+
 
         setSize(image.getWidth(), image.getHeight());
     }
@@ -38,7 +40,10 @@ public class MyCanvas extends JPanel {
 
     @Override
     public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
         g.drawImage(image, 0, 0, null);
+
         for (Rect rect: borders) {
             g.setColor(Color.red);
             g.drawRect(rect.x1, rect.y1, rect.getWidth(), rect.getHeight());
@@ -48,6 +53,7 @@ public class MyCanvas extends JPanel {
             g.setColor(new Color(0, 0, 255, 82));
             g.drawRect(point.x, point.y, 1, 1);
         }
+
     }
 
 

@@ -46,7 +46,7 @@ public class Rect {
     }
 
     public int getHeight() {
-        return y2 = y1;
+        return y2 - y1;
     }
 
     public String toString() {

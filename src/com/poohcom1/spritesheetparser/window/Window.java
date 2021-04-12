@@ -1,25 +1,27 @@
 package com.poohcom1.spritesheetparser.window;
 
+import com.poohcom1.spritesheetparser.util.Point;
 import com.poohcom1.spritesheetparser.util.Rect;
-import com.poohcom1.spritesheetparser.util.cv.BlobDetector;
+import com.poohcom1.spritesheetparser.util.cv.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Window  {
-    private MyCanvas canvas;
+    private final MyCanvas canvas;
     private int distance = 10;
 
-    private BufferedImage image;
+    private final BufferedImage image;
     private int[] backgroundColors;
 
-    private JLabel distanceLabel;
+    private final JLabel distanceLabel;
 
+    private int mouseClickTimer = 0;
+    private final int MOUSE_HOLD_MAX = 50;
     private boolean mousePressed = false;
 
     public Window(BufferedImage spriteSheet, int[] backgroundColors) {
@@ -29,7 +31,9 @@ public class Window  {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
-        canvas = new MyCanvas(spriteSheet, BlobDetector.detectBlobs(image, backgroundColors, distance));
+        canvas = new MyCanvas(spriteSheet);
+
+        setCanvas();
 
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
@@ -41,7 +45,7 @@ public class Window  {
         distanceUp.addMouseListener(new MouseListener() {
             public void mousePressed(MouseEvent e) {
                 mousePressed = true;
-                incrementDistance(1);
+                distanceButtonClickHandler(1);
             }
 
             public void mouseReleased(MouseEvent e) {
@@ -58,7 +62,7 @@ public class Window  {
         distanceDown.addMouseListener(new MouseListener() {
             public void mousePressed(MouseEvent e) {
                 mousePressed = true;
-                incrementDistance(-1);
+                distanceButtonClickHandler(-1);
             }
 
             public void mouseReleased(MouseEvent e) {
@@ -66,7 +70,7 @@ public class Window  {
             }
 
             public void mouseClicked(MouseEvent e) {
-
+                 mouseClickTimer = 0;
             }
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
@@ -85,28 +89,49 @@ public class Window  {
         frame.setVisible(true);
     }
 
-    private void incrementDistance(int value) {
+    private void distanceButtonClickHandler(int value) {
+        incrementDistance(value);
+        mouseClickTimer = 0;
+
         new Thread(() -> {
             while (mousePressed) {
                 try {
-                    if (distance + value <= 0) {
-                        distance = 1;
-                    } else if (distance + value > Math.max(image.getHeight(), image.getWidth())) {
-                        distance = Math.max(image.getHeight(), image.getWidth());
+                    if (mouseClickTimer < MOUSE_HOLD_MAX) {
+                        mouseClickTimer++;
                     } else {
-                        distance += value;
+                        incrementDistance(value);
+                        setCanvas();
                     }
-                    distanceLabel.setText(String.valueOf(distance));
 
                     Thread.sleep(10);
-                    Rect[] blobs = BlobDetector.detectBlobs(image, backgroundColors, distance);
-                    canvas.setBorders(blobs);
-                    canvas.repaint();
                 } catch (InterruptedException interruptedException) {
                     interruptedException.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    private void incrementDistance(int value) {
+        if (distance + value <= 0) {
+            distance = 1;
+        } else if (distance + value > Math.max(image.getHeight(), image.getWidth())) {
+            distance = Math.max(image.getHeight(), image.getWidth());
+        } else {
+            distance += value;
+        }
+        distanceLabel.setText(String.valueOf(distance));
+    }
+
+    private void setCanvas() {
+        ArrayList<Blob> blobs = BlobDetector.detectBlobs(image, backgroundColors, distance);
+        Rect[] borders = BlobDetector.blobsToRect(blobs);
+        Point[] points = BlobDetector.blobsToPoints(blobs);
+
+        System.out.println(blobs.size());
+
+        canvas.setBorders(borders);
+        canvas.setPoints(points);
+        canvas.repaint();
     }
 
 }

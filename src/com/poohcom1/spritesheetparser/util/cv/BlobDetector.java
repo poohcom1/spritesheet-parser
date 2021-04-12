@@ -1,5 +1,5 @@
 package com.poohcom1.spritesheetparser.util.cv;
-
+import com.poohcom1.spritesheetparser.util.Point;
 import com.poohcom1.spritesheetparser.util.Rect;
 
 import java.awt.image.BufferedImage;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class BlobDetector {
     public BlobDetector() {}
 
-    public static Rect[] detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
+    public static ArrayList<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -26,7 +26,7 @@ public class BlobDetector {
 
                 if (skip) continue;
 
-                int minDist = width + height;
+                int minDist = Integer.MAX_VALUE;
                 Blob nearestBlob = null;
 
                 for (Blob blob: blobList) {
@@ -45,6 +45,10 @@ public class BlobDetector {
             }
         }
 
+        return blobList;
+    }
+
+    public static Rect[] blobsToRect(ArrayList<Blob> blobList) {
         Rect[] boxes = new Rect[blobList.size()];
 
         for (int i = 0; i < boxes.length; i++) {
@@ -54,4 +58,13 @@ public class BlobDetector {
         return boxes;
     }
 
+    public static Point[] blobsToPoints(ArrayList<Blob> blobList) {
+        ArrayList<Point> points = new ArrayList<>();
+
+        for (Blob blob : blobList) {
+            points.addAll(blob.toPoints());
+        }
+
+        return points.toArray(new Point[0]);
+    }
 }

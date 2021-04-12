@@ -13,10 +13,12 @@ import java.awt.image.BufferedImage;
 
 public class Window  {
     private MyCanvas canvas;
-    private int distance = 200;
+    private int distance = 10;
 
     private BufferedImage image;
     private int[] backgroundColors;
+
+    private JLabel distanceLabel;
 
     private boolean mousePressed = false;
 
@@ -34,6 +36,7 @@ public class Window  {
 
         JButton distanceUp = new JButton("Up");
         JButton distanceDown = new JButton("Down");
+        distanceLabel = new JLabel(String.valueOf(distance));
 
         distanceUp.addMouseListener(new MouseListener() {
             public void mousePressed(MouseEvent e) {
@@ -72,6 +75,7 @@ public class Window  {
 
         panel.add(distanceUp);
         panel.add(distanceDown);
+        panel.add(distanceLabel);
 
         mainPanel.add(canvas, BorderLayout.NORTH);
         mainPanel.add(panel, BorderLayout.SOUTH);
@@ -85,11 +89,16 @@ public class Window  {
         new Thread(() -> {
             while (mousePressed) {
                 try {
-                    if (!(distance + value <= 0 || distance + value > image.getHeight() || distance + value > image.getHeight())) {
+                    if (distance + value <= 0) {
+                        distance = 1;
+                    } else if (distance + value > Math.max(image.getHeight(), image.getWidth())) {
+                        distance = Math.max(image.getHeight(), image.getWidth());
+                    } else {
                         distance += value;
                     }
+                    distanceLabel.setText(String.valueOf(distance));
+
                     Thread.sleep(10);
-                    System.out.println(distance);
                     Rect[] blobs = BlobDetector.detectBlobs(image, backgroundColors, distance);
                     canvas.setBorders(blobs);
                     canvas.repaint();

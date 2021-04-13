@@ -1,55 +1,32 @@
 package com.poohcom1.spritesheetparser.util;
 
-public class Rect {
-    public int x1;
-    public int x2;
-    public int y1;
-    public int y2;
+import java.awt.*;
+
+public class Rect extends Rectangle {
 
     public Rect(int x1, int y1, int x2, int y2) {
-        storePoints(x1, y1, x2, y2);
+        super(x1, y1, x2 - x1, y2 - y1);
     }
 
     public Rect(Point min, Point max) {
-        storePoints(min.x, min.y, max.x, max.y);
+        super(min.x, min.y, max.x - min.x, max.y - min.y);
     }
 
-    private void storePoints(int x1, int y1, int x2, int y2) {
-        if (x1 > x2) {
-            int temp = x1;
-            x1 = x2;
-            x2 = temp;
+    public boolean touches(Rect other) {
+        if (x < other.x + other.width && x + width > other.x) {
+            return y == other.y + other.height || other.y == y + height ||
+                    y == other.y + other.height + 1 || other.y == y + height + 1;
         }
 
-        if (y1 > y2) {
-            int temp = y1;
-            y1 = y2;
-            y2 = temp;
+        if (y < other.y + other.height && y + height > other.y) {
+            return x == other.x + other.width || other.x == x + width ||
+                    x == other.x + other.width + 1 || other.x == x + width + 1;
         }
 
-        this.x1 = x1;
-        this.x2 = x2;
-        this.y1 = y1;
-        this.y2 = y2;
-    }
-
-    public Point min() {
-        return new Point(x1, y1);
-    }
-
-    public Point max() {
-        return new Point(x2, y2);
-    }
-
-    public int getWidth() {
-        return x2 - x1;
-    }
-
-    public int getHeight() {
-        return y2 - y1;
+        return false;
     }
 
     public String toString() {
-        return new Point(x1, y1).toString() + ", " + new Point(x2, y2).toString();
+        return "(" + x + ", " + y + ", " + (x + width) + ", " + (y + height) + ")";
     }
 }

@@ -8,12 +8,12 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-public class MyCanvas extends JPanel {
+public class BlobCanvas extends JPanel {
     private final BufferedImage image;
     private Rect[] borders;
     private Point[] points;
 
-    public MyCanvas(BufferedImage image) {
+    public BlobCanvas(BufferedImage image) {
         this.image = image;
         this.borders = new Rect[0];
         this.points = new Point[0];
@@ -21,7 +21,7 @@ public class MyCanvas extends JPanel {
 
         setSize(image.getWidth(), image.getHeight());
     }
-    public MyCanvas(BufferedImage image, Rect[] borders, Point[] points) {
+    public BlobCanvas(BufferedImage image, Rect[] borders, Point[] points) {
         this.image = image;
         this.borders = borders;
         this.points = points;
@@ -46,13 +46,14 @@ public class MyCanvas extends JPanel {
 
         for (Rect rect: borders) {
             g.setColor(Color.red);
-            g.drawRect(rect.x1, rect.y1, rect.getWidth(), rect.getHeight());
+            g.drawRect(rect.x, rect.y, rect.width, rect.height);
         }
 
         for (Point point: points) {
             g.setColor(new Color(0, 0, 255, 47));
             g.drawRect(point.x, point.y, 1, 1);
         }
+
 
     }
 

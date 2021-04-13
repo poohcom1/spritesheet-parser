@@ -1,8 +1,10 @@
 package com.poohcom1.spritesheetparser;
 
+import com.poohcom1.spritesheetparser.util.image.ImageHelper;
 import com.poohcom1.spritesheetparser.window.BlobWindow;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +15,13 @@ public class Main {
 
         System.out.println("W: " + spriteSheet.getWidth() + ", H: " + spriteSheet.getHeight());
 
-        int[] backgroundColor = SpriteSheetParser.findBackgroundColor(spriteSheet);
+        int alpha = new Color(0, 0, 0, 0).getRGB();
+
+        int[] background = ImageHelper.findBackgroundColor(spriteSheet);
+
+        spriteSheet = ImageHelper.replaceColors(spriteSheet, background, alpha);
+
+//        int[] backgroundColor = SpriteSheetParser.findBackgroundColor(spriteSheet);
 
 //        int[] blobCount = new int[15];
 //        for (int i = 0; i < blobCount.length; i++) {
@@ -21,7 +29,7 @@ public class Main {
 //            System.out.println(blobCount[i]);
 //        }
 
-        BlobWindow window = new BlobWindow(spriteSheet, backgroundColor);
+        BlobWindow window = new BlobWindow(spriteSheet, new int[] {alpha});
     }
 
     private static BufferedImage loadImage(String path) throws IOException {

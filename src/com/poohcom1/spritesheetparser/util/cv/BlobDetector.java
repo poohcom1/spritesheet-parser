@@ -1,6 +1,7 @@
 package com.poohcom1.spritesheetparser.util.cv;
 import com.poohcom1.spritesheetparser.util.Point;
 import com.poohcom1.spritesheetparser.util.Rect;
+import com.poohcom1.spritesheetparser.util.image.ImageHelper;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -14,36 +15,36 @@ public class BlobDetector {
 
         ArrayList<Blob> blobList = new ArrayList<>();
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                boolean skip = false;
+        ImageHelper.pointProcessing(image, (rgba, x, y) -> {
+            boolean skip = false;
 
-                int pixel = image.getRGB(x, y);
+            int pixel = ImageHelper.getRGBAValue(rgba);
 
-                for (int color: backgroundColor) {
-                    if (pixel == color) {skip = true; break;}
-                }
+            for (int color: backgroundColor) {
+                if (pixel == color) {skip = true; break;}
+            }
 
-                if (skip) continue;
+            if (skip) return rgba;
 
-                int minDist = Integer.MAX_VALUE;
-                Blob nearestBlob = null;
+            int minDist = Integer.MAX_VALUE;
+            Blob nearestBlob = null;
 
-                for (Blob blob: blobList) {
-                    int dist = blob.squareDistance(x, y);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        nearestBlob = blob;
-                    }
-                }
-
-                if (minDist < distanceThreshold*distanceThreshold) {
-                    nearestBlob.add(x, y);
-                } else {
-                    blobList.add(new Blob(x, y));
+            for (Blob blob: blobList) {
+                int dist = blob.squareDistance(x, y);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestBlob = blob;
                 }
             }
-        }
+
+            if (minDist < distanceThreshold*distanceThreshold) {
+                nearestBlob.add(x, y);
+            } else {
+                blobList.add(new Blob(x, y));
+            }
+
+            return rgba;
+        });
 
         return blobList;
     }

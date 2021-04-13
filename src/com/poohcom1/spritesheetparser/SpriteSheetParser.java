@@ -7,10 +7,4 @@ import java.io.IOException;
 
 public class SpriteSheetParser {
 
-    public static int[] findBackgroundColor(BufferedImage spriteSheet) {
-        int[] colors = new int[1];
-        colors[0] = spriteSheet.getRGB(0, 0);
-
-        return colors;
-    }
 }

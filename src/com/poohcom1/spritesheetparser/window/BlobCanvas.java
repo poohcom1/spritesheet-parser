@@ -13,6 +13,8 @@ public class BlobCanvas extends JPanel {
     private Rect[] borders;
     private Point[] points;
 
+    private boolean show = true;
+
     public BlobCanvas(BufferedImage image) {
         this.image = image;
         this.borders = new Rect[0];
@@ -21,6 +23,7 @@ public class BlobCanvas extends JPanel {
 
         setSize(image.getWidth(), image.getHeight());
     }
+
     public BlobCanvas(BufferedImage image, Rect[] borders, Point[] points) {
         this.image = image;
         this.borders = borders;
@@ -38,23 +41,25 @@ public class BlobCanvas extends JPanel {
 
     public void setPoints(Point[] points) {this.points = points;}
 
+    public void toggleBlobs() {show = !show; repaint();}
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         g.drawImage(image, 0, 0, null);
 
-        for (Rect rect: borders) {
-            g.setColor(Color.red);
-            g.drawRect(rect.x, rect.y, rect.width, rect.height);
+        if (show) {
+            for (Rect rect : borders) {
+                g.setColor(Color.red);
+                g.drawRect(rect.x, rect.y, rect.width, rect.height);
+            }
+
+            for (Point point : points) {
+                g.setColor(new Color(0, 0, 255, 47));
+                g.drawRect(point.x, point.y, 1, 1);
+            }
         }
-
-        for (Point point: points) {
-            g.setColor(new Color(0, 0, 255, 47));
-            g.drawRect(point.x, point.y, 1, 1);
-        }
-
-
     }
 
 

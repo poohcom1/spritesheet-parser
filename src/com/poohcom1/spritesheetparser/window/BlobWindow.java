@@ -63,7 +63,7 @@ public class BlobWindow {
         setCanvas();
 
         JFrame frame = new JFrame();
-        JPanel panel = new JPanel();
+        JPanel optionsPanel = new JPanel();
 
         JButton distanceUp = new JButton("Up");
         JButton distanceDown = new JButton("Down");
@@ -110,15 +110,19 @@ public class BlobWindow {
             }
         });
 
-        panel.add(printBlobs);
-        panel.add(distanceUp);
-        panel.add(distanceDown);
-        panel.add(distanceLabel);
-        panel.add(blobCountLabel);
-        panel.add(mousePosLabel);
+        JButton toggleBlobs = new JButton("Toggle");
+        toggleBlobs.addActionListener((l) -> canvas.toggleBlobs());
+
+        optionsPanel.add(toggleBlobs);
+        optionsPanel.add(printBlobs);
+        optionsPanel.add(distanceUp);
+        optionsPanel.add(distanceDown);
+        optionsPanel.add(distanceLabel);
+        optionsPanel.add(blobCountLabel);
+        optionsPanel.add(mousePosLabel);
 
         mainPanel.add(canvas, BorderLayout.NORTH);
-        mainPanel.add(panel, BorderLayout.SOUTH);
+        mainPanel.add(optionsPanel, BorderLayout.SOUTH);
 
         frame.add(mainPanel);
         frame.pack();

@@ -8,6 +8,18 @@ public class Point {
         this.y = y;
     }
 
+    public Point add(int x, int y) {
+        this.x += x;
+        this.y += y;
+        return this;
+    }
+
+    public Point add(Point point) {
+        this.x += point.x;
+        this.y += point.y;
+        return this;
+    }
+
     public String toString() {
         return "(" + x + ", " + y + ")";
     }

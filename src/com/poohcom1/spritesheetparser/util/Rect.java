@@ -3,6 +3,8 @@ package com.poohcom1.spritesheetparser.util;
 import java.awt.*;
 
 public class Rect extends Rectangle {
+    public final static int HORIZONTAL_AXIS = 0;
+    public final static int VERTICAL_AXIS = 1;
 
     public Rect(int x1, int y1, int x2, int y2) {
         super(x1, y1, x2 - x1, y2 - y1);
@@ -25,6 +27,27 @@ public class Rect extends Rectangle {
 
         return false;
     }
+
+    public int maxX() {
+        return x + width;
+    }
+
+    public int maxY() {
+        return y + height;
+    }
+
+    public boolean overlapsDirection(Rect other, int axis) {
+        switch (axis) {
+            case HORIZONTAL_AXIS -> {
+                return (x <= other.x + other.width && x + width >= other.x);
+            }
+            case VERTICAL_AXIS -> {
+                return (y <= other.y + other.width && y + width >= other.y);
+            }
+        }
+        return false;
+    }
+
 
     public String toString() {
         return "(" + x + ", " + y + ", " + (x + width) + ", " + (y + height) + ")";

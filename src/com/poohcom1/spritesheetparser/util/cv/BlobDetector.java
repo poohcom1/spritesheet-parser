@@ -85,7 +85,7 @@ public class BlobDetector {
                 Blob mainBlob = blobList.get(i); // Main blob of this loop
                 Blob checkBlob = blobList.get(j); // Blob to check against
 
-                if (mainBlob.isTouching(checkBlob)) {
+                if (mainBlob.shouldMerge(checkBlob)) {
                     blobList.set(i, new Blob(mainBlob, checkBlob));
                     blobList.remove(checkBlob);
                     merged = true;
@@ -106,7 +106,7 @@ public class BlobDetector {
         Rect[] boxes = new Rect[blobList.size()];
 
         for (int i = 0; i < boxes.length; i++) {
-            boxes[i] = blobList.get(i).toRect();
+            boxes[i] = blobList.get(i);
         }
 
         return boxes;

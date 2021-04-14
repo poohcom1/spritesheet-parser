@@ -12,7 +12,7 @@ public class SpriteUtil {
         Sprite[] sprites = new Sprite[blobs.size()];
 
         for (int i = 0; i < blobs.size(); i++) {
-            Rect crop = blobs.get(i).toRect();
+            Rect crop = blobs.get(i);
 
             BufferedImage subImage = image.getSubimage(crop.x, crop.y, crop.width+1, crop.height+1);
 

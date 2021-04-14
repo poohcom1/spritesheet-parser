@@ -1,21 +1,50 @@
 package com.poohcom1.spritesheetparser.util.cv;
 
 import com.poohcom1.spritesheetparser.util.Point;
-import com.poohcom1.spritesheetparser.util.PointHelper;
+import com.poohcom1.spritesheetparser.util.PointUtil;
 import com.poohcom1.spritesheetparser.util.Rect;
 
 import java.util.ArrayList;
 
-public class Blob {
+public class Blob implements Comparable {
     private Point min, max;
 
     private ArrayList<Point> points;
 
+    private int ordering;
+
+    // Init blob
     public Blob(int x, int y) {
         min = new Point(x, y);
         max = new Point(x+1, y+1);
 
         points = new ArrayList<>();
+        ordering = BlobDetector.LEFT_TO_RIGHT;
+    }
+
+    public Blob(int x, int y, int ordering) {
+        min = new Point(x, y);
+        max = new Point(x+1, y+1);
+
+        points = new ArrayList<>();
+        this.ordering = ordering;
+    }
+
+    // New blob from merging blobs blobs
+    public Blob(Blob blob1, Blob blob2) {
+        int minX = Math.min(blob1.min.x, blob2.min.x);
+        int minY = Math.min(blob1.min.y, blob2.min.y);
+        int maxX = Math.max(blob1.max.x, blob2.max.x);
+        int maxY = Math.max(blob1.max.y, blob2.max.y);
+
+        min = new Point(minX, minY);
+        max = new Point(maxX, maxY);
+
+        points = blob1.points;
+        points.addAll(blob2.points);
+
+        // Sprite direction must be the same in two blobs from the same detection
+        ordering = blob1.ordering;
     }
 
     public Blob(int minX, int minY, int maxX, int maxY, ArrayList<Point> points) {
@@ -40,24 +69,11 @@ public class Blob {
         points.add(new Point(x, y));
     }
 
-    // Returns a new combined blob
-    public Blob merge(Blob blob) {
-        int minX = Math.min(min.x, blob.min.x);
-        int minY = Math.min(min.y, blob.min.y);
-        int maxX = Math.max(max.x, blob.max.x);
-        int maxY = Math.max(max.y, blob.max.y);
-
-        ArrayList<Point> combinedPoints = points;
-        combinedPoints.addAll(blob.points);
-
-        return new Blob(minX, minY, maxX, maxY, combinedPoints);
-    }
-
     public int squareDistance(int x, int y) {
         int clampX = Math.min(max.x, Math.max(min.x, x));
         int clampY = Math.min(max.y, Math.max(min.y, y));
 
-        return PointHelper.squareDistance(x, y, clampX, clampY);
+        return PointUtil.squareDistance(x, y, clampX, clampY);
     }
 
     // If a blob is touching this blob
@@ -71,5 +87,39 @@ public class Blob {
 
     public String toString() {
         return toRect().toString();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        int mainAxis;
+        int subAxis;
+        boolean forwardDirection;
+
+        switch (ordering) {
+            case BlobDetector.LEFT_TO_RIGHT -> {
+                mainAxis = min.x;
+                subAxis = min.y;
+                forwardDirection = true;
+            }
+            case BlobDetector.TOP_TO_BOTTOM -> {
+                mainAxis = min.y;
+                subAxis = min.x;
+                forwardDirection = true;
+            }
+            case BlobDetector.RIGHT_TO_LEFT -> {
+                mainAxis = min.x;
+                subAxis = min.y;
+                forwardDirection = false;
+            }
+            case BlobDetector.BOTTOM_TO_TOP -> {
+                mainAxis = min.y;
+                subAxis = min.x;
+                forwardDirection = false;
+            }
+        }
+
+        // TODO: Do this
+
+        return 0;
     }
 }

@@ -1,24 +1,25 @@
 package com.poohcom1.spritesheetparser.util.cv;
 import com.poohcom1.spritesheetparser.util.Point;
 import com.poohcom1.spritesheetparser.util.Rect;
-import com.poohcom1.spritesheetparser.util.image.ImageHelper;
+import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class BlobDetector {
-    public BlobDetector() {}
+    public static final int LEFT_TO_RIGHT = 0;
+    public static final int TOP_TO_BOTTOM = 1;
+    public static final int RIGHT_TO_LEFT = 2;
+    public static final int BOTTOM_TO_TOP = 3;
 
-    public static ArrayList<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
+    public static ArrayList<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor,
+                                                      int distanceThreshold, int blobOrder) {
         ArrayList<Blob> blobList = new ArrayList<>();
 
-        ImageHelper.pointProcessing(image, (rgba, x, y) -> {
+        ImageUtil.pointProcessing(image, (rgba, x, y) -> {
             boolean skip = false;
 
-            int pixel = ImageHelper.getRGBAValue(rgba);
+            int pixel = ImageUtil.rgbaArrayToInt(rgba);
 
             for (int color: backgroundColor) {
                 if (pixel == color) {skip = true; break;}
@@ -40,7 +41,7 @@ public class BlobDetector {
             if (minDist < distanceThreshold*distanceThreshold) {
                 nearestBlob.add(x, y);
             } else {
-                blobList.add(new Blob(x, y));
+                blobList.add(new Blob(x, y, blobOrder));
             }
 
             return rgba;
@@ -49,8 +50,22 @@ public class BlobDetector {
         return blobList;
     }
 
+    /**
+     * Detect blobs and automatically merges adjacent blobs
+     * @param image Image to detect blobs
+     * @param backgroundColor Background color of image to ignore
+     * @param distanceThreshold Distance threshold for adding points to blobs
+     * @return An arraylist of Blobs
+     */
     public static ArrayList<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
-        ArrayList<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold);
+        ArrayList<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold, LEFT_TO_RIGHT);
+        mergeBlobs(blobs);
+
+        return blobs;
+    }
+
+    public static ArrayList<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold, int blobOrder) {
+        ArrayList<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold, blobOrder);
         mergeBlobs(blobs);
 
         return blobs;
@@ -67,11 +82,11 @@ public class BlobDetector {
             boolean merged = false;
 
             while (j > i) {
-                Blob mainBlob = blobList.get(i);
-                Blob checkBlob = blobList.get(j);
+                Blob mainBlob = blobList.get(i); // Main blob of this loop
+                Blob checkBlob = blobList.get(j); // Blob to check against
 
                 if (mainBlob.isTouching(checkBlob)) {
-                    blobList.set(i, mainBlob.merge(checkBlob));
+                    blobList.set(i, new Blob(mainBlob, checkBlob));
                     blobList.remove(checkBlob);
                     merged = true;
                     //mergeCount++;

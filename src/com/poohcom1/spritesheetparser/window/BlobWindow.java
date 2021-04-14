@@ -33,6 +33,7 @@ public class BlobWindow {
         image = spriteSheet;
         this.backgroundColors = backgroundColors;
 
+        JFrame frame = new JFrame();
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
@@ -62,7 +63,6 @@ public class BlobWindow {
 
         setCanvas();
 
-        JFrame frame = new JFrame();
         JPanel optionsPanel = new JPanel();
 
         JButton distanceUp = new JButton("Up");

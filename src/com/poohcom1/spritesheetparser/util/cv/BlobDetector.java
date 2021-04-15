@@ -1,6 +1,5 @@
 package com.poohcom1.spritesheetparser.util.cv;
 import com.poohcom1.spritesheetparser.util.Point;
-import com.poohcom1.spritesheetparser.util.Rect;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 
 import java.awt.image.BufferedImage;
@@ -12,9 +11,8 @@ public class BlobDetector {
     public static final int RIGHT_TO_LEFT = 2;
     public static final int BOTTOM_TO_TOP = 3;
 
-    public static ArrayList<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor,
-                                                      int distanceThreshold, int blobOrder) {
-        ArrayList<Blob> blobList = new ArrayList<>();
+    public static ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
+        ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobList = new ArrayList<>();
 
         ImageUtil.pointProcessing(image, (rgba, x, y) -> {
             boolean skip = false;
@@ -28,9 +26,9 @@ public class BlobDetector {
             if (skip) return rgba;
 
             int minDist = Integer.MAX_VALUE;
-            Blob nearestBlob = null;
+            com.poohcom1.spritesheetparser.util.cv.Blob nearestBlob = null;
 
-            for (Blob blob: blobList) {
+            for (com.poohcom1.spritesheetparser.util.cv.Blob blob: blobList) {
                 int dist = blob.squareDistance(x, y);
                 if (dist < minDist) {
                     minDist = dist;
@@ -41,7 +39,7 @@ public class BlobDetector {
             if (minDist < distanceThreshold*distanceThreshold) {
                 nearestBlob.add(x, y);
             } else {
-                blobList.add(new Blob(x, y, blobOrder));
+                blobList.add(new com.poohcom1.spritesheetparser.util.cv.Blob(x, y));
             }
 
             return rgba;
@@ -57,21 +55,23 @@ public class BlobDetector {
      * @param distanceThreshold Distance threshold for adding points to blobs
      * @return An arraylist of Blobs
      */
-    public static ArrayList<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
-        ArrayList<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold, LEFT_TO_RIGHT);
+    public static ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
+        ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold);
         mergeBlobs(blobs);
+        blobs.sort((a, b) -> a.after(b, LEFT_TO_RIGHT));
 
         return blobs;
     }
 
-    public static ArrayList<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold, int blobOrder) {
-        ArrayList<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold, blobOrder);
+    public static ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold, int blobOrder) {
+        ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold);
         mergeBlobs(blobs);
+        blobs.sort((a, b) -> a.after(b, blobOrder));
 
         return blobs;
     }
 
-    public static void mergeBlobs(ArrayList<Blob> blobList) {
+    public static void mergeBlobs(ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobList) {
         //int mergeCount = 0;
         //int originalSize = blobList.size();
 
@@ -82,11 +82,11 @@ public class BlobDetector {
             boolean merged = false;
 
             while (j > i) {
-                Blob mainBlob = blobList.get(i); // Main blob of this loop
-                Blob checkBlob = blobList.get(j); // Blob to check against
+                com.poohcom1.spritesheetparser.util.cv.Blob mainBlob = blobList.get(i); // Main blob of this loop
+                com.poohcom1.spritesheetparser.util.cv.Blob checkBlob = blobList.get(j); // Blob to check against
 
                 if (mainBlob.shouldMerge(checkBlob)) {
-                    blobList.set(i, new Blob(mainBlob, checkBlob));
+                    blobList.set(i, new com.poohcom1.spritesheetparser.util.cv.Blob(mainBlob, checkBlob));
                     blobList.remove(checkBlob);
                     merged = true;
                     //mergeCount++;
@@ -102,8 +102,8 @@ public class BlobDetector {
         //System.out.printf("BlobDetector.java: Merged %d blobs. %d -> %d\n", mergeCount, originalSize, blobList.size());
     }
 
-    public static Rect[] blobsToRect(ArrayList<Blob> blobList) {
-        Rect[] boxes = new Rect[blobList.size()];
+    public static Blob[] blobsToRect(ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobList) {
+        Blob[] boxes = new Blob[blobList.size()];
 
         for (int i = 0; i < boxes.length; i++) {
             boxes[i] = blobList.get(i);
@@ -112,10 +112,10 @@ public class BlobDetector {
         return boxes;
     }
 
-    public static Point[] blobsToPoints(ArrayList<Blob> blobList) {
+    public static Point[] blobsToPoints(ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobList) {
         ArrayList<Point> points = new ArrayList<>();
 
-        for (Blob blob : blobList) {
+        for (com.poohcom1.spritesheetparser.util.cv.Blob blob : blobList) {
             points.addAll(blob.toPoints());
         }
 

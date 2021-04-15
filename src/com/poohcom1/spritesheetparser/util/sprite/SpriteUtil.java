@@ -1,20 +1,26 @@
 package com.poohcom1.spritesheetparser.util.sprite;
 
 import com.poohcom1.spritesheetparser.util.Rect;
-import com.poohcom1.spritesheetparser.util.cv.Blob;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 
 public class SpriteUtil {
-    public static Sprite[] extractSpritesBlobs(BufferedImage image, ArrayList<Blob> blobs) {
+    public static Sprite[] extractSpritesBlobs(BufferedImage image, ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobs) {
         Sprite[] sprites = new Sprite[blobs.size()];
 
         for (int i = 0; i < blobs.size(); i++) {
             Rect crop = blobs.get(i);
 
-            BufferedImage subImage = image.getSubimage(crop.x, crop.y, crop.width+1, crop.height+1);
+            BufferedImage subImage = null;
+
+            try {
+                subImage = image.getSubimage(crop.x, crop.y, crop.width+1, crop.height+1);
+            } catch (RasterFormatException e) {
+                subImage = image.getSubimage(crop.x, crop.y, crop.width, crop.height);
+            }
 
             sprites[i] = new Sprite(subImage);
         }

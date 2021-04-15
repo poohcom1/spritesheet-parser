@@ -23,7 +23,7 @@ public class BlobWindow {
     private final JLabel blobCountLabel;
     private final JLabel mousePosLabel;
 
-    private ArrayList<Blob> blobs = new ArrayList<>();
+    private ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobs = new ArrayList<>();
 
     private int mouseClickTimer = 0;
     private final int MOUSE_HOLD_MAX = 10;
@@ -42,15 +42,6 @@ public class BlobWindow {
 
         canvas = new BlobCanvas(spriteSheet);
 
-        canvas.addMouseListener(new MouseListener() {
-            public void mousePressed(MouseEvent e) {
-                System.out.println(e.getX() + ", " + e.getY());
-            }
-            public void mouseClicked(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
-        });
 
         canvas.addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
@@ -173,7 +164,7 @@ public class BlobWindow {
 
         blobCountLabel.setText("Count: " + blobs.size());
 
-        canvas.setBorders(borders);
+        canvas.setBlobs(borders);
         canvas.setPoints(points);
         canvas.repaint();
     }

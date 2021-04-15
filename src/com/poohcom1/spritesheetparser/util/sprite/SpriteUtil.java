@@ -1,14 +1,16 @@
 package com.poohcom1.spritesheetparser.util.sprite;
 
 import com.poohcom1.spritesheetparser.util.Rect;
+import com.poohcom1.spritesheetparser.util.cv.Blob;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SpriteUtil {
-    public static Sprite[] extractSpritesBlobs(BufferedImage image, ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobs) {
+    public static Sprite[] extractSpritesBlobs(BufferedImage image, List<Blob> blobs) {
         Sprite[] sprites = new Sprite[blobs.size()];
 
         for (int i = 0; i < blobs.size(); i++) {
@@ -44,7 +46,6 @@ public class SpriteUtil {
 
         return new Dimension(maxWidth, maxHeight);
     }
-
 
     /**
      * Calculates the FPS given the milliseconds per frame.

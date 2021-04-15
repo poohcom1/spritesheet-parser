@@ -42,7 +42,7 @@ public class Rect extends Rectangle {
                 return (x <= other.x + other.width && x + width >= other.x);
             }
             case VERTICAL_AXIS -> {
-                return (y <= other.y + other.width && y + width >= other.y);
+                return (y <= other.y + other.height && y + height >= other.y);
             }
         }
         return false;

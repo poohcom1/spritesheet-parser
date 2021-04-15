@@ -6,11 +6,13 @@ import com.poohcom1.spritesheetparser.util.cv.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BlobWindow {
     private final BlobCanvas canvas;
@@ -23,7 +25,7 @@ public class BlobWindow {
     private final JLabel blobCountLabel;
     private final JLabel mousePosLabel;
 
-    private ArrayList<com.poohcom1.spritesheetparser.util.cv.Blob> blobs = new ArrayList<>();
+    private List<Blob> blobs = new ArrayList<>();
 
     private int mouseClickTimer = 0;
     private final int MOUSE_HOLD_MAX = 10;
@@ -60,7 +62,7 @@ public class BlobWindow {
         JButton distanceDown = new JButton("Down");
         distanceLabel = new JLabel(String.valueOf(distance));
 
-        distanceUp.addMouseListener(new MouseListener() {
+        distanceUp.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mousePressed = true;
                 distanceButtonClickHandler(1);
@@ -69,20 +71,13 @@ public class BlobWindow {
             public void mouseReleased(MouseEvent e) {
                 mousePressed = false;
             }
-
-            public void mouseClicked(MouseEvent e) {
-
-            }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
-        distanceDown.addMouseListener(new MouseListener() {
+        distanceDown.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 mousePressed = true;
                 distanceButtonClickHandler(-1);
             }
-
             public void mouseReleased(MouseEvent e) {
                 mousePressed = false;
             }
@@ -90,8 +85,6 @@ public class BlobWindow {
             public void mouseClicked(MouseEvent e) {
                  mouseClickTimer = 0;
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
         JButton printBlobs = new JButton("Print");
@@ -158,7 +151,7 @@ public class BlobWindow {
         blobs = BlobDetector.detectBlobs(image, backgroundColors, distance);
         BlobDetector.mergeBlobs(blobs);
 
-        Rect[] borders = BlobDetector.blobsToRect(blobs);
+        Blob[] borders = blobs.toArray(new Blob[0]);
         Point[] points = BlobDetector.blobsToPoints(blobs);
 
 

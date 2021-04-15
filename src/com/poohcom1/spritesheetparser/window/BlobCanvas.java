@@ -2,54 +2,39 @@ package com.poohcom1.spritesheetparser.window;
 
 import com.poohcom1.spritesheetparser.util.Rect;
 import com.poohcom1.spritesheetparser.util.Point;
+import com.poohcom1.spritesheetparser.util.cv.Blob;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class BlobCanvas extends JPanel {
     private final BufferedImage image;
-    private Rect[] blobs;
+    private Blob[] blobs;
     private Point[] points;
 
     private boolean show = true;
 
     public BlobCanvas(BufferedImage image) {
         this.image = image;
-        this.blobs = new Rect[0];
+        this.blobs = new Blob[0];
         this.points = new Point[0];
 
 
         setSize(image.getWidth(), image.getHeight());
 
-        addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                ArrayList<Rect> foundBlobs;
-
-            }
-
-            @Override
+        addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
+                for (int i = 0; i < blobs.length; i++) {
+                    if (blobs[i].contains(e.getX(), e.getY()))
+                        System.out.printf("#%d: %s\n", i, blobs[i].toString());
+                }
             }
         });
     }
@@ -60,7 +45,7 @@ public class BlobCanvas extends JPanel {
         return new Dimension(image.getWidth(),image.getHeight());
     }
 
-    public void setBlobs(Rect[] blobs) {this.blobs = blobs;}
+    public void setBlobs(Blob[] blobs) {this.blobs = blobs;}
 
     public void setPoints(Point[] points) {this.points = points;}
 

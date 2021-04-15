@@ -5,24 +5,16 @@ import com.poohcom1.spritesheetparser.util.PointUtil;
 import com.poohcom1.spritesheetparser.util.Rect;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class Blob extends Rect implements Comparable {
-    private final ArrayList<Point> points;
-    private int ordering;
+public class Blob extends Rect {
+    private final List<Point> points;
 
     // Init blob
     public Blob(int x, int y) {
         super(x, y, x + 1, y + 1);
 
         points = new ArrayList<>();
-        ordering = BlobDetector.LEFT_TO_RIGHT;
-    }
-
-    public Blob(int x, int y, int ordering) {
-        super(x, y, x + 1, y + 1);
-
-        points = new ArrayList<>();
-        this.ordering = ordering;
     }
 
     // New blob from merging blobs blobs
@@ -34,17 +26,15 @@ public class Blob extends Rect implements Comparable {
         points.addAll(blob2.points);
 
         // Sprite direction must be the same in two blobs from the same detection
-        ordering = blob1.ordering;
     }
 
-    public Blob(int minX, int minY, int maxX, int maxY, ArrayList<Point> points) {
+    public Blob(int minX, int minY, int maxX, int maxY) {
         super(minX, minY, maxX, maxY);
 
-        this.points = points;
+        this.points = new ArrayList<>();
     }
 
-
-    public ArrayList<Point> toPoints() {return points;}
+    public List<Point> getPoints() {return points;}
 
     // Extends area to cover added pixels
     public void add(int x, int y) {
@@ -69,26 +59,40 @@ public class Blob extends Rect implements Comparable {
         return squareDistance(x, y) < threshold;
     }
 
-    @Override
     public int compareTo(Object o) {
-        switch (ordering) {
-            case BlobDetector.LEFT_TO_RIGHT -> {
-
-            }
-            case BlobDetector.TOP_TO_BOTTOM -> {
-
-            }
-            case BlobDetector.RIGHT_TO_LEFT -> {
-
-            }
-            case BlobDetector.BOTTOM_TO_TOP -> {
-
-            }
-        }
-
-
-
-
-        return 0;
+        return compareTo(o, BlobDetector.LEFT_TO_RIGHT, BlobDetector.TOP_TO_BOTTOM);
     }
+
+    /*
+        LEFT_TO_RIGHT = 0;
+        TOP_TO_BOTTOM = 1;
+        RIGHT_TO_LEFT = 2;
+        BOTTOM_TO_TOP = 3;
+     */
+    public int compareTo(Object o, int primaryOrder, int secondaryOrder) {
+        if (primaryOrder == secondaryOrder)
+            throw new IllegalArgumentException("Primary and secondary order cannot be the same.");
+        if (primaryOrder > 3 || secondaryOrder > 3)
+            throw new IllegalArgumentException("Illegal blob order constant.");
+
+        Blob other = (Blob) o;
+        final int[] origins = {this.x, this.y, other.x, other.y};
+        final int[] axes = {Rect.HORIZONTAL_AXIS, Rect.VERTICAL_AXIS};
+
+        // Primary/Secondary here refers to the axis that takes precedence in ordering
+        int aPrimaryOrigin = origins[primaryOrder];
+        int bPrimaryOrigin = origins[(primaryOrder + 2) % 4];
+        int aSecondaryOrigin = origins[secondaryOrder];
+        int bSecondaryOrigin = origins[(secondaryOrder + 2) % 4];
+
+        // Axis to check
+        int subAxis = axes[secondaryOrder % 2];
+
+        if (overlapsDirection(other, subAxis)) {
+            return aPrimaryOrigin - bPrimaryOrigin;
+        } else {
+            return aSecondaryOrigin - bSecondaryOrigin;
+        }
+    }
+
 }

@@ -1,11 +1,9 @@
-package com.poohcom1.spritesheetparser.util;
+package com.poohcom1.spritesheetparser.util.Shapes2D;
 
-public class Point {
-    public int x, y;
+public class Point extends java.awt.Point {
 
     public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
+        super(x, y);
     }
 
     public Point add(int x, int y) {

@@ -1,20 +1,18 @@
-package com.poohcom1.spritesheetparser.window;
+package com.poohcom1.spritesheetparser.window.blobdetection;
 
-import com.poohcom1.spritesheetparser.util.Rect;
-import com.poohcom1.spritesheetparser.util.Point;
+import com.poohcom1.spritesheetparser.util.Shapes2D.Rect;
+import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
+import com.poohcom1.spritesheetparser.window.ZoomableCanvas;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
-public class BlobCanvas extends JPanel {
+public class BlobCanvas extends ZoomableCanvas {
     private final BufferedImage image;
     private Blob[] blobs;
     private Point[] points;
@@ -42,7 +40,7 @@ public class BlobCanvas extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(image.getWidth(),image.getHeight());
+        return new Dimension((int) (image.getWidth() * xScale), (int) (image.getHeight() * yScale));
     }
 
     public void setBlobs(Blob[] blobs) {this.blobs = blobs;}
@@ -52,8 +50,10 @@ public class BlobCanvas extends JPanel {
     public void toggleBlobs() {show = !show; repaint();}
 
     @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    public void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
+
+        Graphics2D g = zoomedGraphic(graphics);
 
         g.drawImage(image, 0, 0, null);
 
@@ -61,7 +61,7 @@ public class BlobCanvas extends JPanel {
             for (int i = 0; i < blobs.length; i++) {
                 Rect rect = blobs[i];
                 g.setColor(Color.red);
-                g.drawRect(rect.x, rect.y, rect.width, rect.height);
+                g.drawRect(rect.x, rect.y, rect.width+1, rect.height+1);
 
                 g.setColor(Color.BLUE);
                 g.drawString(String.valueOf(i), (int) (rect.x + rect.width*0.75), rect.y + rect.height);
@@ -72,6 +72,9 @@ public class BlobCanvas extends JPanel {
                 g.drawRect(point.x, point.y, 1, 1);
             }
         }
+
+
+
     }
 
 

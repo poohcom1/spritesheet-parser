@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ImageUtil {
     public static String colorIntToHex(int color) {
@@ -61,7 +63,6 @@ public class ImageUtil {
 
                 int[] pixel = imageRaster.getPixel(x, y, (int[]) null);
 
-
                 int[] processedPixel = pixelEditor.editPixel(pixel, x, y);
 
                 newRaster.setPixel(x, y, processedPixel);
@@ -114,5 +115,14 @@ public class ImageUtil {
 
         return alignedImage;
     }
+
+    public static BufferedImage deepCopyImage(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
+
 }
 

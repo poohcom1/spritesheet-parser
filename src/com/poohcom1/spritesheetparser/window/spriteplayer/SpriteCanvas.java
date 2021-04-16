@@ -1,7 +1,8 @@
-package com.poohcom1.spritesheetparser.window;
+package com.poohcom1.spritesheetparser.window.spriteplayer;
 
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
+import com.poohcom1.spritesheetparser.window.ZoomableCanvas;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SpriteCanvas extends JPanel {
+public class SpriteCanvas extends ZoomableCanvas {
     private Sprite[] sprites;
     private float msPerFrame;
 
@@ -41,7 +42,8 @@ public class SpriteCanvas extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return SpriteUtil.spriteMaxDimension(sprites);
+        Dimension original = SpriteUtil.spriteMaxDimension(sprites);
+        return new Dimension((int) (original.getWidth() * xScale), (int) (original.getHeight() * yScale));
     }
 
     public void play() {
@@ -53,7 +55,9 @@ public class SpriteCanvas extends JPanel {
     }
 
     @Override
-    protected void paintChildren(Graphics g) {
+    protected void paintChildren(Graphics graphics) {
+        Graphics2D g = zoomedGraphic(graphics);
+
         g.drawImage(sprites[_frame].getSprite(), 0, 0, null);
     }
 }

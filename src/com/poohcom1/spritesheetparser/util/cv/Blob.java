@@ -1,18 +1,18 @@
 package com.poohcom1.spritesheetparser.util.cv;
 
-import com.poohcom1.spritesheetparser.util.Point;
-import com.poohcom1.spritesheetparser.util.PointUtil;
-import com.poohcom1.spritesheetparser.util.Rect;
+import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
+import com.poohcom1.spritesheetparser.util.Shapes2D.ShapesUtil;
+import com.poohcom1.spritesheetparser.util.Shapes2D.Rect;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Blob extends Rect {
+public class Blob extends Rect implements Comparable<Blob> {
     private final List<Point> points;
 
     // Init blob
     public Blob(int x, int y) {
-        super(x, y, x + 1, y + 1);
+        super(x, y, x, y);
 
         points = new ArrayList<>();
     }
@@ -47,7 +47,7 @@ public class Blob extends Rect {
         int clampX = Math.min(this.x + width, Math.max(this.x, x));
         int clampY = Math.min(this.y + height,  Math.max(this.y, y));
 
-        return PointUtil.squareDistance(x, y, clampX, clampY);
+        return ShapesUtil.squareDistance(x, y, clampX, clampY);
     }
 
     // If a blob is touching this blob
@@ -59,8 +59,26 @@ public class Blob extends Rect {
         return squareDistance(x, y) < threshold;
     }
 
-    public int compareTo(Object o) {
-        return compareTo(o, BlobDetector.LEFT_TO_RIGHT, BlobDetector.TOP_TO_BOTTOM);
+    // ORDERED BLOB FIELDS
+    private int row = 0;
+    private int column = 0;
+
+
+    public void setRowColumn(int row, int column) {
+        this.row = row; this.column = column;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    @Override
+    public int compareTo(Blob o) {
+        return compareTo(o, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
     }
 
     /*
@@ -69,15 +87,11 @@ public class Blob extends Rect {
         RIGHT_TO_LEFT = 2;
         BOTTOM_TO_TOP = 3;
      */
-    public int compareTo(Object o, int primaryOrder, int secondaryOrder) {
-        if (primaryOrder == secondaryOrder)
-            throw new IllegalArgumentException("Primary and secondary order cannot be the same.");
-        if (primaryOrder > 3 || secondaryOrder > 3)
-            throw new IllegalArgumentException("Illegal blob order constant.");
+    public int compareTo(Blob other, int primaryOrder, int secondaryOrder) {
+        if (primaryOrder == secondaryOrder) throw new IllegalArgumentException("Primary and secondary order cannot be the same.");
+        if (primaryOrder > 3 || secondaryOrder > 3) throw new IllegalArgumentException("Illegal blob order constant.");
 
-        Blob other = (Blob) o;
         final int[] origins = {this.x, this.y, other.x, other.y};
-        final int[] axes = {Rect.HORIZONTAL_AXIS, Rect.VERTICAL_AXIS};
 
         // Primary/Secondary here refers to the axis that takes precedence in ordering
         int aPrimaryOrigin = origins[primaryOrder];
@@ -85,14 +99,18 @@ public class Blob extends Rect {
         int aSecondaryOrigin = origins[secondaryOrder];
         int bSecondaryOrigin = origins[(secondaryOrder + 2) % 4];
 
-        // Axis to check
-        int subAxis = axes[secondaryOrder % 2];
-
-        if (overlapsDirection(other, subAxis)) {
+        if (overlapsOrder(other, primaryOrder)) {
             return aPrimaryOrigin - bPrimaryOrigin;
         } else {
             return aSecondaryOrigin - bSecondaryOrigin;
         }
     }
 
+    // Check if object
+    public boolean overlapsOrder(Blob other, int primaryOrder) {
+        final int[] axes = {Rect.VERTICAL_AXIS, Rect.HORIZONTAL_AXIS};
+        int subAxis = axes[(primaryOrder) % 2];
+
+        return overlapsDirection(other, subAxis);
+    }
 }

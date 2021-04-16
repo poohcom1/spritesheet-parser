@@ -1,15 +1,12 @@
-package com.poohcom1.spritesheetparser.window;
+package com.poohcom1.spritesheetparser.window.testwindows;
 
-import com.poohcom1.spritesheetparser.util.Point;
-import com.poohcom1.spritesheetparser.util.Rect;
+import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.cv.*;
+import com.poohcom1.spritesheetparser.window.blobdetection.BlobCanvas;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +41,21 @@ public class BlobWindow {
 
         canvas = new BlobCanvas(spriteSheet);
 
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch(e.getKeyCode()) {
+                    case 90 -> {
+                        canvas.zoomOut(0.1f);
+                        canvas.repaint();
+                    }
+                    case 88 -> {
+                        canvas.zoomIn(0.1f);
+                        canvas.repaint();
+                    }
+                }
+            }
+        });
 
         canvas.addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
@@ -148,11 +160,11 @@ public class BlobWindow {
     }
 
     private void setCanvas() {
-        blobs = BlobDetector.detectBlobs(image, backgroundColors, distance);
-        BlobDetector.mergeBlobs(blobs);
+        blobs = new BlobSequence(image, backgroundColors, distance, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
+        BlobSequence.mergeBlobs(blobs);
 
         Blob[] borders = blobs.toArray(new Blob[0]);
-        Point[] points = BlobDetector.blobsToPoints(blobs);
+        Point[] points = BlobSequence.blobsToPoints(blobs);
 
 
         blobCountLabel.setText("Count: " + blobs.size());

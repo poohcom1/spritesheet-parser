@@ -1,10 +1,16 @@
-package com.poohcom1.spritesheetparser.util;
+package com.poohcom1.spritesheetparser.util.Shapes2D;
 
-import java.awt.*;
+import java.awt.Rectangle;
+import java.util.Iterator;
 
 public class Rect extends Rectangle {
     public final static int HORIZONTAL_AXIS = 0;
     public final static int VERTICAL_AXIS = 1;
+
+    public final static int LEFT = 0;
+    public final static int TOP = 1;
+    public final static int RIGHT = 2;
+    public final static int BOTTOM = 3;
 
     public Rect(int x1, int y1, int x2, int y2) {
         super(x1, y1, x2 - x1, y2 - y1);
@@ -12,6 +18,10 @@ public class Rect extends Rectangle {
 
     public Rect(Point min, Point max) {
         super(min.x, min.y, max.x - min.x, max.y - min.y);
+    }
+
+    public Rect(Rectangle rectangle) {
+        super(rectangle.x, rectangle.y, rectangle.x + rectangle.width, rectangle.y + rectangle.height);
     }
 
     public boolean touches(Rect other) {
@@ -51,5 +61,9 @@ public class Rect extends Rectangle {
 
     public String toString() {
         return "(" + x + ", " + y + ", " + (x + width) + ", " + (y + height) + ")";
+    }
+
+    public int[] getSides() {
+        return new int[] {x, y, x + width, y + height};
     }
 }

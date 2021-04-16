@@ -1,12 +1,12 @@
 package com.poohcom1.spritesheetparser;
 
+import com.poohcom1.spritesheetparser.util.Shapes2D.ShapesUtil;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
-import com.poohcom1.spritesheetparser.util.cv.BlobDetector;
+import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
-import com.poohcom1.spritesheetparser.window.BlobWindow;
-import com.poohcom1.spritesheetparser.window.SpriteWindow;
+import com.poohcom1.spritesheetparser.window.SpriteParserWindow;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedImage loadedImage = loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet2.png");
+        BufferedImage loadedImage = loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet1.png");
         BufferedImage spriteSheet = new BufferedImage(loadedImage.getWidth(), loadedImage.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         spriteSheet.getGraphics().drawImage(loadedImage, 0, 0, null);
 
@@ -28,14 +28,19 @@ public class Main {
 
         // Start window
 
+        ArrayList<Blob> blobs = new BlobSequence(spriteSheet, new int[] {alpha}, 18, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
 
-        ArrayList<Blob> blobs = BlobDetector.detectBlobs(spriteSheet, new int[] {alpha}, 18);
 
+        Sprite[] sprites = SpriteUtil.extractBlobSprites(spriteSheet, blobs).toArray(new Sprite[0]);
 
-        Sprite[] sprites = SpriteUtil.extractSpritesBlobs(spriteSheet, blobs);
+        int[] baseLines = ShapesUtil.findBaselines(blobs);
 
-        new BlobWindow(spriteSheet, new int[] {alpha});
-        new SpriteWindow(sprites, 12);
+        for (int base: baseLines) {
+            System.out.println(base);
+        }
+
+        new SpriteParserWindow(spriteSheet, new int[] {alpha});
+        //new SpriteWindow(sprites, 12);
     }
 
     private static BufferedImage loadImage(String path) throws IOException {

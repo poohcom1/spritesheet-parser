@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.util.sprite;
 
-import com.poohcom1.spritesheetparser.util.Rect;
+import com.poohcom1.spritesheetparser.util.Shapes2D.Rect;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 
 import java.awt.*;
@@ -10,25 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpriteUtil {
-    public static Sprite[] extractSpritesBlobs(BufferedImage image, List<Blob> blobs) {
-        Sprite[] sprites = new Sprite[blobs.size()];
+    public static List<Sprite> extractBlobSprites(BufferedImage image, List<Blob> blobs) {
+        List<Sprite> sprites = new ArrayList<>();
 
-        for (int i = 0; i < blobs.size(); i++) {
-            Rect crop = blobs.get(i);
+        for (Rect crop : blobs) {
+            BufferedImage subImage;
 
-            BufferedImage subImage = null;
+            subImage = image.getSubimage(crop.x, crop.y, crop.width + 1, crop.height + 1);
 
-            try {
-                subImage = image.getSubimage(crop.x, crop.y, crop.width+1, crop.height+1);
-            } catch (RasterFormatException e) {
-                subImage = image.getSubimage(crop.x, crop.y, crop.width, crop.height);
-            }
-
-            sprites[i] = new Sprite(subImage);
+            sprites.add(new Sprite(subImage));
         }
 
         return sprites;
     }
+
 
     public static Dimension spriteMaxDimension(Sprite[] sprites) {
         int maxHeight = 0;

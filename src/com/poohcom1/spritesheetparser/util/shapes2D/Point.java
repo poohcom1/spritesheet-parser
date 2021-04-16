@@ -1,4 +1,4 @@
-package com.poohcom1.spritesheetparser.util.Shapes2D;
+package com.poohcom1.spritesheetparser.util.shapes2D;
 
 public class Point extends java.awt.Point {
 

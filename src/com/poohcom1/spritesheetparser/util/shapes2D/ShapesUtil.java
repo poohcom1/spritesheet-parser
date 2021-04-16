@@ -1,6 +1,5 @@
-package com.poohcom1.spritesheetparser.util.Shapes2D;
+package com.poohcom1.spritesheetparser.util.shapes2D;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 

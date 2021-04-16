@@ -1,15 +1,13 @@
 package com.poohcom1.spritesheetparser.window.blobdetection;
 
-import com.poohcom1.spritesheetparser.util.Shapes2D.Rect;
-import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
+import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
+import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.window.ZoomableCanvas;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class BlobCanvas extends ZoomableCanvas {

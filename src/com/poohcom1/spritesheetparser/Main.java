@@ -1,7 +1,6 @@
 package com.poohcom1.spritesheetparser;
 
-import com.poohcom1.spritesheetparser.util.Shapes2D.ShapesUtil;
-import com.poohcom1.spritesheetparser.util.cv.Blob;
+import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
@@ -14,11 +13,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedImage loadedImage = loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet1.png");
+        BufferedImage loadedImage = loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet2.png");
         BufferedImage spriteSheet = new BufferedImage(loadedImage.getWidth(), loadedImage.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         spriteSheet.getGraphics().drawImage(loadedImage, 0, 0, null);
 
@@ -27,20 +25,14 @@ public class Main {
         int[] background = ImageUtil.findBackgroundColor(spriteSheet);
         spriteSheet = ImageUtil.replaceColors(spriteSheet, background, alpha);
 
-        // Start window
+        BlobSequence blobs = new BlobSequence(spriteSheet, new int[] {alpha}, 18, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
 
-        ArrayList<Blob> blobs = new BlobSequence(spriteSheet, new int[] {alpha}, 18, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
-
+        System.out.println(blobs.getRow(1).toString());
 
         Sprite[] sprites = SpriteUtil.extractBlobSprites(spriteSheet, blobs).toArray(new Sprite[0]);
 
-        int[] baseLines = ShapesUtil.findBaselines(blobs);
 
-        for (int base: baseLines) {
-            System.out.println(base);
-        }
-
-        new SpriteParserWindow(spriteSheet, new int[] {alpha});
+        //new SpriteParserWindow(spriteSheet, new int[] {alpha});
         new SpriteWindow(sprites, 2);
     }
 

@@ -1,8 +1,8 @@
 package com.poohcom1.spritesheetparser.util.cv;
 
-import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
-import com.poohcom1.spritesheetparser.util.Shapes2D.ShapesUtil;
-import com.poohcom1.spritesheetparser.util.Shapes2D.Rect;
+import com.poohcom1.spritesheetparser.util.shapes2D.Point;
+import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
+import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +66,8 @@ public class Blob extends Rect implements Comparable<Blob> {
     }
 
     // ORDERED BLOB FIELDS
-    private int row = 0;
-    private int column = 0;
+    private int row = -1;
+    private int column = -1;
 
 
     public void setRowColumn(int row, int column) {
@@ -105,7 +105,7 @@ public class Blob extends Rect implements Comparable<Blob> {
         int aSecondaryOrigin = origins[secondaryOrder];
         int bSecondaryOrigin = origins[(secondaryOrder + 2) % 4];
 
-        if (overlapsOrder(other, primaryOrder)) {
+        if (overlapsByOrder(other, primaryOrder)) {
             return aPrimaryOrigin - bPrimaryOrigin;
         } else {
             return aSecondaryOrigin - bSecondaryOrigin;
@@ -113,7 +113,7 @@ public class Blob extends Rect implements Comparable<Blob> {
     }
 
     // Check if object
-    public boolean overlapsOrder(Blob other, int primaryOrder) {
+    public boolean overlapsByOrder(Blob other, int primaryOrder) {
         final int[] axes = {Rect.VERTICAL_AXIS, Rect.HORIZONTAL_AXIS};
         int subAxis = axes[(primaryOrder) % 2];
 

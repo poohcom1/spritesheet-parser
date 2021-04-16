@@ -1,11 +1,10 @@
 package com.poohcom1.spritesheetparser.util.sprite;
 
-import com.poohcom1.spritesheetparser.util.Shapes2D.Rect;
+import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 import java.util.List;
 

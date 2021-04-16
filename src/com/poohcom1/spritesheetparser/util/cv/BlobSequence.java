@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.util.cv;
 
-import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
+import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 
 import java.awt.image.BufferedImage;
@@ -35,7 +35,23 @@ public class BlobSequence extends ArrayList<Blob> {
 
     public String toString() {
         StringBuilder text = new StringBuilder();
-        forEach(blob -> text.append(blob.toString()).append(", "));
+
+        int row = 0;
+        for (int i = 0; i < size();) {
+            if (get(i).getRow() == row) {
+                text.append(get(i).getRow())
+                        .append(",")
+                        .append(get(i).getColumn())
+                        .append(": ")
+                        .append(i)
+                        .append("\t\t");
+                i++;
+            } else {
+                row++;
+                text.append("\n");
+            }
+        }
+
         return text.toString();
     }
 
@@ -142,19 +158,33 @@ public class BlobSequence extends ArrayList<Blob> {
 
         int row = 0;
         int column = 0;
+
+        get(0).setRowColumn(0, 0);
+
         for (int i = 1; i < size(); i++) {
             Blob current = get(i);
             Blob previous = get(i-1);
 
-            if (current.overlapsDirection(previous, primaryOrder)) {
+
+            if (current.overlapsByOrder(previous, primaryOrder)) {
                 column++;
             } else {
                 column = 0;
-                row++;
+                row += 1;
             }
 
             current.setRowColumn(row, column);
+            set(i, current);
         }
+    }
+
+    public List<Blob> getRow(int row) {
+        int start = 0;
+        while (start < size() && rowOf(start) != row) start++;
+        int end = start;
+        while (end < size() && rowOf(end) == row) end++;
+
+        return subList(start, end);
     }
 
     public int rowOf(Blob o) {

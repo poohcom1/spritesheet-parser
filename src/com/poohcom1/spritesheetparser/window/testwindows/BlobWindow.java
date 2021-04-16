@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.window.testwindows;
 
-import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
+import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.cv.*;
 import com.poohcom1.spritesheetparser.window.blobdetection.BlobCanvas;
 

@@ -1,16 +1,37 @@
 package com.poohcom1.spritesheetparser.util.cv;
-import com.poohcom1.spritesheetparser.util.Point;
+
+import com.poohcom1.spritesheetparser.util.Shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class BlobDetector {
+public class BlobSequence extends ArrayList<Blob> {
     public static final int LEFT_TO_RIGHT = 0;
     public static final int TOP_TO_BOTTOM = 1;
     public static final int RIGHT_TO_LEFT = 2;
     public static final int BOTTOM_TO_TOP = 3;
+
+    private final int primaryOrder;
+    private final int secondaryOrder;
+
+    public BlobSequence(BufferedImage image, int[] backgroundColor, int threshold,int primaryOrder, int secondaryOrder) {
+        super();
+        List<Blob> unorderedList = detectBlobs(image, backgroundColor, threshold);
+
+        sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
+
+        this.primaryOrder = primaryOrder;
+        this.secondaryOrder = secondaryOrder;
+    }
+
+    public BlobSequence(List<Blob> unorderedBlobs, int primaryOrder, int secondaryOrder) {
+        super(unorderedBlobs);
+        sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
+
+        this.primaryOrder = primaryOrder;
+        this.secondaryOrder = secondaryOrder;
+    }
 
     public static List<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         List<Blob> blobList = new ArrayList<>();
@@ -59,15 +80,7 @@ public class BlobDetector {
     public static List<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         List<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold);
         mergeBlobs(blobs);
-        blobs.sort((a, b) -> a.compareTo(b, LEFT_TO_RIGHT, TOP_TO_BOTTOM));
-
-        return blobs;
-    }
-
-    public static List<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold, int primaryOrder, int secondaryOrder) {
-        List<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold);
-        mergeBlobs(blobs);
-        blobs.sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
+        //blobs.sort((a, b) -> a.compareTo(b, LEFT_TO_RIGHT, TOP_TO_BOTTOM));
 
         return blobs;
     }
@@ -112,4 +125,47 @@ public class BlobDetector {
 
         return points.toArray(new Point[0]);
     }
+
+
+    public Point[] toPoints() {
+        return blobsToPoints(this);
+    }
+
+    @Override
+    public void sort(Comparator<? super Blob> c) {
+        super.sort(c);
+
+        int row = 0;
+        int column = 0;
+        for (int i = 1; i < size(); i++) {
+            Blob current = get(i);
+            Blob previous = get(i-1);
+
+            if (current.overlapsDirection(previous, primaryOrder)) {
+                column++;
+            } else {
+                column = 0;
+                row++;
+            }
+
+            current.setRowColumn(row, column);
+        }
+    }
+
+    public int rowOf(Blob o) {
+        return rowOf(indexOf(o));
+    }
+
+    public int columnOf(Blob o) {
+        return columnOf(indexOf(o));
+    }
+
+    public int rowOf(int index) {
+        return get(index).getRow();
+    }
+
+    public int columnOf(int index) {
+        return get(index).getColumn();
+    }
+
 }

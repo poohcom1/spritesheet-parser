@@ -2,9 +2,13 @@ package com.poohcom1.spritesheetparser.util.cv;
 
 import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
+import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
+import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.List;
 
 public class BlobSequence extends ArrayList<Blob> {
     public static final int LEFT_TO_RIGHT = 0;
@@ -54,6 +58,109 @@ public class BlobSequence extends ArrayList<Blob> {
 
         return text.toString();
     }
+
+
+    public Point[] toPoints() {
+        return blobsToPoints(this);
+    }
+
+    @Override
+    public void sort(Comparator<? super Blob> c) {
+        super.sort(c);
+
+        int row = 0;
+        int column = 0;
+
+        get(0).setRowColumn(0, 0);
+
+        for (int i = 1; i < size(); i++) {
+            Blob current = get(i);
+            Blob previous = get(i-1);
+
+
+            if (current.overlapsByOrder(previous, primaryOrder)) {
+                column++;
+            } else {
+                column = 0;
+                row += 1;
+            }
+
+            current.setRowColumn(row, column);
+            set(i, current);
+        }
+    }
+
+
+    public int rowOf(Blob o) {
+        return rowOf(indexOf(o));
+    }
+    public int columnOf(Blob o) {
+        return columnOf(indexOf(o));
+    }
+
+    public int rowOf(int index) {
+        return get(index).getRow();
+    }
+
+    public int columnOf(int index) {
+        return get(index).getColumn();
+    }
+
+    public int rows() {
+        return rowOf(size() - 1) + 1;
+    }
+
+    public List<Blob> getRow(int row) {
+        if (row < 0 || row >= rows()) {
+            return new ArrayList<Blob>();
+        }
+
+        int start = 0;
+        while (start < size() && rowOf(start) != row) start++;
+        int end = start;
+        while (end < size() && rowOf(end) == row) end++;
+
+        return subList(start, end);
+    }
+
+    public List<List<Blob>> getRows() {
+        List<List<Blob>> rows = new ArrayList<>();
+
+        for (int row = 0; row < rows(); row++) {
+            rows.add(getRow(row));
+        }
+
+        return rows;
+    }
+
+    public Dimension getDimensions() {
+        int width = 0;
+        int height = 0;
+
+        for (List<Blob> row: getRows()) {
+            int minX = Integer.MAX_VALUE;
+            int minY = Integer.MAX_VALUE;
+            int maxX = 0;
+            int maxY = 0;
+
+            Rect currentBoundaries = ShapesUtil.maxBoundaries(row);
+            minX = Math.min(minX, currentBoundaries.x);
+            minY = Math.min(minY, currentBoundaries.y);
+            maxX = Math.max(maxX, currentBoundaries.maxX());
+            maxY = Math.max(maxY, currentBoundaries.maxY());
+
+            width = Math.max(width, maxX - minX);
+            height = Math.max(height, maxY - minY);
+        }
+
+        return new Dimension(width, height);
+    }
+
+    public int getPrimaryOrder() {
+        return primaryOrder;
+    }
+
+    public boolean ordersHorizontally() {return primaryOrder == LEFT_TO_RIGHT || primaryOrder == RIGHT_TO_LEFT;}
 
     public static List<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         List<Blob> blobList = new ArrayList<>();
@@ -146,61 +253,4 @@ public class BlobSequence extends ArrayList<Blob> {
 
         return points.toArray(new Point[0]);
     }
-
-
-    public Point[] toPoints() {
-        return blobsToPoints(this);
-    }
-
-    @Override
-    public void sort(Comparator<? super Blob> c) {
-        super.sort(c);
-
-        int row = 0;
-        int column = 0;
-
-        get(0).setRowColumn(0, 0);
-
-        for (int i = 1; i < size(); i++) {
-            Blob current = get(i);
-            Blob previous = get(i-1);
-
-
-            if (current.overlapsByOrder(previous, primaryOrder)) {
-                column++;
-            } else {
-                column = 0;
-                row += 1;
-            }
-
-            current.setRowColumn(row, column);
-            set(i, current);
-        }
-    }
-
-    public List<Blob> getRow(int row) {
-        int start = 0;
-        while (start < size() && rowOf(start) != row) start++;
-        int end = start;
-        while (end < size() && rowOf(end) == row) end++;
-
-        return subList(start, end);
-    }
-
-    public int rowOf(Blob o) {
-        return rowOf(indexOf(o));
-    }
-
-    public int columnOf(Blob o) {
-        return columnOf(indexOf(o));
-    }
-
-    public int rowOf(int index) {
-        return get(index).getRow();
-    }
-
-    public int columnOf(int index) {
-        return get(index).getColumn();
-    }
-
 }

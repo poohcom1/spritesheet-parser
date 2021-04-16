@@ -10,34 +10,32 @@ import java.util.List;
 
 public class SpriteUtil {
     public static List<Sprite> extractBlobSprites(BufferedImage image, List<Blob> blobs) {
-        List<Sprite> sprites = new ArrayList<>();
+        List<Sprite> subImageList = new ArrayList<>();
 
         for (Rect crop : blobs) {
             BufferedImage subImage;
 
-            subImage = image.getSubimage(crop.x, crop.y, crop.width, crop.height);
+            subImage = image.getSubimage(crop.x, crop.y, crop.width+1, crop.height+1);
 
-            sprites.add(new Sprite(subImage));
+            subImageList.add(new Sprite(subImage));
         }
 
-        return sprites;
+        return subImageList;
     }
-
 
     public static Dimension spriteMaxDimension(Sprite[] sprites) {
         int maxHeight = 0;
         int maxWidth = 0;
 
-        for (Sprite sprite: sprites) {
-            if (sprite.getOriginalWidth() > maxWidth) {
-                maxWidth = sprite.getOriginalWidth();
+        for (Sprite sprite : sprites) {
+            if (sprite.getWidth() > maxWidth) {
+                maxWidth = (int) sprite.getWidth();
             }
 
-            if (sprite.getOriginalHeight() > maxHeight) {
-                maxHeight = sprite.getOriginalHeight();
+            if (sprite.getHeight() > maxHeight) {
+                maxHeight = (int) sprite.getHeight();
             }
         }
-
         return new Dimension(maxWidth, maxHeight);
     }
 

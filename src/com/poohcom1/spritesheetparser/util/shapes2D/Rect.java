@@ -11,6 +11,8 @@ public class Rect extends Rectangle {
     public final static int RIGHT = 2;
     public final static int BOTTOM = 3;
 
+    public Rect() {}
+
     public Rect(int x1, int y1, int x2, int y2) {
         super(x1, y1, x2 - x1, y2 - y1);
     }
@@ -44,6 +46,10 @@ public class Rect extends Rectangle {
     public int maxY() {
         return y + height;
     }
+
+    public int centerX() {return (x + (width/2));}
+
+    public int centerY() {return (y + (height/2));}
 
     public boolean overlapsDirection(Rect other, int axis) {
         switch (axis) {

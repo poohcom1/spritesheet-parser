@@ -1,6 +1,7 @@
 package com.poohcom1.spritesheetparser.window.spriteplayer;
 
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
+import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 import com.poohcom1.spritesheetparser.window.ZoomableCanvas;
 
@@ -11,7 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SpriteCanvas extends ZoomableCanvas {
-    private Sprite[] sprites;
+    private SpriteSequence sprites;
     private float msPerFrame;
 
     private int _frame = 0;
@@ -19,20 +20,20 @@ public class SpriteCanvas extends ZoomableCanvas {
 
     private final ScheduledExecutorService animator;
 
-    public SpriteCanvas(Sprite[] sprites, float msPerFrame) {
+    public SpriteCanvas(SpriteSequence sprites, float msPerFrame) {
         this.sprites = sprites;
         this.msPerFrame = msPerFrame;
 
-        setSize(SpriteUtil.spriteMaxDimension(sprites));
+        setSize(sprites.dimension);
 
-        System.out.println(SpriteUtil.spriteMaxDimension(sprites));
+        System.out.println(sprites.dimension);
 
         animator = Executors.newScheduledThreadPool(1);
 
         animator.scheduleAtFixedRate(() -> {
             if (_isPlaying) {
                 _frame++;
-                if (_frame > sprites.length-1) {
+                if (_frame > sprites.size()-1) {
                     _frame = 0;
                 }
                 repaint();
@@ -42,7 +43,7 @@ public class SpriteCanvas extends ZoomableCanvas {
 
     @Override
     public Dimension getPreferredSize() {
-        Dimension original = SpriteUtil.spriteMaxDimension(sprites);
+        Dimension original = sprites.dimension;
         return new Dimension((int) (original.getWidth() * xScale), (int) (original.getHeight() * yScale));
     }
 
@@ -58,6 +59,7 @@ public class SpriteCanvas extends ZoomableCanvas {
     protected void paintChildren(Graphics graphics) {
         Graphics2D g = zoomedGraphic(graphics);
 
-        g.drawImage(sprites[_frame].getSprite(), 0, 0, null);
+
+        g.drawImage(sprites.get(_frame).getSprite(), 0, 0, null);
     }
 }

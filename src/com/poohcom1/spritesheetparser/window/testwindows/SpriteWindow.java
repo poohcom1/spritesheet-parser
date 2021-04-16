@@ -1,6 +1,7 @@
 package com.poohcom1.spritesheetparser.window.testwindows;
 
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
+import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 import com.poohcom1.spritesheetparser.window.spriteplayer.SpriteCanvas;
 
@@ -12,11 +13,11 @@ import java.awt.event.KeyEvent;
 public class SpriteWindow {
     private final SpriteCanvas canvas;
 
-    private final Sprite[] sprites;
+    private final SpriteSequence sprites;
 
     private int framerate;
 
-    public SpriteWindow(Sprite[] sprites, int framerate) {
+    public SpriteWindow(SpriteSequence sprites, int framerate) {
         this.sprites = sprites;
 
         JFrame frame = new JFrame();

@@ -20,6 +20,15 @@ public class Blob extends Rect implements Comparable<Blob> {
         points = new ArrayList<>();
     }
 
+    public Blob(int minX, int minY, int maxX, int maxY) {
+        super(minX, minY, maxX, maxY);
+
+        width++;
+        height++;
+
+        this.points = new ArrayList<>();
+    }
+
     // New blob from merging blobs blobs
     public Blob(Blob blob1, Blob blob2) {
         super(Math.min(blob1.x, blob2.x), Math.min(blob1.y, blob2.y),
@@ -29,15 +38,6 @@ public class Blob extends Rect implements Comparable<Blob> {
         points.addAll(blob2.points);
 
         // Sprite direction must be the same in two blobs from the same detection
-    }
-
-    public Blob(int minX, int minY, int maxX, int maxY) {
-        super(minX, minY, maxX, maxY);
-
-        width++;
-        height++;
-
-        this.points = new ArrayList<>();
     }
 
     public List<Point> getPoints() {return points;}
@@ -65,7 +65,8 @@ public class Blob extends Rect implements Comparable<Blob> {
         return squareDistance(x, y) < threshold;
     }
 
-    // ORDERED BLOB FIELDS
+    // ====================== ORDERED BLOB FIELDS =================================
+
     private int row = -1;
     private int column = -1;
 

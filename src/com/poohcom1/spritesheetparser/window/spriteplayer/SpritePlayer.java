@@ -1,6 +1,7 @@
 package com.poohcom1.spritesheetparser.window.spriteplayer;
 
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
+import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 
 import javax.swing.*;
@@ -9,11 +10,11 @@ import java.awt.*;
 public class SpritePlayer extends JPanel {
     private SpriteCanvas canvas;
 
-    private Sprite[] sprites;
+    private SpriteSequence sprites;
 
     private int framerate;
 
-    public SpritePlayer(Sprite[] sprite) {
+    public SpritePlayer(SpriteSequence sprite) {
         setSprites(sprite);
 
         JPanel mainPanel = new JPanel();
@@ -31,7 +32,7 @@ public class SpritePlayer extends JPanel {
         setVisible(true);
     }
 
-    public void setSprites(Sprite[] sprites) {this.sprites = sprites;}
+    public void setSprites(SpriteSequence sprites) {this.sprites = sprites;}
 
     public void setFramerate(int framerate) {this.framerate = framerate;}
 }

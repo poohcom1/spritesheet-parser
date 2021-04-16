@@ -4,8 +4,7 @@ import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
-import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
-import com.poohcom1.spritesheetparser.window.SpriteParserWindow;
+import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 import com.poohcom1.spritesheetparser.window.testwindows.SpriteWindow;
 
 import javax.imageio.ImageIO;
@@ -27,13 +26,11 @@ public class Main {
 
         BlobSequence blobs = new BlobSequence(spriteSheet, new int[] {alpha}, 18, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
 
-        System.out.println(blobs.getRow(1).toString());
-
-        Sprite[] sprites = SpriteUtil.extractBlobSprites(spriteSheet, blobs).toArray(new Sprite[0]);
+        SpriteSequence sprites = new SpriteSequence(spriteSheet, blobs);
 
 
         //new SpriteParserWindow(spriteSheet, new int[] {alpha});
-        new SpriteWindow(sprites, 2);
+        new SpriteWindow(sprites, 12);
     }
 
     private static BufferedImage loadImage(String path) throws IOException {

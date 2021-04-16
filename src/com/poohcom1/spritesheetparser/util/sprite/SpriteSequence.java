@@ -2,6 +2,7 @@ package com.poohcom1.spritesheetparser.util.sprite;
 
 import com.poohcom1.spritesheetparser.util.Shapes2D.Rect;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
+import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 
 import java.awt.image.BufferedImage;
 import java.nio.Buffer;
@@ -17,7 +18,7 @@ public class SpriteSequence implements Iterable<Sprite>{
 
     private List<Sprite> spriteSequence;
 
-    public SpriteSequence(BufferedImage spriteSheet, List<Blob> blobs) {
+    public SpriteSequence(BufferedImage spriteSheet, BlobSequence blobs) {
         this.spriteSheet = spriteSheet;
         this.blobs = blobs;
 
@@ -27,7 +28,6 @@ public class SpriteSequence implements Iterable<Sprite>{
     private void alignSprites(int baseline) {
 
     }
-
 
     @Override
     public Iterator<Sprite> iterator() {

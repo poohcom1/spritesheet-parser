@@ -14,6 +14,9 @@ public class Blob extends Rect implements Comparable<Blob> {
     public Blob(int x, int y) {
         super(x, y, x, y);
 
+        width++;
+        height++;
+
         points = new ArrayList<>();
     }
 
@@ -30,6 +33,9 @@ public class Blob extends Rect implements Comparable<Blob> {
 
     public Blob(int minX, int minY, int maxX, int maxY) {
         super(minX, minY, maxX, maxY);
+
+        width++;
+        height++;
 
         this.points = new ArrayList<>();
     }

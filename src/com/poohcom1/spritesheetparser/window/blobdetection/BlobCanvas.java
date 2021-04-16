@@ -61,7 +61,7 @@ public class BlobCanvas extends ZoomableCanvas {
             for (int i = 0; i < blobs.length; i++) {
                 Rect rect = blobs[i];
                 g.setColor(Color.red);
-                g.drawRect(rect.x, rect.y, rect.width+1, rect.height+1);
+                g.drawRect(rect.x, rect.y, rect.width, rect.height);
 
                 g.setColor(Color.BLUE);
                 g.drawString(String.valueOf(i), (int) (rect.x + rect.width*0.75), rect.y + rect.height);

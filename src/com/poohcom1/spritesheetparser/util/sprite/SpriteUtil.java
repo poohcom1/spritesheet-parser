@@ -16,7 +16,7 @@ public class SpriteUtil {
         for (Rect crop : blobs) {
             BufferedImage subImage;
 
-            subImage = image.getSubimage(crop.x, crop.y, crop.width + 1, crop.height + 1);
+            subImage = image.getSubimage(crop.x, crop.y, crop.width, crop.height);
 
             sprites.add(new Sprite(subImage));
         }

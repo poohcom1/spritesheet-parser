@@ -7,6 +7,7 @@ import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 import com.poohcom1.spritesheetparser.window.SpriteParserWindow;
+import com.poohcom1.spritesheetparser.window.testwindows.SpriteWindow;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -40,7 +41,7 @@ public class Main {
         }
 
         new SpriteParserWindow(spriteSheet, new int[] {alpha});
-        //new SpriteWindow(sprites, 12);
+        new SpriteWindow(sprites, 2);
     }
 
     private static BufferedImage loadImage(String path) throws IOException {

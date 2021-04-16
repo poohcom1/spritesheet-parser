@@ -161,10 +161,15 @@ public class BlobWindow {
 
     private void setCanvas() {
         blobs = new BlobSequence(image, backgroundColors, distance, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
-        BlobSequence.mergeBlobs(blobs);
 
         Blob[] borders = blobs.toArray(new Blob[0]);
         Point[] points = BlobSequence.blobsToPoints(blobs);
+
+        System.out.println(blobs.toString());
+
+        for (Blob blob: blobs) {
+            System.out.print(blob.toString() + ", ");
+        }
 
 
         blobCountLabel.setText("Count: " + blobs.size());
@@ -172,6 +177,6 @@ public class BlobWindow {
         canvas.setBlobs(borders);
         canvas.setPoints(points);
         canvas.repaint();
-    }
 
+    }
 }

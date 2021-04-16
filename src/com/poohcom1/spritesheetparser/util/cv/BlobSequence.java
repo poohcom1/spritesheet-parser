@@ -16,8 +16,7 @@ public class BlobSequence extends ArrayList<Blob> {
     private final int secondaryOrder;
 
     public BlobSequence(BufferedImage image, int[] backgroundColor, int threshold,int primaryOrder, int secondaryOrder) {
-        super();
-        List<Blob> unorderedList = detectBlobs(image, backgroundColor, threshold);
+        super(detectBlobs(image, backgroundColor, threshold));
 
         sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
 
@@ -27,10 +26,17 @@ public class BlobSequence extends ArrayList<Blob> {
 
     public BlobSequence(List<Blob> unorderedBlobs, int primaryOrder, int secondaryOrder) {
         super(unorderedBlobs);
+
         sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
 
         this.primaryOrder = primaryOrder;
         this.secondaryOrder = secondaryOrder;
+    }
+
+    public String toString() {
+        StringBuilder text = new StringBuilder();
+        forEach(blob -> text.append(blob.toString()).append(", "));
+        return text.toString();
     }
 
     public static List<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
@@ -80,7 +86,6 @@ public class BlobSequence extends ArrayList<Blob> {
     public static List<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         List<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold);
         mergeBlobs(blobs);
-        //blobs.sort((a, b) -> a.compareTo(b, LEFT_TO_RIGHT, TOP_TO_BOTTOM));
 
         return blobs;
     }

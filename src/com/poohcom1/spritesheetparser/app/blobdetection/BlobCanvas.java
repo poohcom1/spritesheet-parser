@@ -15,6 +15,7 @@ public class BlobCanvas extends ZoomableComponent {
     // Options
     private boolean _showBlobs = true;
     private boolean _showPoints = true;
+    private boolean _showNumbers = true;
     private Color _blobColor = Color.RED;
     private Color _pointColor = new Color(0, 0, 255, 128);
 
@@ -41,13 +42,18 @@ public class BlobCanvas extends ZoomableComponent {
         this.points = points;
     }
 
-    public void toggleBlobs() {
-        _showBlobs = !_showBlobs;
+    public void setShowBlobs(boolean showBlobs) {
+        _showBlobs = showBlobs;
         repaint();
     }
 
-    public void togglePoints() {
-        _showPoints = !_showPoints;
+    public void setShowNumbers(boolean showNumbers) {
+        _showNumbers = showNumbers;
+        repaint();
+    }
+
+    public void setShowPoints(boolean showPoints) {
+        _showPoints = showPoints;
         repaint();
     }
 
@@ -68,8 +74,10 @@ public class BlobCanvas extends ZoomableComponent {
                 g.setColor(_blobColor);
                 g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width, rect.height);
 
-                g.setColor(Color.BLUE);
-                g.drawString(String.valueOf(i), (int) (rect.x + rect.width * 0.75)  + xOffset, rect.y + rect.height + yOffset);
+                if (_showNumbers) {
+                    g.setColor(Color.BLUE);
+                    g.drawString(String.valueOf(i), (int) (rect.x + rect.width * 0.75)  + xOffset, rect.y + rect.height + yOffset);
+                }
             }
         }
 

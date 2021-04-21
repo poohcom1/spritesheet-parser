@@ -19,7 +19,7 @@ public class BlobSequence extends ArrayList<Blob> {
     private final int primaryOrder;
     private final int secondaryOrder;
 
-    public BlobSequence(BufferedImage image, int[] backgroundColor, int threshold,int primaryOrder, int secondaryOrder) {
+    public BlobSequence(BufferedImage image, int[] backgroundColor, int threshold, int primaryOrder, int secondaryOrder) {
         super(detectBlobs(image, backgroundColor, threshold));
 
         sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));

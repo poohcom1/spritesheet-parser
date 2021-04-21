@@ -1,8 +1,6 @@
 package com.poohcom1.spritesheetparser.app;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -13,6 +11,9 @@ public class ZoomablePanel extends JScrollPane {
     private int previousX = -1;
     private int previousY = -1;
 
+    private int mouseX = 0;
+    private int mouseY = 0;
+
     public ZoomablePanel(ZoomableComponent children) {
         super(children);
 
@@ -21,20 +22,45 @@ public class ZoomablePanel extends JScrollPane {
         setFocusable(true);
         setWheelScrollingEnabled(false);
 
-        children.addMouseListener(new MouseAdapter() {
+        // Reset moving position
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 previousY = -1; previousX = -1;
             }
         });
 
-        children.addMouseMotionListener(new MouseAdapter() {
+        // THANK YOU MY BRO https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
+        addMouseWheelListener(e -> {
+            final float ZOOM_AMOUNT = 0.2f;
+
+            float zoomFactor = ZOOM_AMOUNT;
+
+            if (e.getWheelRotation() > 0 && children.xScale > 1.0) {
+                children.zoomOut(ZOOM_AMOUNT);
+                zoomFactor = -zoomFactor;
+            } else if (e.getWheelRotation() < 0)
+                children.zoomIn(ZOOM_AMOUNT);
+
+            children.setPreferredSize(children.getScaledSize());
+            children.setSize(children.getScaledSize());
+
+            Point pos = this.getViewport().getViewPosition();
+
+            int newX = (int)(e.getX()*(zoomFactor) + (1.0 + zoomFactor)*pos.x);
+            int newY = (int)(e.getY()*(zoomFactor) + (1.0 + zoomFactor)*pos.y);
+            this.getViewport().setViewPosition(new Point(newX, newY));
+        });
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX(); mouseY=e.getY();
+            }
+
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
-
-                int currentX = viewport.getViewPosition().x;
-                int currentY = viewport.getViewPosition().y;
 
                 if (previousX == -1) previousX = e.getXOnScreen();
                 if (previousY == -1) previousY = e.getYOnScreen();
@@ -45,11 +71,7 @@ public class ZoomablePanel extends JScrollPane {
                 previousX = e.getXOnScreen();
                 previousY = e.getYOnScreen();
 
-                Point newPos = new Point(currentX - deltaX, currentY - deltaY);
-                if (newPos.x < 0) newPos.x = 0;
-                if (newPos.y < 0) newPos.y = 0;
-
-                viewport.setViewPosition(newPos);
+                moveViewport(-deltaX, -deltaY);
             }
         });
 
@@ -72,14 +94,30 @@ public class ZoomablePanel extends JScrollPane {
                     moveX = panAmount;
                 }
 
-                Point newPoint = viewport.getViewPosition();
-                newPoint.x += moveX;
-                newPoint.y += moveY;
-
-                viewport.setViewPosition(newPoint);
+                moveViewport(moveX, moveY);
             }
         });
     }
 
 
+    private void moveViewport(int xMove, int yMove) {
+        Point newPosition = viewport.getViewPosition();
+
+        newPosition.x += xMove;
+        newPosition.y += yMove;
+
+        if (newPosition.x < 0) newPosition.x = 0;
+        if (newPosition.y < 0) newPosition.y = 0;
+
+        viewport.setViewPosition(newPosition);
+    }
+
+    private void setViewportPosition(int xPos, int yPos) {
+        if (xPos < 0) xPos = 0;
+        if (yPos < 0) yPos = 0;
+
+        Point newPosition = new Point(xPos, yPos);
+
+        viewport.setViewPosition(newPosition);
+    }
 }

@@ -16,16 +16,6 @@ public class ZoomableComponent extends JComponent {
     public ZoomableComponent(int width, int height) {
         this.width = width;
         this.height = height;
-
-        addMouseWheelListener(e -> {
-            if (e.getWheelRotation() > 0) {
-                zoomOut(0.1f);
-            } else if (e.getWheelRotation() < 0)
-                zoomIn(0.1f);
-
-            setPreferredSize(getScaledSize());
-            setSize(getScaledSize());
-        });
     }
 
     @Override
@@ -33,7 +23,7 @@ public class ZoomableComponent extends JComponent {
         return new Dimension(getScaledWidth(), getScaledHeight());
     }
 
-    private Dimension getScaledSize() {
+    Dimension getScaledSize() {
         return new Dimension(getScaledWidth(), getScaledHeight());
     }
 
@@ -45,14 +35,22 @@ public class ZoomableComponent extends JComponent {
         return (int) (height*yScale*PANEL_SCALE);
     }
 
+    public double getXZoom() {
+        return xScale;
+    }
+
+    public double getYZoom() {
+        return yScale;
+    }
+
     public void zoomIn(float zoomAmount) {
-        xScale += zoomAmount;
-        yScale += zoomAmount;
+        xScale *= 1.0 + zoomAmount;
+        yScale *= 1.0 + zoomAmount;
     }
 
     public void zoomOut(float zoomAmount) {
-        xScale -= zoomAmount;
-        yScale -= zoomAmount;
+        xScale *= 1.0 - zoomAmount;
+        yScale *= 1.0 - zoomAmount;
     }
 
     protected Graphics2D zoomChildren(Graphics graphics) {

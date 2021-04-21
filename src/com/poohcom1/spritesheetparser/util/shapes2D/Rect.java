@@ -63,12 +63,17 @@ public class Rect extends Rectangle {
         return false;
     }
 
-
     public String toString() {
         return "(" + x + ", " + y + ", " + (x + width) + ", " + (y + height) + ")";
     }
 
     public int[] getSides() {
         return new int[] {x, y, x + width, y + height};
+    }
+
+    // Allows checks for rects with height or width of 0
+    @Override
+    public boolean contains(Rectangle r) {
+        return r.x >= x && r.x+r.width <= x + width && r.y >= y && r.y + r.height <= y + height;
     }
 }

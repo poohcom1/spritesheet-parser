@@ -14,17 +14,11 @@ public class Blob extends Rect implements Comparable<Blob> {
     public Blob(int x, int y) {
         super(x, y, x, y);
 
-        width++;
-        height++;
-
         points = new ArrayList<>();
     }
 
     public Blob(int minX, int minY, int maxX, int maxY) {
         super(minX, minY, maxX, maxY);
-
-        width++;
-        height++;
 
         this.points = new ArrayList<>();
     }
@@ -58,7 +52,7 @@ public class Blob extends Rect implements Comparable<Blob> {
 
     // If a blob is touching this blob
     public boolean shouldMerge(Blob other) {
-        return intersects(other) || touches(other);
+        return intersects(other) || touches(other) || contains(other) || other.contains(this);
     }
 
     public boolean isNear(int x, int y, int threshold) {

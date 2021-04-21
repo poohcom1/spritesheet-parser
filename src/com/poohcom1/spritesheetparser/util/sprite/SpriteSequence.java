@@ -64,9 +64,13 @@ public class SpriteSequence extends ArrayList<Sprite> {
                     xOffset = blob.x - rowDimensions.x;
                 }
 
-                BufferedImage subImage = image.getSubimage(blob.x, blob.y, blob.width+1, blob.height+1);
+                // TODO: Why the hell is this even necessary
+                BufferedImage subImage = image.getSubimage(blob.x, blob.y,
+                        blob.width+1,
+                        blob.height+1);
 
                 Sprite spr = new Sprite(subImage, xOffset, yOffset, sheetDimensions.width, sheetDimensions.height);
+                spr.align(Sprite.CENTER_ALIGN_X);
 
                 spriteList.add(spr);
             }

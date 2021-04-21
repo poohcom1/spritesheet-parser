@@ -5,6 +5,7 @@ import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
+import com.poohcom1.spritesheetparser.window.SpriteParserWindow;
 import com.poohcom1.spritesheetparser.window.testwindows.SpriteWindow;
 
 import javax.imageio.ImageIO;
@@ -24,12 +25,16 @@ public class Main {
         int[] background = ImageUtil.findBackgroundColor(spriteSheet);
         spriteSheet = ImageUtil.replaceColors(spriteSheet, background, alpha);
 
-        BlobSequence blobs = new BlobSequence(spriteSheet, new int[] {alpha}, 18, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
+        BlobSequence blobs = new BlobSequence(spriteSheet, new int[] {alpha}, 8, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
 
         SpriteSequence sprites = new SpriteSequence(spriteSheet, blobs);
 
+        for (int i = 0; i < sprites.size(); i++){
+            saveImage(sprites.get(i).getSprite(), i + "", "png");
+        }
 
-        //new SpriteParserWindow(spriteSheet, new int[] {alpha});
+
+        new SpriteParserWindow(spriteSheet, new int[] {alpha});
         new SpriteWindow(sprites, 12);
     }
 

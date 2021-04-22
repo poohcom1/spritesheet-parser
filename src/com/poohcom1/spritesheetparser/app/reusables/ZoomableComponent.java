@@ -2,7 +2,10 @@ package com.poohcom1.spritesheetparser.app.reusables;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 
 public abstract class ZoomableComponent extends JComponent {
     public final int width;
@@ -24,15 +27,22 @@ public abstract class ZoomableComponent extends JComponent {
         this.height = height;
     }
 
-    public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
-
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(getScaledWidth(), getScaledHeight());
     }
 
-    Dimension getScaledSize() {
-        return new Dimension(getScaledWidth(), getScaledHeight());
+    public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
+
+    protected Point2D transformedMousePos(MouseEvent e) {
+        Point2D mousePos = e.getPoint();
+        try {
+            transform.inverseTransform(mousePos, mousePos);
+            return mousePos;
+        } catch (NoninvertibleTransformException noninvertibleTransformException) {
+            noninvertibleTransformException.printStackTrace();
+        }
+        return null;
     }
 
     private int getScaledWidth() {
@@ -59,6 +69,15 @@ public abstract class ZoomableComponent extends JComponent {
     public void zoomOut(float zoomAmount) {
         xScale *= 1.0 - zoomAmount;
         yScale *= 1.0 - zoomAmount;
+    }
+
+
+    protected int getXOffset() {
+        return (int) ((width *  panelXScale - width)/2);
+    }
+
+    protected int getYOffset() {
+        return (int) ((height * panelYScale - height)/2);
     }
 
     @Override

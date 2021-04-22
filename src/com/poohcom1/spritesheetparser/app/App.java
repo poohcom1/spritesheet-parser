@@ -3,6 +3,7 @@ package com.poohcom1.spritesheetparser.app;
 import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
+import com.poohcom1.spritesheetparser.app.reusables.ZoomablePanel;
 
 import javax.swing.*;
 import java.awt.*;

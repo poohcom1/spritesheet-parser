@@ -1,11 +1,7 @@
 package com.poohcom1.spritesheetparser.util.shapes2D;
 
-import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
-import com.poohcom1.spritesheetparser.util.sprite.Sprite;
-
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.HashSet;
 import java.util.List;
 
 public class ShapesUtil {

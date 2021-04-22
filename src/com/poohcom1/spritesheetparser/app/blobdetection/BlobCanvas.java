@@ -1,11 +1,10 @@
 package com.poohcom1.spritesheetparser.app.blobdetection;
 
-import com.poohcom1.spritesheetparser.app.ZoomableComponent;
+import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;

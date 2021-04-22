@@ -1,8 +1,8 @@
 package com.poohcom1.spritesheetparser.util.cv;
 
 import com.poohcom1.spritesheetparser.util.shapes2D.Point;
-import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
+import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
 
 import java.util.ArrayList;
 import java.util.List;

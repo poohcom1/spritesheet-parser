@@ -1,25 +1,30 @@
 package com.poohcom1.spritesheetparser.app;
 
 import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomablePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class App {
-    private BlobCanvas blobCanvas;
 
     public App() throws IOException {
         JFrame window = new JFrame("Sprite Sheet Animator");
 
-        BufferedImage image = AppUtil.loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet2.png");
+        BufferedImage image = AppUtil.loadImage("src/com/poohcom1/spritesheetparser/assets/tarma.png");
 
         window.add(new BlobDetectionTools(image).mainPanel);
 
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.pack();
         window.setVisible(true);
     }
@@ -28,6 +33,8 @@ public class App {
         new App();
     }
 }
+
+// =============================== Blob Detection =====================================================
 
 class BlobDetectionTools {
     // Parameters
@@ -47,6 +54,7 @@ class BlobDetectionTools {
     private BlobSequence blobs;
 
     // Components
+    private ZoomablePanel blobPanel;
     private BlobCanvas blobCanvas;
     JPanel mainPanel;
 
@@ -55,17 +63,54 @@ class BlobDetectionTools {
         backgroundColors = ImageUtil.findBackgroundColor(image);
 
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(2, 1));
+        mainPanel.setLayout(new GridLayout(3, 1));
 
         // BLOB CANVAS
         blobCanvas = new BlobCanvas(image);
-        ZoomablePanel zoomBlobPanel = new ZoomablePanel(blobCanvas);
+        blobPanel = new ZoomablePanel(blobCanvas);
 
-        updateCanvas();
+        //updateCanvas();
 
         // BLOB
-        mainPanel.add(zoomBlobPanel);
+        mainPanel.add(blobPanel);
+        mainPanel.add(setCanvasOptions());
         mainPanel.add(setBlobOptions());
+    }
+
+    private final int MOVE_TOOL = 0;
+    private final int SELECT_TOOL = 1;
+    private int activeTool = 0;
+
+    private JPanel setCanvasOptions() {
+        JPanel optionsPanel = new JPanel();
+        optionsPanel.setLayout(new FlowLayout());
+        optionsPanel.setBorder(BorderFactory.createTitledBorder("Image Editing"));
+
+        List<JToggleButton> tools = new ArrayList<>();
+        tools.add(new JToggleButton("Move"));
+        tools.add(new JToggleButton("Select"));
+
+        tools.get(0).setSelected(true);
+
+        tools.forEach(button -> {
+            button.setFocusable(false);
+            button.addActionListener(e -> {
+                tools.forEach(otherButton -> otherButton.setSelected(false));
+                button.setSelected(true);
+                activeTool = tools.indexOf(button);
+
+                blobPanel.doMouseMove = false;
+                blobCanvas.doDrawMarquee = false;
+
+                switch (activeTool) {
+                    case MOVE_TOOL -> {blobPanel.doMouseMove = true;}
+                    case SELECT_TOOL -> {blobCanvas.doDrawMarquee = true;}
+                }
+            });
+            optionsPanel.add(button);
+        });
+
+        return optionsPanel;
     }
 
     private JPanel setBlobOptions() {

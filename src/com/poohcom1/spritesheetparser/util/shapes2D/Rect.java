@@ -11,6 +11,8 @@ public class Rect extends Rectangle {
     public final static int RIGHT = 2;
     public final static int BOTTOM = 3;
 
+    private Point anchor;
+
     public Rect() {}
 
     public Rect(int x1, int y1, int x2, int y2) {
@@ -37,6 +39,16 @@ public class Rect extends Rectangle {
         }
 
         return false;
+    }
+
+    public void setMaxX(int x) {
+        if (x < this.x) throw new IllegalArgumentException("Max x cannot be less than x!");
+        width = x - this.x;
+    }
+
+    public void setMaxY(int y) {
+        if (y < this.y) throw new IllegalArgumentException("Max y cannot be less than y!");
+        height = y - this.y;
     }
 
     public int maxX() {
@@ -69,6 +81,37 @@ public class Rect extends Rectangle {
 
     public int[] getSides() {
         return new int[] {x, y, x + width, y + height};
+    }
+
+    public void setAnchor() {
+        this.anchor = new Point(x, y);
+    }
+
+    public void setAnchor(int x, int y) {
+        this.anchor = new Point(x, y);
+    }
+
+    public void resizeWithAnchor(int x, int y) {
+        if (anchor == null) {
+            throw new Error("No anchors set.");
+        }
+
+        // Compare x
+        if (x > anchor.x) {
+            this.x = anchor.x;
+            setMaxX(x);
+        } else {
+            this.x = x;
+            setMaxX(anchor.x);
+        }
+
+        if (y > anchor.y) {
+            this.y = anchor.y;
+            setMaxY(y);
+        } else {
+            this.y = y;
+            setMaxY(anchor.y);
+        }
     }
 
     // Allows checks for rects with height or width of 0

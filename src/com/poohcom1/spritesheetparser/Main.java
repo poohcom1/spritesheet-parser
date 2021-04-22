@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedImage loadedImage = loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet2.png");
+        BufferedImage loadedImage = loadImage("src/com/poohcom1/spritesheetparser/assets/tarma.png");
         BufferedImage spriteSheet = new BufferedImage(loadedImage.getWidth(), loadedImage.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         spriteSheet.getGraphics().drawImage(loadedImage, 0, 0, null);
 

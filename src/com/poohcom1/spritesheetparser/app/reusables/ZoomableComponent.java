@@ -2,21 +2,30 @@ package com.poohcom1.spritesheetparser.app.reusables;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 
-public class ZoomableComponent extends JComponent {
-    private final int width;
-    private final int height;
+public abstract class ZoomableComponent extends JComponent {
+    public final int width;
+    public final int height;
 
-    protected final double PANEL_SCALE = 1.5;
+    protected double panelScale = 10.0;
+    public double panelXScale = 1.0;
+    public double panelYScale = 1.0;
+    protected int panelOffset = 0;
 
     protected double xScale = 1.0;
     protected double yScale = 1.0;
+
+    protected ZoomablePanel parentPanel;
 
     public ZoomableComponent(int width, int height) {
         this.width = width;
         this.height = height;
     }
+
+    public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
 
     @Override
     public Dimension getPreferredSize() {
@@ -28,11 +37,11 @@ public class ZoomableComponent extends JComponent {
     }
 
     private int getScaledWidth() {
-        return (int) (width*xScale*PANEL_SCALE);
+        return (int) (width*xScale* panelXScale + panelOffset *2);
     }
 
     private int getScaledHeight() {
-        return (int) (height*yScale*PANEL_SCALE);
+        return (int) (height*yScale* panelYScale + panelOffset *2);
     }
 
     public double getXZoom() {

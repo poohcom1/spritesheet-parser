@@ -5,17 +5,26 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class ZoomablePanel extends JScrollPane {
-    public float zoomAmount = 0.1f;
-    public int panAmount = 5;
+    public final int PAN_KEY = KeyEvent.VK_CONTROL;
+
+    public int panAmount = 50;
 
     private int previousX = -1;
     private int previousY = -1;
 
-    private int mouseX = 0;
-    private int mouseY = 0;
+    private boolean panKeyPressed = false;
 
-    public ZoomablePanel(ZoomableComponent children) {
-        super(children);
+    private final int MARGINS_X = 300;
+    private final int MARGINS_Y = 300;
+
+    public boolean doMouseMove = true;
+    public boolean doKeyMove = true;
+    public boolean doMouseZoom = true;
+
+
+    public ZoomablePanel(ZoomableComponent zoomComponent) {
+        super(zoomComponent);
+        zoomComponent.setParent(this);
 
         setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -23,82 +32,98 @@ public class ZoomablePanel extends JScrollPane {
         setWheelScrollingEnabled(false);
 
         // Reset moving position
-        addMouseListener(new MouseAdapter() {
+        viewport.getView().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 previousY = -1; previousX = -1;
             }
         });
 
+        zoomComponent.panelXScale = (float) (zoomComponent.width + MARGINS_X)/ zoomComponent.width;
+        zoomComponent.panelYScale = (float) (zoomComponent.height + MARGINS_Y)/zoomComponent.height;
+
         // THANK YOU MY BRO https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
-        addMouseWheelListener(e -> {
-            final float ZOOM_AMOUNT = 0.2f;
-
-            float zoomFactor = ZOOM_AMOUNT;
-
-            if (e.getWheelRotation() > 0 && children.xScale > 1.0) {
-                children.zoomOut(ZOOM_AMOUNT);
-                zoomFactor = -zoomFactor;
-            } else if (e.getWheelRotation() < 0)
-                children.zoomIn(ZOOM_AMOUNT);
-
-            children.setPreferredSize(children.getScaledSize());
-            children.setSize(children.getScaledSize());
-
-            Point pos = this.getViewport().getViewPosition();
-
-            int newX = (int)(e.getX()*(zoomFactor) + (1.0 + zoomFactor)*pos.x);
-            int newY = (int)(e.getY()*(zoomFactor) + (1.0 + zoomFactor)*pos.y);
-            this.getViewport().setViewPosition(new Point(newX, newY));
+        viewport.getView().addMouseWheelListener(e -> {
+            if (doMouseZoom) mouseWheel_zoom(e, zoomComponent);
         });
 
-        addMouseMotionListener(new MouseAdapter() {
-            @Override
+
+        viewport.getView().addMouseMotionListener(new MouseAdapter() {
             public void mouseMoved(MouseEvent e) {
-                mouseX = e.getX(); mouseY=e.getY();
+                super.mouseMoved(e);
             }
 
-            @Override
             public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-
-                if (previousX == -1) previousX = e.getXOnScreen();
-                if (previousY == -1) previousY = e.getYOnScreen();
-
-                int deltaX = e.getXOnScreen() - previousX;
-                int deltaY = e.getYOnScreen() - previousY;
-
-                previousX = e.getXOnScreen();
-                previousY = e.getYOnScreen();
-
-                moveViewport(-deltaX, -deltaY);
+                if (doMouseMove || panKeyPressed) mouseDragged_moveScreen(e);
             }
         });
 
         addKeyListener(new KeyAdapter() {
             @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == PAN_KEY) panKeyPressed = false;
+            }
+
             public void keyPressed(KeyEvent e) {
-                int moveX = 0;
-                int moveY = 0;
+                if (doKeyMove) keyPressed_moveScreen(e);
 
-                if (e.getKeyChar() == 'w') {
-                    moveY = -panAmount;
-                }
-                if (e.getKeyChar() == 's') {
-                    moveY = panAmount;
-                }
-                if (e.getKeyChar() == 'a') {
-                    moveX = -panAmount;
-                }
-                if (e.getKeyChar() == 'd') {
-                    moveX = panAmount;
-                }
-
-                moveViewport(moveX, moveY);
+                panKeyPressed = panKeyPressed || e.getKeyCode() == PAN_KEY;
             }
         });
     }
 
+
+
+    private void mouseWheel_zoom(MouseWheelEvent e, ZoomableComponent zoomComponent) {
+        final float ZOOM_AMOUNT = 0.2f;
+
+        float zoomFactor = ZOOM_AMOUNT;
+
+        if (e.getWheelRotation() > 0) {
+            zoomComponent.zoomOut(ZOOM_AMOUNT);
+            zoomFactor = -zoomFactor;
+        } else if (e.getWheelRotation() < 0)
+            zoomComponent.zoomIn(ZOOM_AMOUNT);
+
+        Point pos = this.getViewport().getViewPosition();
+
+        int newX = (int)(e.getX()*(zoomFactor) + (1.0 + zoomFactor)*pos.x);
+        int newY = (int)(e.getY()*(zoomFactor) + (1.0 + zoomFactor)*pos.y);
+        this.getViewport().setViewPosition(new Point(newX, newY));
+    }
+
+    private void mouseDragged_moveScreen(MouseEvent e) {
+        if (previousX == -1) previousX = e.getXOnScreen();
+        if (previousY == -1) previousY = e.getYOnScreen();
+
+        int deltaX = e.getXOnScreen() - previousX;
+        int deltaY = e.getYOnScreen() - previousY;
+
+        previousX = e.getXOnScreen();
+        previousY = e.getYOnScreen();
+
+        moveViewport(-deltaX, -deltaY);
+    }
+
+    private void keyPressed_moveScreen(KeyEvent e) {
+        int moveX = 0;
+        int moveY = 0;
+
+        if (e.getKeyChar() == 'w') {
+            moveY = -panAmount;
+        }
+        if (e.getKeyChar() == 's') {
+            moveY = panAmount;
+        }
+        if (e.getKeyChar() == 'a') {
+            moveX = -panAmount;
+        }
+        if (e.getKeyChar() == 'd') {
+            moveX = panAmount;
+        }
+
+        moveViewport(moveX, moveY);
+    }
 
     private void moveViewport(int xMove, int yMove) {
         Point newPosition = viewport.getViewPosition();

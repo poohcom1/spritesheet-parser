@@ -12,7 +12,7 @@ public class ZoomablePanel extends JScrollPane {
     private int previousX = -1;
     private int previousY = -1;
 
-    private boolean panKeyPressed = false;
+    public boolean panKeyPressed = false;
 
     private final int MARGINS_X = 300;
     private final int MARGINS_Y = 300;

@@ -42,8 +42,7 @@ public class BlobCanvas extends ZoomableComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (doDrawMarquee) {
-                    System.out.println(e.getButton());
+                if (doDrawMarquee && e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed) {
                     startMarquee(e.getX(), e.getY());
                     repaint();
                 }
@@ -52,7 +51,7 @@ public class BlobCanvas extends ZoomableComponent {
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
-                if (doDrawMarquee) {
+                if (doDrawMarquee && !parentPanel.panKeyPressed) {
                     drawMarquee(e.getX(), e.getY());
                     repaint();
                 }

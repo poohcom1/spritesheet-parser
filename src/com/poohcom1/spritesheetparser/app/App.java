@@ -20,7 +20,7 @@ public class App {
     public App() throws IOException {
         JFrame window = new JFrame("Sprite Sheet Animator");
 
-        BufferedImage image = AppUtil.loadImage("src/com/poohcom1/spritesheetparser/assets/tarma.png");
+        BufferedImage image = AppUtil.loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet1.png");
 
         window.add(new BlobDetectionTools(image).mainPanel);
 

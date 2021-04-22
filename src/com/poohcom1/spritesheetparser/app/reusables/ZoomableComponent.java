@@ -2,21 +2,20 @@ package com.poohcom1.spritesheetparser.app.reusables;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 
 public abstract class ZoomableComponent extends JComponent {
     public final int width;
     public final int height;
 
-    protected double panelScale = 10.0;
     public double panelXScale = 1.0;
     public double panelYScale = 1.0;
-    protected int panelOffset = 0;
 
+    // Zooming
     protected double xScale = 1.0;
     protected double yScale = 1.0;
+
+    protected AffineTransform transform = new AffineTransform();
 
     protected ZoomablePanel parentPanel;
 
@@ -37,11 +36,11 @@ public abstract class ZoomableComponent extends JComponent {
     }
 
     private int getScaledWidth() {
-        return (int) (width*xScale* panelXScale + panelOffset *2);
+        return (int) (width*xScale*panelXScale);
     }
 
     private int getScaledHeight() {
-        return (int) (height*yScale* panelYScale + panelOffset *2);
+        return (int) (height*yScale*panelYScale);
     }
 
     public double getXZoom() {
@@ -62,13 +61,10 @@ public abstract class ZoomableComponent extends JComponent {
         yScale *= 1.0 - zoomAmount;
     }
 
-    protected Graphics2D zoomChildren(Graphics graphics) {
-        Graphics2D g = (Graphics2D) graphics;
-
-        AffineTransform at = new AffineTransform();
-        at.scale(xScale,yScale);
-        g.transform(at);
-
-        return g;
+    @Override
+    protected void paintComponent(Graphics g) {
+        transform = new AffineTransform();
+        transform.scale(xScale, yScale);
+        ((Graphics2D) g).transform(transform);
     }
 }

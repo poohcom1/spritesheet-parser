@@ -9,6 +9,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +42,11 @@ public class BlobCanvas extends ZoomableComponent {
         marquees = new ArrayList<>();
 
         addMouseListener(new MouseAdapter() {
-            @Override
             public void mousePressed(MouseEvent e) {
+                Point2D mousePos = transformMousePos(e);
+
                 if (doDrawMarquee && e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed) {
-                    startMarquee(e.getX(), e.getY());
+                    startMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
                     repaint();
                 }
             }
@@ -51,12 +54,25 @@ public class BlobCanvas extends ZoomableComponent {
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
-                if (doDrawMarquee && !parentPanel.panKeyPressed) {
-                    drawMarquee(e.getX(), e.getY());
+                Point2D mousePos = transformMousePos(e);
+
+                if (doDrawMarquee && parentPanel.m1Pressed && !parentPanel.panKeyPressed) {
+                    drawMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
                     repaint();
                 }
             }
         });
+    }
+
+    private Point2D transformMousePos(MouseEvent e) {
+        Point2D mousePos = e.getPoint();
+        try {
+            transform.inverseTransform(mousePos, mousePos);
+            return mousePos;
+        } catch (NoninvertibleTransformException noninvertibleTransformException) {
+            noninvertibleTransformException.printStackTrace();
+        }
+        return null;
     }
 
     public void startMarquee(int x, int y) {
@@ -70,14 +86,22 @@ public class BlobCanvas extends ZoomableComponent {
         marquees.get(marquees.size()-1).resizeWithAnchor(x, y);
     }
 
+    private int getXOffset() {
+        return (int) ((image.getWidth()*  panelXScale - image.getWidth())/2);
+    }
+
+    private int getYOffset() {
+        return (int) ((image.getHeight() * panelYScale - image.getHeight())/2);
+    }
+
     @Override
-    public void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
-        int xOffset = (int) ((image.getWidth()* panelXScale - image.getWidth())/2) + panelOffset;
-        int yOffset = (int) ((image.getHeight()* panelYScale - image.getHeight())/2) + panelOffset;
+        int xOffset = getXOffset();
+        int yOffset = getYOffset();
 
-        Graphics2D g = zoomChildren(graphics);
+        //Graphics2D g = zoomComponent(graphics);
 
         g.drawImage(image, xOffset, yOffset, null);
 
@@ -101,7 +125,7 @@ public class BlobCanvas extends ZoomableComponent {
             }
         }
 
-        g.setStroke(new BasicStroke(
+        ((Graphics2D)g).setStroke(new BasicStroke(
                 1.0f,                      // Width
                 BasicStroke.CAP_SQUARE,    // End cap
                 BasicStroke.JOIN_MITER,    // Join style

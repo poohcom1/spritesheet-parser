@@ -12,7 +12,12 @@ public class ZoomablePanel extends JScrollPane {
     private int previousX = -1;
     private int previousY = -1;
 
+    // Mouse events
     public boolean panKeyPressed = false;
+    public boolean m1Pressed = false;
+    public boolean m2Pressed = false;
+    public boolean m3Pressed = false;
+
 
     private final int MARGINS_X = 300;
     private final int MARGINS_Y = 300;
@@ -33,8 +38,20 @@ public class ZoomablePanel extends JScrollPane {
 
         // Reset moving position
         viewport.getView().addMouseListener(new MouseAdapter() {
-            @Override
+            public void mousePressed(MouseEvent e) {
+                switch (e.getButton()) {
+                    case MouseEvent.BUTTON1 -> m1Pressed = true;
+                    case MouseEvent.BUTTON2 -> m2Pressed = true;
+                    case MouseEvent.BUTTON3 -> m3Pressed = true;
+                }
+            }
+
             public void mouseReleased(MouseEvent e) {
+                switch (e.getButton()) {
+                    case MouseEvent.BUTTON1 -> m1Pressed = false;
+                    case MouseEvent.BUTTON2 -> m2Pressed = false;
+                    case MouseEvent.BUTTON3 -> m3Pressed = false;
+                }
                 previousY = -1; previousX = -1;
             }
         });
@@ -43,7 +60,7 @@ public class ZoomablePanel extends JScrollPane {
         zoomComponent.panelYScale = (float) (zoomComponent.height + MARGINS_Y)/zoomComponent.height;
 
         // THANK YOU MY BRO https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
-        viewport.getView().addMouseWheelListener(e -> {
+        addMouseWheelListener(e -> {
             if (doMouseZoom) mouseWheel_zoom(e, zoomComponent);
         });
 
@@ -54,7 +71,7 @@ public class ZoomablePanel extends JScrollPane {
             }
 
             public void mouseDragged(MouseEvent e) {
-                if (doMouseMove || panKeyPressed) mouseDragged_moveScreen(e);
+                if (doMouseMove || panKeyPressed || m2Pressed) mouseDragged_moveScreen(e);
             }
         });
 
@@ -89,7 +106,7 @@ public class ZoomablePanel extends JScrollPane {
 
         int newX = (int)(e.getX()*(zoomFactor) + (1.0 + zoomFactor)*pos.x);
         int newY = (int)(e.getY()*(zoomFactor) + (1.0 + zoomFactor)*pos.y);
-        this.getViewport().setViewPosition(new Point(newX, newY));
+        viewport.setViewPosition(new Point(newX, newY));
     }
 
     private void mouseDragged_moveScreen(MouseEvent e) {

@@ -14,7 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DrawCanvas extends ZoomableComponent {
-    public boolean doDrawMarquee = false;
+    // Tools
+    public static final int MOVE_TOOL = 0;
+    public static final int MARQUEE_TOOL = 1;
+    public static final int PEN_TOOL = 2;
+
+    public int toolIndex = 0;
 
     // Objects
     private List<Rect> marquees;
@@ -30,10 +35,24 @@ public class DrawCanvas extends ZoomableComponent {
             public void mousePressed(MouseEvent e) {
                 Point2D mousePos = transformedMousePos(e);
 
-                if (doDrawMarquee && e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed) {
-                    startMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
-                    repaint();
+                parentPanel.setMouseZoom(false);
+                parentPanel.setMouseMove(false);
+
+                switch (toolIndex) {
+                    case MOVE_TOOL -> {
+                        parentPanel.setMouseMove(true);
+                        parentPanel.setMouseZoom(true);
+                    }
+                    case MARQUEE_TOOL -> {
+                        if (e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed()) {
+                            startMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
+                            repaint();
+                        }
+                    }
+                    case PEN_TOOL -> {}
                 }
+
+
             }
         });
 
@@ -41,9 +60,13 @@ public class DrawCanvas extends ZoomableComponent {
             public void mouseDragged(MouseEvent e) {
                 Point2D mousePos = transformedMousePos(e);
 
-                if (doDrawMarquee && parentPanel.m1Pressed && !parentPanel.panKeyPressed) {
-                    drawMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
-                    repaint();
+                switch (toolIndex) {
+                    case MARQUEE_TOOL -> {
+                        if (parentPanel.m1Pressed() && !parentPanel.panKeyPressed()) {
+                            drawMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
+                            repaint();
+                        }
+                    }
                 }
             }
         });

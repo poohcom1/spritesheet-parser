@@ -77,8 +77,7 @@ class BlobDetectionTools {
         mainPanel.add(setBlobOptions());
     }
 
-    private final int MOVE_TOOL = 0;
-    private final int SELECT_TOOL = 1;
+
     private int activeTool = 0;
 
     private JPanel setCanvasOptions() {
@@ -99,13 +98,7 @@ class BlobDetectionTools {
                 button.setSelected(true);
                 activeTool = tools.indexOf(button);
 
-                blobPanel.doMouseMove = false;
-                blobCanvas.doDrawMarquee = false;
-
-                switch (activeTool) {
-                    case MOVE_TOOL -> {blobPanel.doMouseMove = true;}
-                    case SELECT_TOOL -> {blobCanvas.doDrawMarquee = true;}
-                }
+                blobCanvas.toolIndex = activeTool;
             });
             optionsPanel.add(button);
         });

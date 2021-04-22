@@ -13,18 +13,17 @@ public class ZoomablePanel extends JScrollPane {
     private int previousY = -1;
 
     // Mouse events
-    public boolean panKeyPressed = false;
-    public boolean m1Pressed = false;
-    public boolean m2Pressed = false;
-    public boolean m3Pressed = false;
+    private boolean panKeyPressed = false;
+    private boolean m1Pressed = false;
+    private boolean m2Pressed = false;
+    private boolean m3Pressed = false;
 
+    private boolean doMouseMove = true;
+    private boolean doKeyMove = true;
+    private boolean doMouseZoom = true;
 
     private final int MARGINS_X = 300;
     private final int MARGINS_Y = 300;
-
-    public boolean doMouseMove = true;
-    public boolean doKeyMove = true;
-    public boolean doMouseZoom = true;
 
 
     public ZoomablePanel(ZoomableComponent zoomComponent) {
@@ -89,7 +88,13 @@ public class ZoomablePanel extends JScrollPane {
         });
     }
 
-
+    public boolean panKeyPressed() {return panKeyPressed;}
+    public boolean m1Pressed() {return m1Pressed;}
+    public boolean m2Pressed() {return m2Pressed;}
+    public boolean m3Pressed() {return m3Pressed;}
+    public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}
+    public void setKeyMove(boolean doKeyMove) {this.doKeyMove = doKeyMove;}
+    public void setMouseZoom(boolean doKeyMove) {this.doMouseZoom = doMouseMove;}
 
     private void mouseWheel_zoom(MouseWheelEvent e, ZoomableComponent zoomComponent) {
         final float ZOOM_AMOUNT = 0.2f;

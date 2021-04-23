@@ -217,7 +217,6 @@ public class App {
 
             backgroundColors = ImageUtil.findBackgroundColor(image);
 
-
             mainPanel.setLayout(new GridLayout(3, 1));
 
             // Components

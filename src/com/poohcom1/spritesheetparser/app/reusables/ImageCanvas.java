@@ -27,6 +27,8 @@ public class ImageCanvas extends ZoomableComponent {
     private Tool toolIndex = Tool.MOVE;
 
     // Objects
+    protected int maxMarqueeCount;
+
     protected List<Rect> marquees;
     protected List<Point> penPoints;
 
@@ -37,6 +39,7 @@ public class ImageCanvas extends ZoomableComponent {
     public ImageCanvas(int width, int height) {
         super(width, height);
 
+        maxMarqueeCount = 100;
         marquees = new ArrayList<>();
         penPoints = new ArrayList<>();
 
@@ -47,12 +50,10 @@ public class ImageCanvas extends ZoomableComponent {
                 parentPanel.setMouseMove(false);
 
                 switch (toolIndex) {
-                    case MOVE -> {
-                        parentPanel.setMouseMove(true);
-                    }
+                    case MOVE -> parentPanel.setMouseMove(true);
                     case MARQUEE -> {
                         if (e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed()) {
-                            startMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
+                            startMarquee(mousePos);
                             repaint();
                         }
                     }
@@ -70,10 +71,11 @@ public class ImageCanvas extends ZoomableComponent {
                 switch (toolIndex) {
                     case MARQUEE -> {
                         if (parentPanel.m1Pressed() && !parentPanel.panKeyPressed()) {
-                            dragMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
+                            dragMarquee((Point) mousePos);
                             repaint();
                         }
                     }
+                    case PEN -> {}
                 }
             }
         });
@@ -96,26 +98,31 @@ public class ImageCanvas extends ZoomableComponent {
         if (_dashPhase >= 4.0f) _dashPhase = 0f;
     }
 
-    public void startMarquee(int x, int y) {
-        if (x < getXOffset()) x = getXOffset();
-        if (y < getYOffset()) y = getYOffset();
-        if (x > getXOffset() + width) x = getXOffset() + width;
-        if (y > getYOffset() + height) y = getYOffset() + height;
+    public void startMarquee(Point2D point2D) {
+        Point point = clampPoint(point2D);
 
-        Rect newMarquee = new Rect(x, y, x, y);
+        Rect newMarquee = new Rect(point, point);
         newMarquee.setAnchor();
+
+        if (marquees.size() == maxMarqueeCount) {
+            marquees.remove(0);
+        }
         marquees.add(newMarquee);
     }
 
-    public void dragMarquee(int x, int y) {
+    public void dragMarquee(Point pos) {
         if (marquees.isEmpty()) return;
+        marquees.get(marquees.size()-1).resizeWithAnchor(clampPoint(pos));
+    }
+
+    private Point clampPoint(Point2D point) {
+        int x = (int) point.getX(); int y = (int) point.getY();
         if (x < getXOffset()) x = getXOffset();
         if (y < getYOffset()) y = getYOffset();
         if (x > getXOffset() + width) x = getXOffset() + width;
         if (y > getYOffset() + height) y = getYOffset() + height;
-        marquees.get(marquees.size()-1).resizeWithAnchor(x, y);
+        return new Point(x, y);
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {

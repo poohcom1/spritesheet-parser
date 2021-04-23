@@ -87,8 +87,14 @@ public class Rect extends Rectangle {
         this.anchor = new Point(x, y);
     }
 
+    public void setAnchor(Point point) {setAnchor(point.x, point.y);}
+
     public void setAnchor(int x, int y) {
         this.anchor = new Point(x, y);
+    }
+
+    public void resizeWithAnchor(Point point) {
+        resizeWithAnchor(point.x, point.y);
     }
 
     public void resizeWithAnchor(int x, int y) {

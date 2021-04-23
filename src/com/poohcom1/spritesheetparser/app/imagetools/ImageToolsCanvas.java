@@ -12,6 +12,7 @@ public class ImageToolsCanvas extends ImageCanvas {
 
     public ImageToolsCanvas(BufferedImage spriteSheet) {
         super(spriteSheet.getWidth(), spriteSheet.getHeight());
+        maxMarqueeCount = 1;
         this.spriteSheet = spriteSheet;
         repaint();
     }
@@ -20,12 +21,6 @@ public class ImageToolsCanvas extends ImageCanvas {
         Rect marquee = marquees.get(0);
 
         return spriteSheet.getSubimage(marquee.x - getXOffset(), marquee.y - getYOffset(), marquee.width, marquee.height);
-    }
-
-    @Override
-    public void startMarquee(int x, int y) {
-        marquees.clear();
-        super.startMarquee(x, y);
     }
 
     @Override

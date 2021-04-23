@@ -34,8 +34,8 @@ public abstract class ZoomableComponent extends JComponent {
 
     public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
 
-    protected Point2D transformedMousePos(MouseEvent e) {
-        Point2D mousePos = e.getPoint();
+    protected Point transformedMousePos(MouseEvent e) {
+        Point mousePos = e.getPoint();
         try {
             transform.inverseTransform(mousePos, mousePos);
             return mousePos;

@@ -5,25 +5,22 @@ import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.geom.Point2D;
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ImageCanvas extends ZoomableComponent {
     // Tools
-    public enum Tool {
-        MOVE, MARQUEE, PEN
-    }
+    public static final String MOVE_TOOL = "move";
+    public static final String MARQUEE_TOOL = "marquee";
+    public static final String PEN_TOOL = "pen";
 
-    public static final int MOVE_TOOL = 0;
-    public static final int MARQUEE_TOOL = 1;
-    public static final int PEN_TOOL = 2;
-
-    private Tool toolIndex = Tool.MOVE;
+    private Map<String, MouseAdapter> toolMap;
 
     // Objects
     protected int maxMarqueeCount;
@@ -32,8 +29,12 @@ public class ImageCanvas extends ZoomableComponent {
     protected List<Point> penPoints;
 
     private float _dashPhase;
+    private float _dashInc = 0;
 
     ScheduledExecutorService animator;
+
+    List<MouseAdapter> mouseCallbacks;
+    MouseAdapter mousePressedToolCallback;
 
     public ImageCanvas(int width, int height) {
         super(width, height);
@@ -42,58 +43,63 @@ public class ImageCanvas extends ZoomableComponent {
         marquees = new ArrayList<>();
         penPoints = new ArrayList<>();
 
-        addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                Point mousePos = transformedMousePos(e);
-
-                parentPanel.setMouseMove(false);
-
-                switch (toolIndex) {
-                    case MOVE -> parentPanel.setMouseMove(true);
-                    case MARQUEE -> {
-                        if (e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed()) {
-                            startMarquee(mousePos);
-                            repaint();
-                        }
-                    }
-                    case PEN -> {}
-                }
-
-
-            }
-        });
-
-        addMouseMotionListener(new MouseMotionAdapter() {
-            public void mouseDragged(MouseEvent e) {
-                Point mousePos = transformedMousePos(e);
-
-                switch (toolIndex) {
-                    case MARQUEE -> {
-                        if (parentPanel.m1Pressed() && !parentPanel.panKeyPressed()) {
-                            dragMarquee(mousePos);
-                            repaint();
-                        }
-                    }
-                    case PEN -> {}
-                }
-            }
-        });
-
         _dashPhase = 0.0f;
         animator = Executors.newScheduledThreadPool(1);
 
         animator.scheduleAtFixedRate(() -> {
 
-            animatedDashPhase(0.1f);
+            animatedDashPhase();
             repaint();
 
         }, 0, (long) 16, TimeUnit.MILLISECONDS);
+
+        toolMap = new HashMap<>();
+        toolMap.put(MOVE_TOOL, moveToolCallback);
+        toolMap.put(MARQUEE_TOOL, marqueeToolCallback);
     }
 
-    public void setTool(int toolIndex) {this.toolIndex = Tool.values()[toolIndex];}
+    public void addTool(String name, MouseAdapter callback) {
+        toolMap.put(name, callback);
+    }
 
-    private void animatedDashPhase(float inc) {
-        _dashPhase += inc;
+    // Move tool
+    public final MouseAdapter moveToolCallback = new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            parentPanel.setMouseMove(true);
+        }
+    };
+
+    public final MouseAdapter marqueeToolCallback = new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            parentPanel.setMouseMove(false);
+
+            if (e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed()) {
+                startMarquee(inverseTransformPoint(e.getPoint()));
+                repaint();
+            }
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            dragMarquee(inverseTransformPoint(e.getPoint()));
+            repaint();
+        }
+    };
+
+    public void setTool(String tool) {
+        removeMouseListener(mousePressedToolCallback);
+        removeMouseMotionListener(mousePressedToolCallback);
+
+        mousePressedToolCallback = toolMap.get(tool);
+
+        addMouseListener(mousePressedToolCallback);
+        addMouseMotionListener(mousePressedToolCallback);
+    }
+
+    private void animatedDashPhase() {
+        _dashPhase += _dashInc;
         if (_dashPhase >= 4.0f) _dashPhase = 0f;
     }
 
@@ -111,11 +117,12 @@ public class ImageCanvas extends ZoomableComponent {
 
     public void dragMarquee(Point pos) {
         if (marquees.isEmpty()) return;
-        marquees.get(marquees.size()-1).resizeWithAnchor(clampPoint(pos));
+        marquees.get(marquees.size() - 1).resizeWithAnchor(clampPoint(pos));
     }
 
     private Point clampPoint(Point point) {
-        int x = (int) point.getX(); int y = (int) point.getY();
+        int x = (int) point.getX();
+        int y = (int) point.getY();
         if (x < getXOffset()) x = getXOffset();
         if (y < getYOffset()) y = getYOffset();
         if (x > getXOffset() + width) x = getXOffset() + width;
@@ -128,16 +135,48 @@ public class ImageCanvas extends ZoomableComponent {
         super.paintComponent(g);
     }
 
-    protected void drawMarquees(Graphics g) {
-        ((Graphics2D)g).setStroke(new BasicStroke(
-                (float) (1.0f/xScale),                      // Width
+    protected void drawMarquees(Graphics g){
+        double[] dashes = {4.0f, 1.0f};
+        try {
+            transform.inverseTransform(dashes, 0, dashes, 0, 1);
+        } catch (NoninvertibleTransformException e) {
+            e.printStackTrace();
+        }
+
+        float[] floatDashes = {(float) dashes[0], (float) dashes[0]};
+        _dashInc = (float) dashes[1];
+
+        ((Graphics2D) g).setStroke(new BasicStroke(
+                (float) (1.0f / xScale),                      // Width
                 BasicStroke.CAP_SQUARE,    // End cap
                 BasicStroke.JOIN_BEVEL,    // Join style
                 1.0f,                     // Miter limit
-                new float[] {(float) (2.0f), (float) (2.0f)},          // Dash pattern
+                floatDashes,          // Dash pattern
                 _dashPhase));
 
         g.setColor(Color.BLACK);
         marquees.forEach(marquee -> g.drawRect(marquee.x, marquee.y, marquee.width, marquee.height));
     }
+
+    protected void drawGrid(Graphics g) {
+        g.setColor(Color.DARK_GRAY);
+        ((Graphics2D) g).setStroke(new BasicStroke(
+                (float) (1.0f / xScale),                      // Width
+                BasicStroke.CAP_SQUARE,    // End cap
+                BasicStroke.JOIN_BEVEL));
+
+        int cols = (int) (width / 3 );
+        int rows = (int) (height / 3 );
+
+        // draw the rows
+        int rowHt = height / (rows);
+        for (int i = 0; i < rows; i++)
+            g.drawLine(getXOffset(), i * rowHt + getYOffset(), width + getXOffset()-1, i * rowHt + getYOffset());
+
+        // draw the columns
+        int rowWid = width / (cols);
+        for (int i = 0; i < cols; i++)
+            g.drawLine(i * rowWid + getXOffset(), getYOffset(), i * rowWid + getXOffset(), height + getYOffset()-1);
+    }
 }
+

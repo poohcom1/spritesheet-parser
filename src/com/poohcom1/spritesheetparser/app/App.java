@@ -4,29 +4,23 @@ import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
 import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
 import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
-import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomablePanel;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class App {
     private static JFrame window;
 
     private static BlobDetectionTools blobDetectionTools;
 
-    public App() throws IOException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public App() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         window = new JFrame("Sprite Sheet Animator");
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFocusable(false);
@@ -37,8 +31,10 @@ public class App {
 
         tabbedPane.addTab("Spritesheet Editing", new ImageTools().mainPanel);
         tabbedPane.addTab("Sprite Extraction", blobDetectionTools.mainPanel);
-        window.add(tabbedPane);
 
+        tabbedPane.addChangeListener(l -> window.pack());
+
+        window.add(tabbedPane);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.pack();
         window.setVisible(true);
@@ -67,20 +63,35 @@ public class App {
             mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
 
-            // UPPER IMAGE TOOLS PANEL
+            // ======================== LOWER CROP TOOLS PANEL ========================
+            JPanel performEditPanel = new JPanel();
+
+            JButton confirmButton = new JButton("Apply Edit");
+            confirmButton.setFocusable(false);
+            confirmButton.setEnabled(false);
+            confirmButton.addActionListener(l -> {
+                blobDetectionTools.init(((ImageToolsCanvas)imageToolsPane.getChild()).crop());
+                blobDetectionTools.mainPanel.repaint();
+            });
+
+            performEditPanel.add(confirmButton);
+
+            // ======================== UPPER IMAGE TOOLS PANEL ========================
             toolsPanel = new JPanel();
 
             JButton loadImage = new JButton("Load Spritesheet");
             ToggleButtonRadio toolButtons = new ToggleButtonRadio();
-            toolButtons.addButton("Move", ImageCanvas.Tool.MOVE.ordinal());
-            toolButtons.addButton("Select", ImageCanvas.Tool.MARQUEE.ordinal());
+
+            // ImageToolsCanvas imageCanvas = ((ImageToolsCanvas) imageToolsPane.getChild());
+
+            toolButtons.addButton("Move", () -> ((ImageToolsCanvas) imageToolsPane.getChild()).setTool(ImageCanvas.MOVE_TOOL));
+            toolButtons.addButton("Select", () -> ((ImageToolsCanvas) imageToolsPane.getChild()).setTool(ImageCanvas.MARQUEE_TOOL));
+            toolButtons.addButton("Set background", () -> ((ImageToolsCanvas) imageToolsPane.getChild()).setTool(ImageToolsCanvas.COLOR_PICKER_TOOL));
 
             toolButtons.setButtonsEnabled(false);
 
             toolsPanel.add(loadImage);
             toolsPanel.add(toolButtons);
-
-            toolButtons.addButtonToggledListener(i -> ((ImageCanvas) imageToolsPane.getChild()).setTool(i));
 
             loadImage.setFocusable(false);
             loadImage.addActionListener((e) -> {
@@ -102,11 +113,10 @@ public class App {
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
                             mainPanel.revalidate();
 
-                            blobDetectionTools.init(spriteSheet);
-
                             window.pack();
                             window.revalidate();
 
+                            confirmButton.setEnabled(true);
                             toolButtons.setButtonsEnabled(true);
                         } else {
                             //TODO: Add error dialog box
@@ -117,10 +127,8 @@ public class App {
                 }
             });
 
-            // LOWER CROP TOOLS PANEL
-            JPanel performEditPanel = new JPanel();
-
             mainPanel.add(toolsPanel, BorderLayout.NORTH);
+            mainPanel.add(performEditPanel, BorderLayout.SOUTH);
         }
 
     }
@@ -193,10 +201,10 @@ public class App {
 
         ZoomablePanel blobPanel;
 
-        final JPanel mainPanel;
+        JPanel mainPanel;
 
         // Modals
-        private JTextField noImage = new JTextField("No sprites loaded");
+        private final JTextField noImage = new JTextField("No sprites loaded");
 
         public BlobDetectionTools(BufferedImage image) {
             this.image = image;
@@ -213,7 +221,7 @@ public class App {
         private void init(BufferedImage image) {
             this.image = image;
 
-            mainPanel.remove(noImage);
+            mainPanel.removeAll();
 
             backgroundColors = ImageUtil.findBackgroundColor(image);
 
@@ -221,22 +229,25 @@ public class App {
 
             // Components
             blobPanel = new ZoomablePanel(new BlobCanvas(image));
-            //updateCanvas();
+            blobPanel.centerZoom();
+            updateCanvas();
 
             // BLOB
             mainPanel.add(blobPanel);
             mainPanel.add(setCanvasOptions());
             mainPanel.add(setBlobOptions());
+            mainPanel.revalidate();
         }
 
 
         private JPanel setCanvasOptions() {
             ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
 
-            optionsPanel.addButton("Move", ImageCanvas.Tool.MOVE.ordinal());
-            optionsPanel.addButton("Select", ImageCanvas.Tool.MARQUEE.ordinal());
+            BlobCanvas imageCanvas = (BlobCanvas) blobPanel.getChild();
 
-            optionsPanel.addButtonToggledListener(i -> ((ImageCanvas) blobPanel.getChild()).setTool(i));
+            optionsPanel.addButton("Move", () -> imageCanvas.setTool(ImageCanvas.MOVE_TOOL));
+            optionsPanel.addButton("Select", () -> imageCanvas.setTool(ImageCanvas.MARQUEE_TOOL));
+
 
             return optionsPanel;
         }
@@ -285,7 +296,7 @@ public class App {
         }
 
         private JPanel setBlobDirectionOption() {
-            final String[] BLOB_DIRECTION = {"Horizontal Ordering", "Vertical Ordering"};
+            final String[] BLOB_DIRECTION = {"Horizontal", "Vertical", "Horizontal Reversed", "Vertical Reversed"};
 
             JComboBox<String> blobDirection = new JComboBox<>(BLOB_DIRECTION);
 
@@ -297,6 +308,13 @@ public class App {
                     }
                     case 1 -> {
                         primaryOrder = BlobSequence.TOP_TO_BOTTOM;
+                        secondaryOrder = BlobSequence.LEFT_TO_RIGHT;
+                    }case 2 -> {
+                        primaryOrder = BlobSequence.RIGHT_TO_LEFT;
+                        secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
+                    }
+                    case 3 -> {
+                        primaryOrder = BlobSequence.BOTTOM_TO_TOP;
                         secondaryOrder = BlobSequence.LEFT_TO_RIGHT;
                     }
                 }

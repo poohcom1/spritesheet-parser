@@ -22,8 +22,8 @@ public class ZoomablePanel extends JScrollPane {
     private boolean doKeyMove = true;
     private boolean doMouseZoom = true;
 
-    private final int MARGINS_X = 300;
-    private final int MARGINS_Y = 300;
+    private final int MARGINS_X = 50;
+    private final int MARGINS_Y = 50;
 
     // Child component
     private ZoomableComponent child;
@@ -100,6 +100,15 @@ public class ZoomablePanel extends JScrollPane {
     public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}
     public void setKeyMove(boolean doKeyMove) {this.doKeyMove = doKeyMove;}
     public void setMouseZoom(boolean doKeyMove) {this.doMouseZoom = doMouseMove;}
+
+    public void centerZoom() {
+        Rectangle bounds = viewport.getViewRect();
+        Dimension size = viewport.getSize();
+
+        int x = (size.width - bounds.width)/2;
+        int y = (size.height - bounds.height)/2;
+        viewport.setViewPosition(new Point(x, y));
+    }
 
     private void mouseWheel_zoom(MouseWheelEvent e, ZoomableComponent zoomComponent) {
         final float ZOOM_AMOUNT = 0.2f;

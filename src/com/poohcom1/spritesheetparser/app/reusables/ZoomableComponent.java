@@ -34,15 +34,24 @@ public abstract class ZoomableComponent extends JComponent {
 
     public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
 
-    protected Point transformedMousePos(MouseEvent e) {
-        Point mousePos = e.getPoint();
+    /**
+     * Transform a position to the corresponding inversed affine transformed coordinate
+     * @param pos A Point position
+     * @return The transformed Point position
+     */
+    protected Point inverseTransformPoint(Point pos) {
         try {
-            transform.inverseTransform(mousePos, mousePos);
-            return mousePos;
+            transform.inverseTransform(pos, pos);
+            return pos;
         } catch (NoninvertibleTransformException noninvertibleTransformException) {
             noninvertibleTransformException.printStackTrace();
         }
         return null;
+    }
+
+    protected Point transformPoint(Point pos) {
+        transform.transform(pos, pos);
+        return pos;
     }
 
     private int getScaledWidth() {

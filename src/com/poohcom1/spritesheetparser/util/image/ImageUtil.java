@@ -45,6 +45,7 @@ public class ImageUtil {
         int[] editPixel(int[] rgba, int x, int y);
     }
 
+
     public static BufferedImage pointProcessing(BufferedImage image, PixelEditor pixelEditor) {
         return pointProcessing(image, pixelEditor, true);
     }

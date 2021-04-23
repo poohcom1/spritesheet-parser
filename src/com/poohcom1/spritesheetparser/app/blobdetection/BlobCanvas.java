@@ -37,6 +37,8 @@ public class BlobCanvas extends ImageCanvas {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        Stroke defaultStroke = ((Graphics2D) g).getStroke();
+
         int xOffset = getXOffset();
         int yOffset = getYOffset();
 
@@ -46,7 +48,14 @@ public class BlobCanvas extends ImageCanvas {
             for (int i = 0; i < blobs.size(); i++) {
                 Rect rect = blobs.get(i);
                 g.setColor(_blobColor);
-                g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width, rect.height);
+                ((Graphics2D)g).setStroke(new BasicStroke(
+                        (float) (1.5f/xScale),                      // Width
+                        BasicStroke.CAP_SQUARE,    // End cap
+                        BasicStroke.JOIN_BEVEL,    // Join style
+                        1.0f,                     // Miter limit
+                        new float[] {(float) (2.0f), (float) (2.0f)},          // Dash pattern
+                        0.1f));
+                g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width+1, rect.height+1);
 
                 if (_showNumbers) {
                     g.setColor(Color.BLUE);

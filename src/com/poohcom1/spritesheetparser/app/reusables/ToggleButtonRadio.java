@@ -19,11 +19,14 @@ public class ToggleButtonRadio extends JPanel {
 
     public int getActiveTool() {return activeTool;}
 
-    public void addButton(String name) {
+    public void addButton(String name, int index) {
         JToggleButton newButton = new JToggleButton(name);
         if (toolButtons.size() == 0) newButton.setSelected(true);
         buttonInit(newButton);
-        toolButtons.add(newButton);
+        while (toolButtons.size() < index + 1) {
+            toolButtons.add(null);
+        }
+        toolButtons.set(index, newButton);
     }
 
     private void buttonInit(JToggleButton button) {
@@ -52,7 +55,7 @@ public class ToggleButtonRadio extends JPanel {
     public void setButtonsEnabled(boolean enabled) {
         if (enabled) {
             toolButtons.forEach(button -> {
-                if (toolButtons.indexOf(button) == 0) button.setEnabled(true);
+                if (toolButtons.indexOf(button) == 0) button.setSelected(true);
                 button.setEnabled(true);
             });
         } else {

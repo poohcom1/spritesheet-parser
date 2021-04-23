@@ -22,18 +22,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
+    private static JFrame window;
+
+    private static BlobDetectionTools blobDetectionTools;
 
     public App() throws IOException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        JFrame window = new JFrame("Sprite Sheet Animator");
+        window = new JFrame("Sprite Sheet Animator");
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFocusable(false);
 
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        BufferedImage image = AppUtil.loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet1.png");
+        blobDetectionTools = new BlobDetectionTools(null);
 
         tabbedPane.addTab("Spritesheet Editing", new ImageTools().mainPanel);
-        tabbedPane.addTab("Sprite Extraction", new BlobDetectionTools(image).mainPanel);
+        tabbedPane.addTab("Sprite Extraction", blobDetectionTools.mainPanel);
         window.add(tabbedPane);
 
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,245 +47,284 @@ public class App {
     public static void main(String[] args) throws IOException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         new App();
     }
-}
 
-// =============================== Blob Detection =====================================================
 
-class ImageTools {
-    private int[] backgroundColors;
-    private BufferedImage spriteSheet;
+// =============================== Image Editing =====================================================
 
-    // Components
-    final JFileChooser fileChooser = new JFileChooser();
-
-    final JPanel mainPanel;
-    final JPanel toolsPanel;
-
-    private ZoomablePanel imageToolsPane;
-
-    ImageTools() {
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-
-        toolsPanel = new JPanel();
-
-        JButton loadImage = new JButton("Load Spritesheet");
-        ToggleButtonRadio toolButtons = new ToggleButtonRadio();
-        toolButtons.addButton("Move");
-        toolButtons.addButton("Select");
-
-        toolButtons.setButtonsEnabled(false);
-
-        toolsPanel.add(loadImage);
-        toolsPanel.add(toolButtons);
-
-        toolButtons.addButtonToggledListener(i -> ((ImageCanvas)imageToolsPane.getChild()).setTool(i));
-
-        loadImage.setFocusable(false);
-        loadImage.addActionListener((e) -> {
-            fileChooser.addChoosableFileFilter(new ImageFilter());
-            fileChooser.setAcceptAllFileFilterUsed(true);
-            int fileOption = fileChooser.showOpenDialog(mainPanel);
-            if(fileOption == JFileChooser.APPROVE_OPTION){
-                File file = fileChooser.getSelectedFile();
-
-                try {
-                    spriteSheet = AppUtil.loadImage(file);
-
-                    if (spriteSheet != null) {
-                        if (imageToolsPane != null) mainPanel.remove(imageToolsPane);
-                        imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
-                        mainPanel.add(imageToolsPane, BorderLayout.CENTER);
-
-                        toolButtons.setButtonsEnabled(true);
-                    } else {
-                        //TODO: Add error dialog box
-                    }
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
-        });
-
-        mainPanel.add(toolsPanel, BorderLayout.NORTH);
-    }
-
-}
-
-// Courtesy of https://www.tutorialspoint.com/swingexamples/show_file_chooser_images_only.htm
-class ImageFilter extends FileFilter {
-    public final static String JPEG = "jpeg";
-    public final static String JPG = "jpg";
-    public final static String GIF = "gif";
-    public final static String TIFF = "tiff";
-    public final static String TIF = "tif";
-    public final static String PNG = "png";
-
-    @Override
-    public boolean accept(File f) {
-        if (f.isDirectory()) {
-            return true;
-        }
-
-        String extension = getExtension(f);
-        if (extension != null) {
-            if (extension.equals(TIFF) ||
-                    extension.equals(TIF) ||
-                    extension.equals(GIF) ||
-                    extension.equals(JPEG) ||
-                    extension.equals(JPG) ||
-                    extension.equals(PNG)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public String getDescription() {
-        return "Image Only";
-    }
-
-    String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }
-}
-
-class BlobDetectionTools {
-    // Parameters
-    private int[] backgroundColors;
-
-    private int distanceThreshold = 2;
-    private int primaryOrder = BlobSequence.LEFT_TO_RIGHT;
-    private int secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
-
-    // Display parameters
-    private boolean showBlobs = true;
-    private boolean showNumbers = true;
-    private boolean showPoints = false;
-
-    // Objects
-    private BufferedImage image;
-    private BlobSequence blobs;
-
-    ZoomablePanel blobPanel;
-
-    final JPanel mainPanel;
-
-    public BlobDetectionTools(BufferedImage image) {
-        this.image = image;
-        backgroundColors = ImageUtil.findBackgroundColor(image);
-
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(3, 1));
+    static class ImageTools {
+        private int[] backgroundColors;
+        private BufferedImage spriteSheet;
 
         // Components
-        blobPanel = new ZoomablePanel(new BlobCanvas(image));
-        //updateCanvas();
+        final JFileChooser fileChooser = new JFileChooser();
 
-        // BLOB
-        mainPanel.add(blobPanel);
-        mainPanel.add(setCanvasOptions());
-        mainPanel.add(setBlobOptions());
+        final JPanel mainPanel;
+        final JPanel toolsPanel;
+
+        private ZoomablePanel imageToolsPane;
+
+        ImageTools() {
+            mainPanel = new JPanel();
+            mainPanel.setLayout(new BorderLayout());
+
+            // UPPER IMAGE TOOLS PANEL
+            toolsPanel = new JPanel();
+
+            JButton loadImage = new JButton("Load Spritesheet");
+            ToggleButtonRadio toolButtons = new ToggleButtonRadio();
+            toolButtons.addButton("Move", ImageCanvas.Tool.MOVE.ordinal());
+            toolButtons.addButton("Select", ImageCanvas.Tool.MARQUEE.ordinal());
+
+            toolButtons.setButtonsEnabled(false);
+
+            toolsPanel.add(loadImage);
+            toolsPanel.add(toolButtons);
+
+            toolButtons.addButtonToggledListener(i -> ((ImageCanvas) imageToolsPane.getChild()).setTool(i));
+
+            loadImage.setFocusable(false);
+            loadImage.addActionListener((e) -> {
+                fileChooser.addChoosableFileFilter(new ImageFilter());
+                fileChooser.setAcceptAllFileFilterUsed(true);
+                int fileOption = fileChooser.showOpenDialog(mainPanel);
+                if (fileOption == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+
+                    try {
+                        spriteSheet = AppUtil.loadImage(file);
+
+                        if (spriteSheet != null) {
+                            if (imageToolsPane != null) mainPanel.remove(imageToolsPane);
+
+                            System.out.println("Image loaded!");
+
+                            imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
+                            mainPanel.add(imageToolsPane, BorderLayout.CENTER);
+                            mainPanel.revalidate();
+
+                            blobDetectionTools.init(spriteSheet);
+
+                            window.pack();
+                            window.revalidate();
+
+                            toolButtons.setButtonsEnabled(true);
+                        } else {
+                            //TODO: Add error dialog box
+                        }
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                }
+            });
+
+            // LOWER CROP TOOLS PANEL
+            JPanel performEditPanel = new JPanel();
+
+            mainPanel.add(toolsPanel, BorderLayout.NORTH);
+        }
+
     }
 
+    // Courtesy of https://www.tutorialspoint.com/swingexamples/show_file_chooser_images_only.htm
+    static class ImageFilter extends FileFilter {
+        public final static String JPEG = "jpeg";
+        public final static String JPG = "jpg";
+        public final static String GIF = "gif";
+        public final static String TIFF = "tiff";
+        public final static String TIF = "tif";
+        public final static String PNG = "png";
 
-    private JPanel setCanvasOptions() {
-        ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
-
-        optionsPanel.addButton("Move");
-        optionsPanel.addButton("Select");
-
-        optionsPanel.addButtonToggledListener(i -> ((ImageCanvas)blobPanel.getChild()).setTool(i));
-
-        return optionsPanel;
-    }
-
-    private JPanel setBlobOptions() {
-        JPanel optionsPanel = new JPanel();
-        optionsPanel.setLayout(new FlowLayout());
-        optionsPanel.setBorder(BorderFactory.createTitledBorder("Sprite Detection"));
-
-        optionsPanel.add(setDistanceButtons());
-        optionsPanel.add(setBlobDirectionOption());
-
-        return optionsPanel;
-    }
-
-    private JPanel setDistanceButtons() {
-        JButton up = new JButton("-");
-        JButton down = new JButton("+");
-
-        up.addActionListener((e) -> {
-            int oldCount = blobs.size();
-            do {
-                distanceThreshold++;
-                detectBlobs();
-            } while (blobs.size() == oldCount);
-            blobPanel.getChild().repaint();
-        });
-
-        down.addActionListener((e) -> {
-            int oldCount = blobs.size();
-            do {
-                if (distanceThreshold <= 2) break;
-                distanceThreshold--;
-                detectBlobs();
-            } while (blobs.size() == oldCount);
-            blobPanel.getChild().repaint();
-        });
-
-        JPanel panel = new JPanel();
-
-        panel.add(new JLabel("Sprite Count:"));
-        panel.add(up);
-        panel.add(down);
-
-        return panel;
-    }
-
-    private JPanel setBlobDirectionOption() {
-        final String[] BLOB_DIRECTION = {"Horizontal Ordering", "Vertical Ordering"};
-
-        JComboBox<String> blobDirection = new JComboBox<>(BLOB_DIRECTION);
-
-        blobDirection.addActionListener(actionEvent -> {
-            switch (blobDirection.getSelectedIndex()) {
-                case 0 -> {primaryOrder = BlobSequence.LEFT_TO_RIGHT; secondaryOrder = BlobSequence.TOP_TO_BOTTOM;}
-                case 1 -> {primaryOrder = BlobSequence.TOP_TO_BOTTOM; secondaryOrder = BlobSequence.LEFT_TO_RIGHT;}
+        @Override
+        public boolean accept(File f) {
+            if (f.isDirectory()) {
+                return true;
             }
-            updateCanvas();
-        });
 
-        JPanel panel = new JPanel();
+            String extension = getExtension(f);
+            if (extension != null) {
+                if (extension.equals(TIFF) ||
+                        extension.equals(TIF) ||
+                        extension.equals(GIF) ||
+                        extension.equals(JPEG) ||
+                        extension.equals(JPG) ||
+                        extension.equals(PNG)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return false;
+        }
 
-        panel.add(new JLabel("Sprite Direction:"));
-        panel.add(blobDirection);
+        @Override
+        public String getDescription() {
+            return "Image Only";
+        }
 
-        return panel;
+        String getExtension(File f) {
+            String ext = null;
+            String s = f.getName();
+            int i = s.lastIndexOf('.');
+
+            if (i > 0 && i < s.length() - 1) {
+                ext = s.substring(i + 1).toLowerCase();
+            }
+            return ext;
+        }
     }
 
-    private void detectBlobs() {
-        blobs = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
-        BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
 
-        blobCanvas.setBlobs(blobs);
-        blobCanvas.setShowBlobs(showBlobs);
-        blobCanvas.setShowPoints(showPoints);
-    }
+    static class BlobDetectionTools {
+        // Parameters
+        private int[] backgroundColors;
 
-    private void updateCanvas() {
-        detectBlobs();
-        BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
-        blobCanvas.repaint();
+        private int distanceThreshold = 2;
+        private int primaryOrder = BlobSequence.LEFT_TO_RIGHT;
+        private int secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
+
+        // Display parameters
+        private boolean showBlobs = true;
+        private boolean showNumbers = true;
+        private boolean showPoints = false;
+
+        // Objects
+        private BufferedImage image;
+        private BlobSequence blobs;
+
+        ZoomablePanel blobPanel;
+
+        final JPanel mainPanel;
+
+        // Modals
+        private JTextField noImage = new JTextField("No sprites loaded");
+
+        public BlobDetectionTools(BufferedImage image) {
+            this.image = image;
+
+            mainPanel = new JPanel();
+
+            if (image == null) {
+                mainPanel.add(noImage);
+                return;
+            }
+            init(image);
+        }
+
+        private void init(BufferedImage image) {
+            this.image = image;
+
+            mainPanel.remove(noImage);
+
+            backgroundColors = ImageUtil.findBackgroundColor(image);
+
+
+            mainPanel.setLayout(new GridLayout(3, 1));
+
+            // Components
+            blobPanel = new ZoomablePanel(new BlobCanvas(image));
+            //updateCanvas();
+
+            // BLOB
+            mainPanel.add(blobPanel);
+            mainPanel.add(setCanvasOptions());
+            mainPanel.add(setBlobOptions());
+        }
+
+
+        private JPanel setCanvasOptions() {
+            ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
+
+            optionsPanel.addButton("Move", ImageCanvas.Tool.MOVE.ordinal());
+            optionsPanel.addButton("Select", ImageCanvas.Tool.MARQUEE.ordinal());
+
+            optionsPanel.addButtonToggledListener(i -> ((ImageCanvas) blobPanel.getChild()).setTool(i));
+
+            return optionsPanel;
+        }
+
+        private JPanel setBlobOptions() {
+            JPanel optionsPanel = new JPanel();
+            optionsPanel.setLayout(new FlowLayout());
+            optionsPanel.setBorder(BorderFactory.createTitledBorder("Sprite Detection"));
+
+            optionsPanel.add(setDistanceButtons());
+            optionsPanel.add(setBlobDirectionOption());
+
+            return optionsPanel;
+        }
+
+        private JPanel setDistanceButtons() {
+            JButton up = new JButton("-");
+            JButton down = new JButton("+");
+
+            up.addActionListener((e) -> {
+                int oldCount = blobs.size();
+                do {
+                    distanceThreshold++;
+                    detectBlobs();
+                } while (blobs.size() == oldCount);
+                blobPanel.getChild().repaint();
+            });
+
+            down.addActionListener((e) -> {
+                int oldCount = blobs.size();
+                do {
+                    if (distanceThreshold <= 2) break;
+                    distanceThreshold--;
+                    detectBlobs();
+                } while (blobs.size() == oldCount);
+                blobPanel.getChild().repaint();
+            });
+
+            JPanel panel = new JPanel();
+
+            panel.add(new JLabel("Sprite Count:"));
+            panel.add(up);
+            panel.add(down);
+
+            return panel;
+        }
+
+        private JPanel setBlobDirectionOption() {
+            final String[] BLOB_DIRECTION = {"Horizontal Ordering", "Vertical Ordering"};
+
+            JComboBox<String> blobDirection = new JComboBox<>(BLOB_DIRECTION);
+
+            blobDirection.addActionListener(actionEvent -> {
+                switch (blobDirection.getSelectedIndex()) {
+                    case 0 -> {
+                        primaryOrder = BlobSequence.LEFT_TO_RIGHT;
+                        secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
+                    }
+                    case 1 -> {
+                        primaryOrder = BlobSequence.TOP_TO_BOTTOM;
+                        secondaryOrder = BlobSequence.LEFT_TO_RIGHT;
+                    }
+                }
+                updateCanvas();
+            });
+
+            JPanel panel = new JPanel();
+
+            panel.add(new JLabel("Sprite Direction:"));
+            panel.add(blobDirection);
+
+            return panel;
+        }
+
+        private void detectBlobs() {
+            blobs = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
+            BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
+
+            blobCanvas.setBlobs(blobs);
+            blobCanvas.setShowBlobs(showBlobs);
+            blobCanvas.setShowPoints(showPoints);
+        }
+
+        private void updateCanvas() {
+            detectBlobs();
+            BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
+            blobCanvas.repaint();
+        }
     }
 }

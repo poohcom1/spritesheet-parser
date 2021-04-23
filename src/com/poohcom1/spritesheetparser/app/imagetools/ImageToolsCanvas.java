@@ -1,6 +1,7 @@
 package com.poohcom1.spritesheetparser.app.imagetools;
 
 import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
+import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -12,6 +13,19 @@ public class ImageToolsCanvas extends ImageCanvas {
     public ImageToolsCanvas(BufferedImage spriteSheet) {
         super(spriteSheet.getWidth(), spriteSheet.getHeight());
         this.spriteSheet = spriteSheet;
+        repaint();
+    }
+
+    public BufferedImage crop() {
+        Rect marquee = marquees.get(0);
+
+        return spriteSheet.getSubimage(marquee.x - getXOffset(), marquee.y - getYOffset(), marquee.width, marquee.height);
+    }
+
+    @Override
+    public void startMarquee(int x, int y) {
+        marquees.clear();
+        super.startMarquee(x, y);
     }
 
     @Override

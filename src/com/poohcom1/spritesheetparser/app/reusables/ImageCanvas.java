@@ -1,7 +1,5 @@
 package com.poohcom1.spritesheetparser.app.reusables;
 
-import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
-import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
@@ -18,15 +16,19 @@ import java.util.concurrent.TimeUnit;
 
 public class ImageCanvas extends ZoomableComponent {
     // Tools
+    public enum Tool {
+        MOVE, MARQUEE, PEN
+    }
+
     public static final int MOVE_TOOL = 0;
     public static final int MARQUEE_TOOL = 1;
     public static final int PEN_TOOL = 2;
 
-    private int toolIndex = 0;
+    private Tool toolIndex = Tool.MOVE;
 
     // Objects
-    private List<Rect> marquees;
-    private List<Point> penPoints;
+    protected List<Rect> marquees;
+    protected List<Point> penPoints;
 
     private float _dashPhase;
 
@@ -45,16 +47,16 @@ public class ImageCanvas extends ZoomableComponent {
                 parentPanel.setMouseMove(false);
 
                 switch (toolIndex) {
-                    case MOVE_TOOL -> {
+                    case MOVE -> {
                         parentPanel.setMouseMove(true);
                     }
-                    case MARQUEE_TOOL -> {
+                    case MARQUEE -> {
                         if (e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed()) {
                             startMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
                             repaint();
                         }
                     }
-                    case PEN_TOOL -> {}
+                    case PEN -> {}
                 }
 
 
@@ -66,9 +68,9 @@ public class ImageCanvas extends ZoomableComponent {
                 Point2D mousePos = transformedMousePos(e);
 
                 switch (toolIndex) {
-                    case MARQUEE_TOOL -> {
+                    case MARQUEE -> {
                         if (parentPanel.m1Pressed() && !parentPanel.panKeyPressed()) {
-                            drawMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
+                            dragMarquee((int) (mousePos.getX()), (int) (mousePos.getY()));
                             repaint();
                         }
                     }
@@ -87,7 +89,7 @@ public class ImageCanvas extends ZoomableComponent {
         }, 0, (long) 16, TimeUnit.MILLISECONDS);
     }
 
-    public void setTool(int toolIndex) {this.toolIndex = toolIndex;}
+    public void setTool(int toolIndex) {this.toolIndex = Tool.values()[toolIndex];}
 
     private void animatedDashPhase(float inc) {
         _dashPhase += inc;
@@ -95,13 +97,22 @@ public class ImageCanvas extends ZoomableComponent {
     }
 
     public void startMarquee(int x, int y) {
+        if (x < getXOffset()) x = getXOffset();
+        if (y < getYOffset()) y = getYOffset();
+        if (x > getXOffset() + width) x = getXOffset() + width;
+        if (y > getYOffset() + height) y = getYOffset() + height;
+
         Rect newMarquee = new Rect(x, y, x, y);
         newMarquee.setAnchor();
         marquees.add(newMarquee);
     }
 
-    public void drawMarquee(int x, int y) {
+    public void dragMarquee(int x, int y) {
         if (marquees.isEmpty()) return;
+        if (x < getXOffset()) x = getXOffset();
+        if (y < getYOffset()) y = getYOffset();
+        if (x > getXOffset() + width) x = getXOffset() + width;
+        if (y > getYOffset() + height) y = getYOffset() + height;
         marquees.get(marquees.size()-1).resizeWithAnchor(x, y);
     }
 

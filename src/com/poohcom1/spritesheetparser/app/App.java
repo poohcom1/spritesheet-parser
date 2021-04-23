@@ -23,11 +23,12 @@ import java.util.List;
 
 public class App {
 
-    public App() throws IOException {
+    public App() throws IOException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         JFrame window = new JFrame("Sprite Sheet Animator");
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFocusable(false);
 
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         BufferedImage image = AppUtil.loadImage("src/com/poohcom1/spritesheetparser/assets/tarmaSheet1.png");
 
@@ -40,7 +41,7 @@ public class App {
         window.setVisible(true);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         new App();
     }
 }
@@ -66,8 +67,16 @@ class ImageTools {
         toolsPanel = new JPanel();
 
         JButton loadImage = new JButton("Load Spritesheet");
+        ToggleButtonRadio toolButtons = new ToggleButtonRadio();
+        toolButtons.addButton("Move");
+        toolButtons.addButton("Select");
+
+        toolButtons.setButtonsEnabled(false);
 
         toolsPanel.add(loadImage);
+        toolsPanel.add(toolButtons);
+
+        toolButtons.addButtonToggledListener(i -> ((ImageCanvas)imageToolsPane.getChild()).setTool(i));
 
         loadImage.setFocusable(false);
         loadImage.addActionListener((e) -> {
@@ -80,9 +89,15 @@ class ImageTools {
                 try {
                     spriteSheet = AppUtil.loadImage(file);
 
-                    if (imageToolsPane != null) mainPanel.remove(imageToolsPane);
-                    imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
-                    mainPanel.add(imageToolsPane, BorderLayout.CENTER);
+                    if (spriteSheet != null) {
+                        if (imageToolsPane != null) mainPanel.remove(imageToolsPane);
+                        imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
+                        mainPanel.add(imageToolsPane, BorderLayout.CENTER);
+
+                        toolButtons.setButtonsEnabled(true);
+                    } else {
+                        //TODO: Add error dialog box
+                    }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }

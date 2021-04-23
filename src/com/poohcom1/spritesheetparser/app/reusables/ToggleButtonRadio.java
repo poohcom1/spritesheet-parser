@@ -6,39 +6,63 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ToggleButtonRadio extends JPanel {
-    private List<JToggleButton> tools;
     private int activeTool;
-    private ButtonToggledListener listener;
+    private final List<JToggleButton> toolButtons;
+    private List<ButtonToggledListener> listeners;
 
     public ToggleButtonRadio() {
         setLayout(new FlowLayout());
 
-        tools = new ArrayList<>();
+        toolButtons = new ArrayList<>();
+        listeners = new ArrayList<>();
     }
 
     public int getActiveTool() {return activeTool;}
 
     public void addButton(String name) {
         JToggleButton newButton = new JToggleButton(name);
-        if (tools.size() == 0) newButton.setSelected(true);
+        if (toolButtons.size() == 0) newButton.setSelected(true);
         buttonInit(newButton);
-        tools.add(newButton);
+        toolButtons.add(newButton);
     }
 
     private void buttonInit(JToggleButton button) {
         button.setFocusable(false);
         button.addActionListener(e -> {
-            tools.forEach(otherButton -> otherButton.setSelected(false));
+            toolButtons.forEach(otherButton -> otherButton.setSelected(false));
             button.setSelected(true);
-            activeTool = tools.indexOf(button);
-            listener.buttonToggled(activeTool);
+            activeTool = toolButtons.indexOf(button);
+            listeners.forEach(listener -> listener.buttonToggled(activeTool));
         });
         add(button);
     }
 
     public void addButtonToggledListener(ButtonToggledListener buttonToggledListener) {
-        this.listener = buttonToggledListener;
+        listeners.add(buttonToggledListener);
     }
+
+    public void removeButtonToggledListener(ButtonToggledListener buttonToggledListener) {
+        listeners.remove(buttonToggledListener);
+    }
+
+    public void removeAllListeners() {
+        listeners.clear();
+    }
+
+    public void setButtonsEnabled(boolean enabled) {
+        if (enabled) {
+            toolButtons.forEach(button -> {
+                if (toolButtons.indexOf(button) == 0) button.setEnabled(true);
+                button.setEnabled(true);
+            });
+        } else {
+            toolButtons.forEach(button -> {
+                button.setSelected(false);
+                button.setEnabled(false);
+            });
+        }
+    }
+
 
     public interface ButtonToggledListener {
         void buttonToggled(int buttonIndex);

@@ -12,8 +12,11 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class DrawCanvas extends ZoomableComponent {
+public class ImageCanvas extends ZoomableComponent {
     // Tools
     public static final int MOVE_TOOL = 0;
     public static final int MARQUEE_TOOL = 1;
@@ -25,7 +28,11 @@ public class DrawCanvas extends ZoomableComponent {
     private List<Rect> marquees;
     private List<Point> penPoints;
 
-    public DrawCanvas(int width, int height) {
+    private float _dashPhase;
+
+    ScheduledExecutorService animator;
+
+    public ImageCanvas(int width, int height) {
         super(width, height);
 
         marquees = new ArrayList<>();
@@ -35,13 +42,11 @@ public class DrawCanvas extends ZoomableComponent {
             public void mousePressed(MouseEvent e) {
                 Point2D mousePos = transformedMousePos(e);
 
-                parentPanel.setMouseZoom(false);
                 parentPanel.setMouseMove(false);
 
                 switch (toolIndex) {
                     case MOVE_TOOL -> {
                         parentPanel.setMouseMove(true);
-                        parentPanel.setMouseZoom(true);
                     }
                     case MARQUEE_TOOL -> {
                         if (e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed()) {
@@ -70,6 +75,21 @@ public class DrawCanvas extends ZoomableComponent {
                 }
             }
         });
+
+        _dashPhase = 0.0f;
+        animator = Executors.newScheduledThreadPool(1);
+
+        animator.scheduleAtFixedRate(() -> {
+
+            animatedDashPhase(0.1f);
+            repaint();
+
+        }, 0, (long) 16, TimeUnit.MILLISECONDS);
+    }
+
+    private void animatedDashPhase(float inc) {
+        _dashPhase += inc;
+        if (_dashPhase >= 4.0f) _dashPhase = 0f;
     }
 
     public void startMarquee(int x, int y) {
@@ -91,12 +111,12 @@ public class DrawCanvas extends ZoomableComponent {
 
     protected void drawMarquees(Graphics g) {
         ((Graphics2D)g).setStroke(new BasicStroke(
-                1.0f,                      // Width
+                (float) (1.0f/xScale),                      // Width
                 BasicStroke.CAP_SQUARE,    // End cap
-                BasicStroke.JOIN_MITER,    // Join style
-                10.0f,                     // Miter limit
-                new float[] {3.0f,2.0f},          // Dash pattern
-                0.0f));
+                BasicStroke.JOIN_BEVEL,    // Join style
+                1.0f,                     // Miter limit
+                new float[] {(float) (2.0f), (float) (2.0f)},          // Dash pattern
+                _dashPhase));
 
         g.setColor(Color.BLACK);
         marquees.forEach(marquee -> g.drawRect(marquee.x, marquee.y, marquee.width, marquee.height));

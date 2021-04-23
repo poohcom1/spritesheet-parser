@@ -1,22 +1,16 @@
 package com.poohcom1.spritesheetparser.app.blobdetection;
 
-import com.poohcom1.spritesheetparser.app.reusables.DrawCanvas;
-import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
+import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlobCanvas extends DrawCanvas {
+public class BlobCanvas extends ImageCanvas {
     // Options
     private boolean _showBlobs = true;
     private boolean _showPoints = true;

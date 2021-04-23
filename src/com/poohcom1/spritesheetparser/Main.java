@@ -29,11 +29,6 @@ public class Main {
 
         SpriteSequence sprites = new SpriteSequence(spriteSheet, blobs);
 
-        for (int i = 0; i < sprites.size(); i++){
-            saveImage(sprites.get(i).getSprite(), i + "", "png");
-        }
-
-
         new SpriteParserWindow(spriteSheet, new int[] {alpha});
         new SpriteWindow(sprites, 12);
     }

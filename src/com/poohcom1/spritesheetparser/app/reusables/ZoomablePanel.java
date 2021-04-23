@@ -25,6 +25,8 @@ public class ZoomablePanel extends JScrollPane {
     private final int MARGINS_X = 300;
     private final int MARGINS_Y = 300;
 
+    // Child component
+    private ZoomableComponent child;
 
     public ZoomablePanel(ZoomableComponent zoomComponent) {
         super(zoomComponent);
@@ -86,7 +88,10 @@ public class ZoomablePanel extends JScrollPane {
                 panKeyPressed = panKeyPressed || e.getKeyCode() == PAN_KEY;
             }
         });
+        child = zoomComponent;
     }
+
+    public ZoomableComponent getChild() {return child;}
 
     public boolean panKeyPressed() {return panKeyPressed;}
     public boolean m1Pressed() {return m1Pressed;}

@@ -22,7 +22,7 @@ public class ImageCanvas extends ZoomableComponent {
     public static final int MARQUEE_TOOL = 1;
     public static final int PEN_TOOL = 2;
 
-    public int toolIndex = 0;
+    private int toolIndex = 0;
 
     // Objects
     private List<Rect> marquees;
@@ -86,6 +86,8 @@ public class ImageCanvas extends ZoomableComponent {
 
         }, 0, (long) 16, TimeUnit.MILLISECONDS);
     }
+
+    public void setTool(int toolIndex) {this.toolIndex = toolIndex;}
 
     private void animatedDashPhase(float inc) {
         _dashPhase += inc;

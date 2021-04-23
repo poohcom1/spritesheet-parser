@@ -2,6 +2,8 @@ package com.poohcom1.spritesheetparser.app;
 
 import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
@@ -53,13 +55,20 @@ class ImageTools {
     final JFileChooser fileChooser = new JFileChooser();
 
     final JPanel mainPanel;
+    final JPanel toolsPanel;
 
-    private ImageToolsCanvas imageToolsCanvas;
+    private ZoomablePanel imageToolsPane;
 
     ImageTools() {
         mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+
+        toolsPanel = new JPanel();
 
         JButton loadImage = new JButton("Load Spritesheet");
+
+        toolsPanel.add(loadImage);
+
         loadImage.setFocusable(false);
         loadImage.addActionListener((e) -> {
             fileChooser.addChoosableFileFilter(new ImageFilter());
@@ -71,16 +80,16 @@ class ImageTools {
                 try {
                     spriteSheet = AppUtil.loadImage(file);
 
-                    if (imageToolsCanvas != null) mainPanel.remove(imageToolsCanvas);
-                    imageToolsCanvas = new ImageToolsCanvas(spriteSheet);
-                    mainPanel.add(imageToolsCanvas);
+                    if (imageToolsPane != null) mainPanel.remove(imageToolsPane);
+                    imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
+                    mainPanel.add(imageToolsPane, BorderLayout.CENTER);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
             }
         });
 
-        mainPanel.add(loadImage);
+        mainPanel.add(toolsPanel, BorderLayout.NORTH);
     }
 
 }
@@ -150,7 +159,8 @@ class BlobDetectionTools {
     private BufferedImage image;
     private BlobSequence blobs;
 
-    private final BlobCanvas blobCanvas;
+    ZoomablePanel blobPanel;
+
     final JPanel mainPanel;
 
     public BlobDetectionTools(BufferedImage image) {
@@ -160,10 +170,8 @@ class BlobDetectionTools {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(3, 1));
 
-        // BLOB CANVAS
-        blobCanvas = new BlobCanvas(image);
         // Components
-        ZoomablePanel blobPanel = new ZoomablePanel(blobCanvas);
+        blobPanel = new ZoomablePanel(new BlobCanvas(image));
         //updateCanvas();
 
         // BLOB
@@ -173,30 +181,13 @@ class BlobDetectionTools {
     }
 
 
-    private int activeTool = 0;
-
     private JPanel setCanvasOptions() {
-        JPanel optionsPanel = new JPanel();
-        optionsPanel.setLayout(new FlowLayout());
-        optionsPanel.setBorder(BorderFactory.createTitledBorder("Image Editing"));
+        ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
 
-        List<JToggleButton> tools = new ArrayList<>();
-        tools.add(new JToggleButton("Move"));
-        tools.add(new JToggleButton("Select"));
+        optionsPanel.addButton("Move");
+        optionsPanel.addButton("Select");
 
-        tools.get(0).setSelected(true);
-
-        tools.forEach(button -> {
-            button.setFocusable(false);
-            button.addActionListener(e -> {
-                tools.forEach(otherButton -> otherButton.setSelected(false));
-                button.setSelected(true);
-                activeTool = tools.indexOf(button);
-
-                blobCanvas.toolIndex = activeTool;
-            });
-            optionsPanel.add(button);
-        });
+        optionsPanel.addButtonToggledListener(i -> ((ImageCanvas)blobPanel.getChild()).setTool(i));
 
         return optionsPanel;
     }
@@ -222,7 +213,7 @@ class BlobDetectionTools {
                 distanceThreshold++;
                 detectBlobs();
             } while (blobs.size() == oldCount);
-            blobCanvas.repaint();
+            blobPanel.getChild().repaint();
         });
 
         down.addActionListener((e) -> {
@@ -232,7 +223,7 @@ class BlobDetectionTools {
                 distanceThreshold--;
                 detectBlobs();
             } while (blobs.size() == oldCount);
-            blobCanvas.repaint();
+            blobPanel.getChild().repaint();
         });
 
         JPanel panel = new JPanel();
@@ -267,6 +258,8 @@ class BlobDetectionTools {
 
     private void detectBlobs() {
         blobs = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
+        BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
+
         blobCanvas.setBlobs(blobs);
         blobCanvas.setShowBlobs(showBlobs);
         blobCanvas.setShowPoints(showPoints);
@@ -274,6 +267,7 @@ class BlobDetectionTools {
 
     private void updateCanvas() {
         detectBlobs();
+        BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
         blobCanvas.repaint();
     }
 }

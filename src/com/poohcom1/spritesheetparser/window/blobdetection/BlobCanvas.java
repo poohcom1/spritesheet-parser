@@ -1,7 +1,6 @@
 package com.poohcom1.spritesheetparser.window.blobdetection;
 
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
-import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.window.ZoomableCanvas;
 

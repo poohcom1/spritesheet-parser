@@ -1,6 +1,5 @@
 package com.poohcom1.spritesheetparser.app.reusables;
 
-import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
 import java.awt.*;
@@ -45,7 +44,7 @@ public class ImageCanvas extends ZoomableComponent {
 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                Point2D mousePos = transformedMousePos(e);
+                Point mousePos = transformedMousePos(e);
 
                 parentPanel.setMouseMove(false);
 
@@ -66,12 +65,12 @@ public class ImageCanvas extends ZoomableComponent {
 
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent e) {
-                Point2D mousePos = transformedMousePos(e);
+                Point mousePos = transformedMousePos(e);
 
                 switch (toolIndex) {
                     case MARQUEE -> {
                         if (parentPanel.m1Pressed() && !parentPanel.panKeyPressed()) {
-                            dragMarquee((Point) mousePos);
+                            dragMarquee(mousePos);
                             repaint();
                         }
                     }
@@ -98,8 +97,8 @@ public class ImageCanvas extends ZoomableComponent {
         if (_dashPhase >= 4.0f) _dashPhase = 0f;
     }
 
-    public void startMarquee(Point2D point2D) {
-        Point point = clampPoint(point2D);
+    public void startMarquee(Point point) {
+        point = clampPoint(point);
 
         Rect newMarquee = new Rect(point, point);
         newMarquee.setAnchor();
@@ -115,7 +114,7 @@ public class ImageCanvas extends ZoomableComponent {
         marquees.get(marquees.size()-1).resizeWithAnchor(clampPoint(pos));
     }
 
-    private Point clampPoint(Point2D point) {
+    private Point clampPoint(Point point) {
         int x = (int) point.getX(); int y = (int) point.getY();
         if (x < getXOffset()) x = getXOffset();
         if (y < getYOffset()) y = getYOffset();

@@ -1,10 +1,7 @@
 package com.poohcom1.spritesheetparser.window;
 
-import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.cv.*;
-import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
-import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 import com.poohcom1.spritesheetparser.window.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.window.spriteplayer.SpritePlayer;
 

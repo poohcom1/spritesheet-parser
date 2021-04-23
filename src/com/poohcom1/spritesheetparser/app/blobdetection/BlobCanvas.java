@@ -2,7 +2,6 @@ package com.poohcom1.spritesheetparser.app.blobdetection;
 
 import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
-import com.poohcom1.spritesheetparser.util.shapes2D.Point;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
 import java.awt.*;
@@ -22,7 +21,7 @@ public class BlobCanvas extends ImageCanvas {
     // Objects
     private BufferedImage image;
     private java.util.List<Blob> blobs;
-    private java.util.List<com.poohcom1.spritesheetparser.util.shapes2D.Point> points;
+    private java.util.List<Point> points;
 
     public BlobCanvas(BufferedImage image) {
         super(image.getWidth(), image.getHeight());
@@ -72,7 +71,7 @@ public class BlobCanvas extends ImageCanvas {
         this.blobs = blobs;
     }
 
-    public void setPoints(List<com.poohcom1.spritesheetparser.util.shapes2D.Point> points) {
+    public void setPoints(List<Point> points) {
         this.points = points;
     }
 

@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.util.shapes2D;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 public class Rect extends Rectangle {
     public final static int HORIZONTAL_AXIS = 0;

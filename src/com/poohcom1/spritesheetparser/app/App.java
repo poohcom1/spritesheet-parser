@@ -34,16 +34,39 @@ public class App {
 
         tabbedPane.addChangeListener(l -> window.pack());
 
+        GraphicsConfiguration gc = window.getGraphicsConfiguration();
+
+        Rectangle bounds = gc.getBounds();
+
+        Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+
+        Rectangle effectiveScreenArea = new Rectangle();
+
+        effectiveScreenArea.x = bounds.x + screenInsets.left;
+        effectiveScreenArea.y = bounds.y + screenInsets.top;
+        effectiveScreenArea.height = bounds.height - screenInsets.top - screenInsets.bottom;
+        effectiveScreenArea.width = bounds.width - screenInsets.left - screenInsets.right;
+
+        window.setMaximumSize(new Dimension(effectiveScreenArea.width, effectiveScreenArea.height));
         window.add(tabbedPane);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.pack();
         window.setVisible(true);
     }
 
-    public static void main(String[] args) throws IOException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         new App();
     }
 
+    private static void packInBounds() {
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Rectangle bounds = env.getMaximumWindowBounds();
+        window.pack();
+        window.revalidate();
+        int width = Math.min(window.getWidth(), bounds.width);
+        int height = Math.min(window.getHeight(), bounds.height);
+        window.setSize( new Dimension(width, height) );
+    }
 
 // =============================== Image Editing =====================================================
 
@@ -111,10 +134,9 @@ public class App {
 
                             imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
-                            mainPanel.revalidate();
+                            mainPanel.revalidate();;
 
-                            window.pack();
-                            window.revalidate();
+                            packInBounds();
 
                             confirmButton.setEnabled(true);
                             toolButtons.setButtonsEnabled(true);

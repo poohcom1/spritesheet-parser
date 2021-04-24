@@ -164,6 +164,7 @@ public class BlobSequence extends ArrayList<Blob> {
     public static List<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         List<Blob> blobList = new ArrayList<>();
 
+        long time = System.currentTimeMillis();
         ImageUtil.pointProcessing(image, (rgba, x, y) -> {
             boolean skip = false;
 

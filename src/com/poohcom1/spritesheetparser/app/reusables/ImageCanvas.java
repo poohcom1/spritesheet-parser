@@ -2,6 +2,7 @@ package com.poohcom1.spritesheetparser.app.reusables;
 
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -47,11 +48,9 @@ public class ImageCanvas extends ZoomableComponent {
         animator = Executors.newScheduledThreadPool(1);
 
         animator.scheduleAtFixedRate(() -> {
-
             animatedDashPhase();
             repaint();
-
-        }, 0, (long) 16, TimeUnit.MILLISECONDS);
+        }, 0, 16, TimeUnit.MILLISECONDS);
 
         toolMap = new HashMap<>();
         toolMap.put(MOVE_TOOL, moveToolCallback);
@@ -75,7 +74,7 @@ public class ImageCanvas extends ZoomableComponent {
         public void mousePressed(MouseEvent e) {
             parentPanel.setMouseMove(false);
 
-            if (e.getButton() == MouseEvent.BUTTON1 && !parentPanel.panKeyPressed()) {
+            if (SwingUtilities.isLeftMouseButton(e)/* && !parentPanel.panKeyPressed()*/) {
                 startMarquee(inverseTransformPoint(e.getPoint()));
                 repaint();
             }
@@ -83,8 +82,10 @@ public class ImageCanvas extends ZoomableComponent {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            dragMarquee(inverseTransformPoint(e.getPoint()));
-            repaint();
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                dragMarquee(inverseTransformPoint(e.getPoint()));
+                repaint();
+            }
         }
     };
 
@@ -159,14 +160,14 @@ public class ImageCanvas extends ZoomableComponent {
     }
 
     protected void drawGrid(Graphics g) {
-        g.setColor(Color.DARK_GRAY);
+        g.setColor(Color.gray);
         ((Graphics2D) g).setStroke(new BasicStroke(
                 (float) (1.0f / xScale),                      // Width
                 BasicStroke.CAP_SQUARE,    // End cap
                 BasicStroke.JOIN_BEVEL));
 
-        int cols = (int) (width / 3 );
-        int rows = (int) (height / 3 );
+        int cols = (int) (width / 4 );
+        int rows = (int) (height / 4 );
 
         // draw the rows
         int rowHt = height / (rows);

@@ -30,11 +30,10 @@ public class ToggleButtonRadio extends JPanel {
 
 
 
-
     public void setButtonsEnabled(boolean enabled) {
         if (enabled) {
             toolButtons.forEach(button -> {
-                if (toolButtons.indexOf(button) == 0) button.setSelected(true);
+                button.setSelected(toolButtons.indexOf(button) == 0);
                 button.setEnabled(true);
             });
         } else {

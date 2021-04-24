@@ -35,7 +35,7 @@ public abstract class ZoomableComponent extends JComponent {
     public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
 
     /**
-     * Transform a position to the corresponding inversed affine transformed coordinate
+     * Transform a position to the corresponding inverse affine transformed coordinate
      * @param pos A Point position
      * @return The transformed Point position
      */

@@ -4,31 +4,31 @@ import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageToolsCanvas extends ImageCanvas {
     public final static String COLOR_PICKER_TOOL = "colorPicker";
 
     private final BufferedImage originalSpriteSheet;
     private BufferedImage spriteSheet;
-    public Color backgroundColor = new Color(0, 0, 0, 0);
+    public List<Color> backgroundColors;
     public Color replacementColor = new Color(0,0,0,0);
 
     public ImageToolsCanvas(BufferedImage spriteSheet) {
         super(spriteSheet.getWidth(), spriteSheet.getHeight());
+
+        backgroundColors = new ArrayList<>();
+
         maxMarqueeCount = 1;
+
         originalSpriteSheet = spriteSheet;
         this.spriteSheet = spriteSheet;
-
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-        });
 
         addTool(COLOR_PICKER_TOOL, colorPickerCallback);
         repaint();
@@ -36,25 +36,35 @@ public class ImageToolsCanvas extends ImageCanvas {
 
     protected MouseAdapter colorPickerCallback = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
-            Color color;
+            parentPanel.setMouseMove(false);
 
-            try {
-                Robot robot = new Robot();
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                Color color;
 
-                color = robot.getPixelColor(e.getXOnScreen(), e.getYOnScreen());
-            } catch (AWTException awtException) {
-                awtException.printStackTrace();
-                color = new Color(0,0,0);
+                try {
+                    Robot robot = new Robot();
+
+                    color = robot.getPixelColor(e.getXOnScreen(), e.getYOnScreen());
+                } catch (AWTException awtException) {
+                    awtException.printStackTrace();
+                    color = new Color(0, 0, 0);
+                }
+
+                if (backgroundColors.size() == 0) backgroundColors.add(color);
+                else backgroundColors.set(0, color);
+
+                int[] colors = new int[backgroundColors.size()];
+                for (int i = 0; i < colors.length; i++) {
+                    colors[i] = backgroundColors.get(i).getRGB();
+                }
+                spriteSheet = (ImageUtil.replaceColorsBuffered(originalSpriteSheet, colors, replacementColor.getRGB()));
+                System.out.println("ImageToolsCanvas: Color replaced!");
+            } else if (SwingUtilities.isRightMouseButton(e)) {
+                backgroundColors.clear();
             }
-
-            spriteSheet = ImageUtil.replaceColors(originalSpriteSheet, new int[] {color.getRGB()}, replacementColor.getRGB());
-            backgroundColor = color;
         }
     };
 
-    public Color getBackground() {
-        return backgroundColor;
-    }
 
     public BufferedImage crop() {
         BufferedImage crop;
@@ -68,15 +78,10 @@ public class ImageToolsCanvas extends ImageCanvas {
         return crop;
     }
 
-    public void replaceColors(int[] colorsToReplace, int color) {
-        spriteSheet = ImageUtil.replaceColors(spriteSheet, colorsToReplace, color);
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        drawGrid(g);
 
         int xOffset = getXOffset();
         int yOffset = getYOffset();
@@ -86,4 +91,10 @@ public class ImageToolsCanvas extends ImageCanvas {
         drawMarquees(g);
     }
 
+    @Override
+    protected void drawMarquees(Graphics g) {
+        //Rect marquee = marquees.get(0);
+
+
+    }
 }

@@ -1,17 +1,10 @@
 package com.poohcom1.spritesheetparser.util.image;
 
-import com.poohcom1.spritesheetparser.util.cv.Blob;
-import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
-import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ImageUtil {
     public static String colorIntToHex(int color) {
@@ -51,6 +44,7 @@ public class ImageUtil {
     }
 
     public static BufferedImage pointProcessing(BufferedImage image, PixelEditor pixelEditor, boolean loopVertical) {
+        image = deepCopyImage(image);
         ColorModel colorModel = image.getColorModel();
 
         WritableRaster imageRaster = image.getRaster();
@@ -79,8 +73,39 @@ public class ImageUtil {
         return new BufferedImage(colorModel, newRaster, colorModel.isAlphaPremultiplied(), null);
     }
 
+    public static BufferedImage pointProcessingBuffered(BufferedImage image, PixelEditor pixelEditor) {
+        int iMax = image.getHeight();
+        int jMax= image.getWidth();
+
+        for (int i = 0; i < iMax; i++) {
+            for (int j = 0; j < jMax; j++) {
+
+                int pixel = image.getRGB(j, i);
+
+                int[] processedPixel = pixelEditor.editPixel(rbgaIntToArray(pixel), j, i);
+
+                image.setRGB(j, i, rgbaArrayToInt(processedPixel));
+            }
+        }
+
+        return image;
+    }
+
     public static BufferedImage replaceColors(BufferedImage image, int[] colors, int replacementColor) {
         return pointProcessing(image, (rgba, x, y) -> {
+            for (int color : colors) {
+                int pixel = new Color(rgba[0], rgba[1], rgba[2], rgba[3]).getRGB();
+
+                if (pixel == color) {
+                    return rbgaIntToArray(replacementColor);
+                }
+            }
+            return rgba;
+        });
+    }
+
+    public static BufferedImage replaceColorsBuffered(BufferedImage image, int[] colors, int replacementColor) {
+        return pointProcessingBuffered(deepCopyImage(image), (rgba, x, y) -> {
             for (int color : colors) {
                 int pixel = new Color(rgba[0], rgba[1], rgba[2], rgba[3]).getRGB();
 

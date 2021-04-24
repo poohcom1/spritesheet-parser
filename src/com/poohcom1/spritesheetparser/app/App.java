@@ -32,22 +32,9 @@ public class App {
         tabbedPane.addTab("Spritesheet Editing", new ImageTools().mainPanel);
         tabbedPane.addTab("Sprite Extraction", blobDetectionTools.mainPanel);
 
-        tabbedPane.addChangeListener(l -> window.pack());
+        tabbedPane.addChangeListener(l -> packInBounds());
 
-        GraphicsConfiguration gc = window.getGraphicsConfiguration();
 
-        Rectangle bounds = gc.getBounds();
-
-        Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
-
-        Rectangle effectiveScreenArea = new Rectangle();
-
-        effectiveScreenArea.x = bounds.x + screenInsets.left;
-        effectiveScreenArea.y = bounds.y + screenInsets.top;
-        effectiveScreenArea.height = bounds.height - screenInsets.top - screenInsets.bottom;
-        effectiveScreenArea.width = bounds.width - screenInsets.left - screenInsets.right;
-
-        window.setMaximumSize(new Dimension(effectiveScreenArea.width, effectiveScreenArea.height));
         window.add(tabbedPane);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.pack();
@@ -58,6 +45,12 @@ public class App {
         new App();
     }
 
+
+    // Thanks to https://stackoverflow.com/questions/40577930/java-set-maximum-size-of-jframe
+
+    /**
+     * Packs frame while making sure not to overlap with taskbar
+     */
     private static void packInBounds() {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Rectangle bounds = env.getMaximumWindowBounds();

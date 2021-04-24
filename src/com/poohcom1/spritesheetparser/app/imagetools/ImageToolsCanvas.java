@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,9 @@ public class ImageToolsCanvas extends ImageCanvas {
 
     private final BufferedImage originalSpriteSheet;
     private BufferedImage spriteSheet;
+
+    public Color SHADE_COLOR = new Color(0 , 0, 0, 74);
+
     public List<Color> backgroundColors;
     public Color replacementColor = new Color(0,0,0,0);
 
@@ -93,8 +98,17 @@ public class ImageToolsCanvas extends ImageCanvas {
 
     @Override
     protected void drawMarquees(Graphics g) {
-        //Rect marquee = marquees.get(0);
+        if (marquees.size() > 0) {
+            Graphics2D g2 = ((Graphics2D) g);
 
+            Rectangle shade = new Rectangle(getXOffset(), getYOffset(), spriteSheet.getWidth(), spriteSheet.getHeight());
 
+            Area area = new Area(shade);
+
+            area.subtract(new Area(marquees.get(0)));
+
+            g2.setColor(SHADE_COLOR);
+            g2.fill(area);
+        }
     }
 }

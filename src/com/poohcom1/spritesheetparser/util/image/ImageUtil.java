@@ -44,7 +44,6 @@ public class ImageUtil {
     }
 
     public static BufferedImage pointProcessing(BufferedImage image, PixelEditor pixelEditor, boolean loopVertical) {
-        image = deepCopyImage(image);
         ColorModel colorModel = image.getColorModel();
 
         WritableRaster imageRaster = image.getRaster();

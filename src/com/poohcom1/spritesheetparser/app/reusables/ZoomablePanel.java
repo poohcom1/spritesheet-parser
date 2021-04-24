@@ -8,22 +8,20 @@ public class ZoomablePanel extends JScrollPane {
     public final int PAN_KEY = KeyEvent.VK_SPACE;
     public final int ZOOM_KEY = KeyEvent.VK_CONTROL;
 
-    public int panAmount = 50;
+    public int PAN_SPEED = 16;
 
     private int previousX = -1;
     private int previousY = -1;
 
     // Mouse events
-
-
     private boolean doMouseMove = true;
     private boolean doKeyMove = true;
     private boolean doMouseZoom = true;
 
+    // Child component
     private final int MARGINS_X = 50;
     private final int MARGINS_Y = 50;
 
-    // Child component
     private ZoomableComponent child;
 
     public ZoomablePanel(ZoomableComponent zoomComponent) {
@@ -35,7 +33,7 @@ public class ZoomablePanel extends JScrollPane {
         setFocusable(true);
 
 //        setWheelScrollingEnabled(false);
-        getVerticalScrollBar().setUnitIncrement(16);
+        getVerticalScrollBar().setUnitIncrement(PAN_SPEED);
 
         // Set children size based on margins
         zoomComponent.panelXScale = (float) (zoomComponent.width + MARGINS_X)/ zoomComponent.width;
@@ -48,17 +46,14 @@ public class ZoomablePanel extends JScrollPane {
             }
         });
 
-        // THANK YOU MY BRO https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
+
+        // Mouse wheel listener for zooming
         addMouseWheelListener(e -> {
             if (doMouseZoom) mouseWheel_zoom(e, zoomComponent);
         });
 
-
+        // Mouse listener for screen panning
         viewport.getView().addMouseMotionListener(new MouseAdapter() {
-            public void mouseMoved(MouseEvent e) {
-                super.mouseMoved(e);
-            }
-
             public void mouseDragged(MouseEvent e) {
                 if (doMouseMove || SwingUtilities.isMiddleMouseButton(e)) mouseDragged_moveScreen(e);
             }
@@ -83,6 +78,7 @@ public class ZoomablePanel extends JScrollPane {
         viewport.setViewPosition(new Point(x, y));
     }
 
+    // THANK YOU MY BRO https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
     private void mouseWheel_zoom(MouseWheelEvent e, ZoomableComponent zoomComponent) {
         final float ZOOM_AMOUNT = 0.2f;
 
@@ -96,6 +92,7 @@ public class ZoomablePanel extends JScrollPane {
 
         Point pos = this.getViewport().getViewPosition();
 
+        // TODO: Not working near the bottom of images with large y bounds
         int newX = (int)(e.getX()*(zoomFactor) + (1.0 + zoomFactor)*pos.x);
         int newY = (int)(e.getY()*(zoomFactor) + (1.0 + zoomFactor)*pos.y);
         viewport.setViewPosition(new Point(newX, newY));

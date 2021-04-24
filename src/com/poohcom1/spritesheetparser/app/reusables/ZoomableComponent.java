@@ -14,6 +14,9 @@ public abstract class ZoomableComponent extends JComponent {
     public double panelXScale = 1.0;
     public double panelYScale = 1.0;
 
+    protected final int MARGINS_X = 50;
+    protected final int MARGINS_Y = 50;
+
     // Zooming
     protected double xScale = 1.0;
     protected double yScale = 1.0;
@@ -25,6 +28,10 @@ public abstract class ZoomableComponent extends JComponent {
     public ZoomableComponent(int width, int height) {
         this.width = width;
         this.height = height;
+
+        // Set children size based on margins
+        panelXScale = (float) (width + MARGINS_X)/ width;
+        panelYScale = (float) (height + MARGINS_Y)/height;
     }
 
     @Override
@@ -33,6 +40,7 @@ public abstract class ZoomableComponent extends JComponent {
     }
 
     public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
+
 
     /**
      * Transform a position to the corresponding inverse affine transformed coordinate

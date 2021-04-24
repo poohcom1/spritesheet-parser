@@ -17,12 +17,16 @@ import java.io.IOException;
 
 public class App {
     private static JFrame window;
+    private static JTabbedPane tabbedPane;
+
+    private static int SPRITESHEET_EDITING_PANE = 0;
+    private static int SPRITE_EXTRACTION_PANE = 1;
 
     private static BlobDetectionTools blobDetectionTools;
 
     public App() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         window = new JFrame("Sprite Sheet Animator");
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
         tabbedPane.setFocusable(false);
 
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -46,9 +50,8 @@ public class App {
     }
 
 
-    // Thanks to https://stackoverflow.com/questions/40577930/java-set-maximum-size-of-jframe
-
     /**
+     * Courtesy of users/131872/camickr: https://stackoverflow.com/questions/40577930/java-set-maximum-size-of-jframe
      * Packs frame while making sure not to overlap with taskbar
      */
     private static void packInBounds() {
@@ -62,9 +65,7 @@ public class App {
     }
 
 // =============================== Image Editing =====================================================
-
     static class ImageTools {
-        private int[] backgroundColors;
         private BufferedImage spriteSheet;
 
         // Components
@@ -82,12 +83,13 @@ public class App {
             // ======================== LOWER CROP TOOLS PANEL ========================
             JPanel performEditPanel = new JPanel();
 
-            JButton confirmButton = new JButton("Apply Edit");
+            JButton confirmButton = new JButton("Extract Sprites!");
             confirmButton.setFocusable(false);
             confirmButton.setEnabled(false);
             confirmButton.addActionListener(l -> {
                 blobDetectionTools.init(((ImageToolsCanvas)imageToolsPane.getChild()).crop());
                 blobDetectionTools.mainPanel.repaint();
+                tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE);
             });
 
             performEditPanel.add(confirmButton);
@@ -134,7 +136,7 @@ public class App {
                             confirmButton.setEnabled(true);
                             toolButtons.setButtonsEnabled(true);
                         } else {
-                            //TODO: Add error dialog box
+                            JOptionPane.showMessageDialog(window, "Invalid file type! Please select an image file", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
@@ -145,7 +147,6 @@ public class App {
             mainPanel.add(toolsPanel, BorderLayout.NORTH);
             mainPanel.add(performEditPanel, BorderLayout.SOUTH);
         }
-
     }
 
     // Courtesy of https://www.tutorialspoint.com/swingexamples/show_file_chooser_images_only.htm
@@ -196,7 +197,7 @@ public class App {
         }
     }
 
-
+    // ======================================= BLOB DETECTION =======================================
     static class BlobDetectionTools {
         // Parameters
         private int[] backgroundColors;
@@ -240,7 +241,7 @@ public class App {
 
             backgroundColors = ImageUtil.findBackgroundColor(image);
 
-            mainPanel.setLayout(new GridLayout(3, 1));
+            mainPanel.setLayout(new BorderLayout());
 
             // Components
             blobPanel = new ZoomablePanel(new BlobCanvas(image));
@@ -248,9 +249,9 @@ public class App {
             updateCanvas();
 
             // BLOB
-            mainPanel.add(blobPanel);
-            mainPanel.add(setCanvasOptions());
-            mainPanel.add(setBlobOptions());
+            mainPanel.add(blobPanel, BorderLayout.CENTER);
+            mainPanel.add(setCanvasOptions(), BorderLayout.WEST);
+            mainPanel.add(setBlobOptions(), BorderLayout.NORTH);
             mainPanel.revalidate();
         }
 
@@ -258,10 +259,13 @@ public class App {
         private JPanel setCanvasOptions() {
             ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
 
+            optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
+
             BlobCanvas imageCanvas = (BlobCanvas) blobPanel.getChild();
 
             optionsPanel.addButton("Move", () -> imageCanvas.setTool(ImageCanvas.MOVE_TOOL));
-            optionsPanel.addButton("Select", () -> imageCanvas.setTool(ImageCanvas.MARQUEE_TOOL));
+            optionsPanel.addButton("Merge", () -> imageCanvas.setTool(ImageCanvas.MARQUEE_TOOL));
+            optionsPanel.addButton("Remove", () -> imageCanvas.setTool(ImageCanvas.MARQUEE_TOOL));
 
 
             return optionsPanel;

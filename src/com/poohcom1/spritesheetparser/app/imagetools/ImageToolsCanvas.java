@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,9 +72,9 @@ public class ImageToolsCanvas extends ImageCanvas {
 
     public BufferedImage crop() {
         BufferedImage crop;
-        if (marquees.size() > 0) {
-            Rect marquee = marquees.get(0);
-            crop = spriteSheet.getSubimage(marquee.x - getXOffset(), marquee.y - getYOffset(), marquee.width, marquee.height);
+        if (getTrueMarqueesCoords().size() > 0) {
+            Rect marquee = getTrueMarqueesCoords().get(0);
+            crop = spriteSheet.getSubimage(marquee.x, marquee.y, marquee.width, marquee.height);
         } else {
             crop = spriteSheet;
         }
@@ -97,18 +96,18 @@ public class ImageToolsCanvas extends ImageCanvas {
     }
 
     @Override
-    protected void drawMarquees(Graphics g) {
-        if (marquees.size() > 0) {
-            Graphics2D g2 = ((Graphics2D) g);
+    protected void drawMarquee(Graphics g, Rect marquee) {
 
-            Rectangle shade = new Rectangle(getXOffset(), getYOffset(), spriteSheet.getWidth(), spriteSheet.getHeight());
+        Graphics2D g2 = ((Graphics2D) g);
 
-            Area area = new Area(shade);
+        Rectangle shade = new Rectangle(getXOffset(), getYOffset(), spriteSheet.getWidth(), spriteSheet.getHeight());
 
-            area.subtract(new Area(marquees.get(0)));
+        Area area = new Area(shade);
 
-            g2.setColor(SHADE_COLOR);
-            g2.fill(area);
-        }
+        area.subtract(new Area(marquee));
+
+        g2.setColor(SHADE_COLOR);
+        g2.fill(area);
+
     }
 }

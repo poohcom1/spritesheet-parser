@@ -21,19 +21,23 @@ public class BlobSequence extends ArrayList<Blob> {
     public BlobSequence(BufferedImage image, int[] backgroundColor, int threshold, int primaryOrder, int secondaryOrder) {
         super(detectBlobs(image, backgroundColor, threshold));
 
-        sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
-
         this.primaryOrder = primaryOrder;
         this.secondaryOrder = secondaryOrder;
+
+        orderBlobs();
     }
 
     public BlobSequence(List<Blob> unorderedBlobs, int primaryOrder, int secondaryOrder) {
         super(unorderedBlobs);
 
-        sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
-
         this.primaryOrder = primaryOrder;
         this.secondaryOrder = secondaryOrder;
+
+        orderBlobs();
+    }
+
+    public void orderBlobs() {
+        sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
     }
 
     public String toString() {
@@ -211,6 +215,11 @@ public class BlobSequence extends ArrayList<Blob> {
         mergeBlobs(blobs);
 
         return blobs;
+    }
+
+    public void mergeBlob(Blob blob1, Blob blob2) {
+        blob1 = new Blob(blob1, blob2);
+        remove(blob2);
     }
 
     public static void mergeBlobs(List<Blob> blobList) {

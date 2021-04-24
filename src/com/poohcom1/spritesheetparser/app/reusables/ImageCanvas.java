@@ -26,8 +26,8 @@ public class ImageCanvas extends ZoomableComponent {
     // Objects
     protected int maxMarqueeCount;
 
-    protected List<Rect> marquees;
-    protected List<Point> penPoints;
+    private List<Rect> marqueePoints;
+    private List<Point> penPoints;
 
     private float _dashPhase;
     private float _dashInc = 0;
@@ -41,7 +41,7 @@ public class ImageCanvas extends ZoomableComponent {
         super(width, height);
 
         maxMarqueeCount = 100;
-        marquees = new ArrayList<>();
+        marqueePoints = new ArrayList<>();
         penPoints = new ArrayList<>();
 
         _dashPhase = 0.0f;
@@ -62,20 +62,20 @@ public class ImageCanvas extends ZoomableComponent {
     }
 
     // Move tool
-    public final MouseAdapter moveToolCallback = new MouseAdapter() {
+    public MouseAdapter moveToolCallback = new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
             parentPanel.setMouseMove(true);
         }
     };
 
-    public final MouseAdapter marqueeToolCallback = new MouseAdapter() {
+    public MouseAdapter marqueeToolCallback = new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
             parentPanel.setMouseMove(false);
 
             if (SwingUtilities.isLeftMouseButton(e)/* && !parentPanel.panKeyPressed()*/) {
-                startMarquee(inverseTransformPoint(e.getPoint()));
+                startMarquee(marqueePoints, e.getPoint());
                 repaint();
             }
         }
@@ -83,9 +83,14 @@ public class ImageCanvas extends ZoomableComponent {
         @Override
         public void mouseDragged(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) {
-                dragMarquee(inverseTransformPoint(e.getPoint()));
+                dragMarquee(marqueePoints, e.getPoint());
                 repaint();
             }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            endMarquee(marqueePoints, e.getPoint());
         }
     };
 
@@ -104,7 +109,9 @@ public class ImageCanvas extends ZoomableComponent {
         if (_dashPhase >= 4.0f) _dashPhase = 0f;
     }
 
-    public void startMarquee(Point point) {
+    protected void startMarquee(List<Rect> marquees, Point point) {
+        point = inverseTransformPoint(point);
+
         point = clampPoint(point);
 
         Rect newMarquee = new Rect(point, point);
@@ -116,9 +123,16 @@ public class ImageCanvas extends ZoomableComponent {
         marquees.add(newMarquee);
     }
 
-    public void dragMarquee(Point pos) {
+    protected void dragMarquee(List<Rect> marquees, Point pos) {
         if (marquees.isEmpty()) return;
+        pos = inverseTransformPoint(pos);
         marquees.get(marquees.size() - 1).resizeWithAnchor(clampPoint(pos));
+    }
+
+    protected void endMarquee(List<Rect> marquees, Point pos) {
+        if (maxMarqueeCount == -1) {
+            marquees.clear();
+        }
     }
 
     private Point clampPoint(Point point) {
@@ -136,13 +150,22 @@ public class ImageCanvas extends ZoomableComponent {
         super.paintComponent(g);
     }
 
+
     protected void drawMarquees(Graphics g){
+        marqueePoints.forEach(marquee -> {
+            drawMarquee(g, marquee);
+        });
+    }
+
+    protected void drawMarquee(Graphics g, Rect marquee) {
         double[] dashes = {4.0f, 1.0f};
         try {
             transform.inverseTransform(dashes, 0, dashes, 0, 1);
         } catch (NoninvertibleTransformException e) {
             e.printStackTrace();
         }
+
+        g.setColor(Color.BLACK);
 
         float[] floatDashes = {(float) dashes[0], (float) dashes[0]};
         _dashInc = (float) dashes[1];
@@ -155,8 +178,24 @@ public class ImageCanvas extends ZoomableComponent {
                 floatDashes,          // Dash pattern
                 _dashPhase));
 
-        g.setColor(Color.BLACK);
-        marquees.forEach(marquee -> g.drawRect(marquee.x, marquee.y, marquee.width, marquee.height));
+        g.drawRect(marquee.x, marquee.y, marquee.width, marquee.height);
+    }
+
+    protected Rect getTrueMarqueeCoords(Rect marquee) {
+        return new Rect(marquee.x - getXOffset(),
+                marquee.y - getYOffset(),
+                marquee.x - getXOffset() + marquee.width,
+                marquee.y - getYOffset() + marquee.height);
+    }
+
+    protected List<Rect> getTrueMarqueesCoords() {
+        List<Rect> transformedMarquees = new ArrayList<>();
+
+        for (Rect marquee : marqueePoints) {
+            transformedMarquees.add(getTrueMarqueeCoords(marquee));
+        }
+
+        return transformedMarquees;
     }
 
     protected void drawGrid(Graphics g) {

@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlobCanvas extends ImageCanvas {
+    // Tools
+    public static String MERGE_TOOL = "merge";
+
     // Options
     private boolean _showBlobs = true;
     private boolean _showPoints = true;
@@ -26,12 +29,30 @@ public class BlobCanvas extends ImageCanvas {
     public BlobCanvas(BufferedImage image) {
         super(image.getWidth(), image.getHeight());
 
+        maxMarqueeCount = -1;
+
         setImage(image);
         this.blobs = new ArrayList<>();
         this.points = new ArrayList<>();
     }
 
+    @Override
+    protected void endMarquee(List<Rect> marquees, Point pos) {
+        if (marquees.size() > 0) {
+            Rect marquee = getTrueMarqueesCoords().get(0);
 
+            System.out.println(marquee + " Intersects: ");
+
+            blobs.forEach(blob -> {
+                if (marquee.contains(blob) || marquee.intersects(blob)) {
+                    System.out.print(blobs.indexOf(blob) + ", ");
+                }
+            });
+
+            System.out.println();
+        }
+        marquees.clear();
+    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -58,8 +79,9 @@ public class BlobCanvas extends ImageCanvas {
                 g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width+1, rect.height+1);
 
                 if (_showNumbers) {
-                    g.setColor(Color.BLUE);
-                    g.drawString(String.valueOf(i), (int) (rect.x + rect.width * 0.75)  + xOffset, rect.y + rect.height + yOffset);
+
+                    g.setColor(Color.BLACK);
+                    g.drawString(String.valueOf(i), rect.x + rect.width + xOffset, rect.y + rect.height + yOffset);
                 }
             }
         }

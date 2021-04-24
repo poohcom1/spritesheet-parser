@@ -51,6 +51,10 @@ public class Rect extends Rectangle {
         height = y - this.y;
     }
 
+    public Point getMin() {return new Point(x, y);}
+
+    public Point getMax() {return new Point(x + width, y + height);}
+
     public int maxX() {
         return x + width;
     }

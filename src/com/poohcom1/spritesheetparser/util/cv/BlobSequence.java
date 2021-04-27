@@ -168,7 +168,6 @@ public class BlobSequence extends ArrayList<Blob> {
     public static List<Blob> detectDiscreteBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         List<Blob> blobList = new ArrayList<>();
 
-        long time = System.currentTimeMillis();
         ImageUtil.pointProcessing(image, (rgba, x, y) -> {
             boolean skip = false;
 
@@ -212,17 +211,35 @@ public class BlobSequence extends ArrayList<Blob> {
      */
     public static List<Blob> detectBlobs(BufferedImage image, int[] backgroundColor, int distanceThreshold) {
         List<Blob> blobs = detectDiscreteBlobs(image, backgroundColor, distanceThreshold);
-        mergeBlobs(blobs);
+        autoMergeBlobs(blobs);
 
         return blobs;
     }
 
-    public void mergeBlob(Blob blob1, Blob blob2) {
-        blob1 = new Blob(blob1, blob2);
+    private void mergeBlob(Blob blob1, Blob blob2) {
+        set(indexOf(blob1), new Blob(blob1, blob2));
         remove(blob2);
     }
 
-    public static void mergeBlobs(List<Blob> blobList) {
+    public void mergeBlobs(List<Blob> blobs) {
+        Rect bounds = ShapesUtil.mergeRects(blobs);
+        Blob newBlob = new Blob(bounds.x, bounds.y, (int) bounds.getMaxX(), (int) bounds.getMaxY());
+
+        for (int i = size() -1; i >= 0; i--) {
+            if (blobs.contains(get(i))) {
+                if (blobs.size() <= 1) {
+                    set(i, newBlob);
+                    return;
+                }
+
+                blobs.remove(get(i));
+                remove(i);
+            }
+        }
+    }
+
+
+    public static void autoMergeBlobs(List<Blob> blobList) {
         //int mergeCount = 0;
         //int originalSize = blobList.size();
 

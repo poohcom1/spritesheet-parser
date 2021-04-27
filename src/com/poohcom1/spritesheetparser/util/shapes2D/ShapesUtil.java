@@ -1,5 +1,7 @@
 package com.poohcom1.spritesheetparser.util.shapes2D;
 
+import com.poohcom1.spritesheetparser.util.cv.Blob;
+
 import java.awt.*;
 import java.util.HashSet;
 import java.util.List;
@@ -66,5 +68,21 @@ public class ShapesUtil {
         }
 
         return minSidePositions;
+    }
+
+    public static Rect mergeRects(List<? extends Rect> rects) {
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = 0;
+        int maxY = 0;
+
+        for (Rect rect: rects) {
+            if (rect.x < minX) minX = rect.x;
+            if (rect.y < minY) minY = rect.y;
+            if (rect.maxX() > maxX) maxX = rect.maxX();
+            if (rect.maxY() > maxY) maxY = rect.maxY();
+        }
+
+        return new Rect(minX, minY, maxX, maxY);
     }
 }

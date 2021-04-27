@@ -2,6 +2,7 @@ package com.poohcom1.spritesheetparser.app.blobdetection;
 
 import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
+import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
 import java.awt.*;
@@ -23,8 +24,8 @@ public class BlobCanvas extends ImageCanvas {
 
     // Objects
     private BufferedImage image;
-    private java.util.List<Blob> blobs;
-    private java.util.List<Point> points;
+    private List<Blob> blobs;
+    private List<Point> points;
 
     public BlobCanvas(BufferedImage image) {
         super(image.getWidth(), image.getHeight());
@@ -37,19 +38,21 @@ public class BlobCanvas extends ImageCanvas {
     }
 
     @Override
+    // Find the blobs to merge
     protected void endMarquee(List<Rect> marquees, Point pos) {
         if (marquees.size() > 0) {
             Rect marquee = getTrueMarqueesCoords().get(0);
 
-            System.out.println(marquee + " Intersects: ");
+
+            List<Blob> foundBlob = new ArrayList<>();
 
             blobs.forEach(blob -> {
-                if (marquee.contains(blob) || marquee.intersects(blob)) {
-                    System.out.print(blobs.indexOf(blob) + ", ");
+                if (marquee.contains(blob)) {
+                    foundBlob.add(blob);
                 }
             });
 
-            System.out.println();
+            ((BlobSequence) blobs).mergeBlobs(foundBlob);
         }
         marquees.clear();
     }

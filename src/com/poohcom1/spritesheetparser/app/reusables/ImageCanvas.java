@@ -21,7 +21,7 @@ public class ImageCanvas extends ZoomableComponent {
     public static final String MARQUEE_TOOL = "marquee";
     public static final String PEN_TOOL = "pen";
 
-    private Map<String, MouseAdapter> toolMap;
+    private final Map<String, MouseAdapter> toolMap;
 
     // Objects
     protected int maxMarqueeCount;
@@ -54,7 +54,7 @@ public class ImageCanvas extends ZoomableComponent {
 
         toolMap = new HashMap<>();
         toolMap.put(MOVE_TOOL, moveToolCallback);
-        toolMap.put(MARQUEE_TOOL, marqueeToolCallback);
+        toolMap.put(MARQUEE_TOOL, new MarqueeToolCallback());
     }
 
     public void addTool(String name, MouseAdapter callback) {
@@ -69,7 +69,8 @@ public class ImageCanvas extends ZoomableComponent {
         }
     };
 
-    public MouseAdapter marqueeToolCallback = new MouseAdapter() {
+    // Marquee tool
+    protected class MarqueeToolCallback extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent e) {
             parentPanel.setMouseMove(false);
@@ -92,7 +93,33 @@ public class ImageCanvas extends ZoomableComponent {
         public void mouseReleased(MouseEvent e) {
             endMarquee(marqueePoints, e.getPoint());
         }
-    };
+
+        protected void startMarquee(List<Rect> marquees, Point point) {
+            point = getCanvasPosition(point);
+
+            point = clampPoint(point);
+
+            Rect newMarquee = new Rect(point, point);
+            newMarquee.setAnchor();
+
+            if (marquees.size() == maxMarqueeCount) {
+                marquees.remove(0);
+            }
+            marquees.add(newMarquee);
+        }
+
+        protected void dragMarquee(List<Rect> marquees, Point pos) {
+            if (marquees.isEmpty()) return;
+            pos = getCanvasPosition(pos);
+            marquees.get(marquees.size() - 1).resizeWithAnchor(clampPoint(pos));
+        }
+
+        protected void endMarquee(List<Rect> marquees, Point pos) {
+            if (maxMarqueeCount == -1) {
+                marquees.clear();
+            }
+        }
+    }
 
     public void setTool(String tool) {
         removeMouseListener(mousePressedToolCallback);
@@ -107,32 +134,6 @@ public class ImageCanvas extends ZoomableComponent {
     private void animatedDashPhase() {
         _dashPhase += _dashInc;
         if (_dashPhase >= 4.0f) _dashPhase = 0f;
-    }
-
-    protected void startMarquee(List<Rect> marquees, Point point) {
-        point = inverseTransformPoint(point);
-
-        point = clampPoint(point);
-
-        Rect newMarquee = new Rect(point, point);
-        newMarquee.setAnchor();
-
-        if (marquees.size() == maxMarqueeCount) {
-            marquees.remove(0);
-        }
-        marquees.add(newMarquee);
-    }
-
-    protected void dragMarquee(List<Rect> marquees, Point pos) {
-        if (marquees.isEmpty()) return;
-        pos = inverseTransformPoint(pos);
-        marquees.get(marquees.size() - 1).resizeWithAnchor(clampPoint(pos));
-    }
-
-    protected void endMarquee(List<Rect> marquees, Point pos) {
-        if (maxMarqueeCount == -1) {
-            marquees.clear();
-        }
     }
 
     private Point clampPoint(Point point) {
@@ -218,5 +219,7 @@ public class ImageCanvas extends ZoomableComponent {
         for (int i = 0; i < cols; i++)
             g.drawLine(i * rowWid + getXOffset(), getYOffset(), i * rowWid + getXOffset(), height + getYOffset()-1);
     }
+
+
 }
 

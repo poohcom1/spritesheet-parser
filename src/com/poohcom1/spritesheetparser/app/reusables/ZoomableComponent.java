@@ -41,6 +41,16 @@ public abstract class ZoomableComponent extends JComponent {
 
     public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
 
+    protected Point getCanvasPosition(Point pos) {
+        return inverseTransformPoint(pos);
+    }
+
+    protected Point getImagePosition(Point pos) {
+        Point transformedPoint = inverseTransformPoint(pos);
+        transformedPoint.x -= getXOffset();
+        transformedPoint.y -= getYOffset();
+        return transformedPoint;
+    }
 
     /**
      * Transform a position to the corresponding inverse affine transformed coordinate
@@ -87,7 +97,6 @@ public abstract class ZoomableComponent extends JComponent {
         xScale *= 1.0 - zoomAmount;
         yScale *= 1.0 - zoomAmount;
     }
-
 
     protected int getXOffset() {
         return (int) ((width *  panelXScale - width)/2);

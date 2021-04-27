@@ -6,6 +6,8 @@ import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.List;
 public class BlobCanvas extends ImageCanvas {
     // Tools
     public static String MERGE_TOOL = "merge";
+    public static String REMOVE_TOOL = "remove";
+
 
     // Options
     private boolean _showBlobs = true;
@@ -35,27 +39,45 @@ public class BlobCanvas extends ImageCanvas {
         setImage(image);
         this.blobs = new ArrayList<>();
         this.points = new ArrayList<>();
-    }
 
-    @Override
-    // Find the blobs to merge
-    protected void endMarquee(List<Rect> marquees, Point pos) {
-        if (marquees.size() > 0) {
-            Rect marquee = getTrueMarqueesCoords().get(0);
+        addTool(MERGE_TOOL, new MarqueeToolCallback() {
+            @Override
+            protected void endMarquee(List<Rect> marquees, Point pos) {
+                if (marquees.size() > 0) {
+                    Rect marquee = getTrueMarqueesCoords().get(0);
 
+                    List<Blob> foundBlob = new ArrayList<>();
 
-            List<Blob> foundBlob = new ArrayList<>();
+                    blobs.forEach(blob -> {
+                        if (marquee.contains(blob)) {
+                            foundBlob.add(blob);
 
-            blobs.forEach(blob -> {
-                if (marquee.contains(blob)) {
-                    foundBlob.add(blob);
+                        }
+                    });
+
+                    ((BlobSequence) blobs).mergeBlobs(foundBlob);
                 }
-            });
-
-            ((BlobSequence) blobs).mergeBlobs(foundBlob);
-        }
-        marquees.clear();
+                marquees.clear();
+            }
+        });
+        addTool(REMOVE_TOOL, new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                deleteBlobAtPoint(getImagePosition(e.getPoint()));
+            }
+            public void mouseDragged(MouseEvent e) {
+                deleteBlobAtPoint(getImagePosition(e.getPoint()));
+            }
+            private void deleteBlobAtPoint(Point point) {
+                for (int i = blobs.size()-1; i >= 0; i--) {
+                    if (blobs.get(i).contains(point)) {
+                        blobs.remove(i);
+                    }
+                }
+            }
+        });
     }
+
+
 
     @Override
     public void paintComponent(Graphics g) {
@@ -72,14 +94,14 @@ public class BlobCanvas extends ImageCanvas {
             for (int i = 0; i < blobs.size(); i++) {
                 Rect rect = blobs.get(i);
                 g.setColor(_blobColor);
-                ((Graphics2D)g).setStroke(new BasicStroke(
-                        (float) (1.5f/xScale),                      // Width
+                ((Graphics2D) g).setStroke(new BasicStroke(
+                        (float) (1.5f / xScale),                      // Width
                         BasicStroke.CAP_SQUARE,    // End cap
                         BasicStroke.JOIN_BEVEL,    // Join style
                         1.0f,                     // Miter limit
-                        new float[] {(float) (2.0f), (float) (2.0f)},          // Dash pattern
+                        new float[]{(float) (2.0f), (float) (2.0f)},          // Dash pattern
                         0.1f));
-                g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width+1, rect.height+1);
+                g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width + 1, rect.height + 1);
 
                 if (_showNumbers) {
 
@@ -99,7 +121,10 @@ public class BlobCanvas extends ImageCanvas {
         drawMarquees(g);
     }
 
-    public void setImage(BufferedImage image) {this.image = image; setSize(image.getWidth(), image.getHeight());}
+    public void setImage(BufferedImage image) {
+        this.image = image;
+        setSize(image.getWidth(), image.getHeight());
+    }
 
     public void setBlobs(java.util.List<Blob> blobs) {
         this.blobs = blobs;

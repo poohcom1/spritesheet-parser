@@ -264,8 +264,8 @@ public class App {
             BlobCanvas imageCanvas = (BlobCanvas) blobPanel.getChild();
 
             optionsPanel.addButton("Move", () -> imageCanvas.setTool(ImageCanvas.MOVE_TOOL));
-            optionsPanel.addButton("Merge", () -> imageCanvas.setTool(ImageCanvas.MARQUEE_TOOL));
-            optionsPanel.addButton("Remove", () -> imageCanvas.setTool(ImageCanvas.MARQUEE_TOOL));
+            optionsPanel.addButton("Merge", () -> imageCanvas.setTool(BlobCanvas.MERGE_TOOL));
+            optionsPanel.addButton("Remove", () -> imageCanvas.setTool(BlobCanvas.REMOVE_TOOL));
 
 
             return optionsPanel;

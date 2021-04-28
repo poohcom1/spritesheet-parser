@@ -131,7 +131,7 @@ public class BlobCanvas extends ToolsCanvas {
                         BasicStroke.CAP_SQUARE,    // End cap
                         BasicStroke.JOIN_BEVEL,    // Join style
                         1.0f,                     // Miter limit
-                        new float[]{(float) (2.0f), (float) (2.0f)},          // Dash pattern
+                        new float[]{2.0f, 2.0f},          // Dash pattern
                         0.1f));
                 g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width + 1, rect.height + 1);
 

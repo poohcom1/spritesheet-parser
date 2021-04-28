@@ -8,6 +8,7 @@ import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomableScrollPane;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
+import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -234,8 +235,10 @@ public class App {
         ZoomableScrollPane<SpritePlayer> spritePanel;
 
         SpritePlayer spritePlayer;
-
         JPanel mainPanel;
+
+        // Sprite player controls
+        int fps = 12;
 
         public BlobDetectionTools(BufferedImage image) {
             this.image = image;
@@ -266,15 +269,23 @@ public class App {
             blobPanel.getChild().addUpdateListener(this::updateSpritePlayer);
             updateBlobs();
 
-            spritePlayer = new SpritePlayer(new SpriteSequence(image, blobSequence), 160);
+            // Sprite player
+            JPanel spritePlayerPanel = new JPanel();
+            spritePlayerPanel.setLayout(new BoxLayout(spritePlayerPanel,BoxLayout.PAGE_AXIS));
 
+            spritePlayer = new SpritePlayer(new SpriteSequence(image, blobSequence), (long) SpriteUtil.MsFromFps(fps));
             spritePanel = new ZoomableScrollPane<>(spritePlayer);
+
+            spritePlayerPanel.add(spritePanel);
+            spritePlayerPanel.add(setSpritePLayerOptions());
+
+            spritePlayerPanel.setBorder(BorderFactory.createTitledBorder("Sprite Player"));
 
             // BLOB
             mainPanel.add(blobPanel, BorderLayout.CENTER);
             mainPanel.add(setCanvasOptions(), BorderLayout.WEST);
             mainPanel.add(setBlobOptions(), BorderLayout.NORTH);
-            mainPanel.add(spritePanel, BorderLayout.EAST);
+            mainPanel.add(spritePlayerPanel, BorderLayout.EAST);
             mainPanel.revalidate();
         }
 
@@ -393,6 +404,49 @@ public class App {
             detectBlobs();
             BlobCanvas blobCanvas = blobPanel.getChild();
             blobCanvas.repaint();
+        }
+
+        private JPanel setSpritePLayerOptions() {
+            JPanel options = new JPanel();
+
+
+            JToggleButton playButton = new JToggleButton("❚❚");
+            playButton.addActionListener(l -> {
+                if (spritePanel.getChild().isPlaying()){
+                    playButton.setSelected(true);
+                    spritePanel.getChild().pause();
+                } else {
+                    playButton.setSelected(false);
+                    spritePanel.getChild().play();
+                }
+            });
+
+            JButton fpsUp = new JButton("+");
+            JButton fpsDown = new JButton("-");
+
+            JLabel fpsLabel = new JLabel(String.format("%2d", fps));
+            fpsUp.addActionListener(l -> {
+                fps++;
+                spritePlayer.setMsPerFrame((long) SpriteUtil.MsFromFps(fps));
+                updateSpritePlayer();
+                fpsLabel.setText(String.format("%2d", fps));
+            });
+            fpsDown.addActionListener(l -> {
+                if (fps > 1) fps--;
+                updateSpritePlayer();
+                spritePlayer.setMsPerFrame((long) SpriteUtil.MsFromFps(fps));
+                fpsLabel.setText(String.format("%2d", fps));
+            });
+
+            options.add(playButton);
+            options.add(new JLabel("FPS: "));
+            options.add(fpsDown);
+            options.add(fpsLabel);
+            options.add(fpsUp);
+
+            for (Component c: options.getComponents()) {c.setFocusable(false);}
+
+            return options;
         }
     }
 }

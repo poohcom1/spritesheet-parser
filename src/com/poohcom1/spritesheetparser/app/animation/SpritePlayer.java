@@ -33,7 +33,7 @@ public class SpritePlayer extends ZoomComponent {
         animator.scheduleAtFixedRate(animationCallback, 0, msPerFrame, TimeUnit.MILLISECONDS);
     }
 
-    private final Runnable animationCallback = (Runnable) () -> {
+    private final Runnable animationCallback = () -> {
         if (_isPlaying) {
             _frame++;
             if (_frame > sprites.size()-1) {
@@ -52,7 +52,10 @@ public class SpritePlayer extends ZoomComponent {
     }
 
     public void setMsPerFrame(long msPerFrame) {
+        animator.shutdown();
         this.msPerFrame = msPerFrame;
+        animator = Executors.newScheduledThreadPool(1);
+        animator.scheduleAtFixedRate(animationCallback, 0, msPerFrame, TimeUnit.MILLISECONDS);
     }
 
     public void play() {
@@ -62,6 +65,8 @@ public class SpritePlayer extends ZoomComponent {
     public void pause() {
         _isPlaying = false;
     }
+
+    public boolean isPlaying() {return _isPlaying;}
 
     @Override
     protected void paintComponent(Graphics g) {

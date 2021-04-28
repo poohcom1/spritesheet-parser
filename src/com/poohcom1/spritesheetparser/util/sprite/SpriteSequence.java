@@ -16,20 +16,18 @@ public class SpriteSequence extends ArrayList<Sprite> {
     private final BufferedImage spriteSheet;
     private final BlobSequence blobSequence;
 
-    public Dimension dimension;
 
     public SpriteSequence(BufferedImage spriteSheet, BlobSequence blobSequence) {
         this.spriteSheet = spriteSheet;
         this.blobSequence = blobSequence;
 
-        dimension = getDimensions();
-        addAll(extractBlobSprites(spriteSheet, blobSequence, dimension));
+        addAll(extractBlobSprites(spriteSheet, blobSequence, getDimensions()));
     }
 
     /**
      * Extract the maximum dimension in one direction, and the
      */
-    private Dimension getDimensions() {
+    public Dimension getDimensions() {
         int width;
         int height;
 
@@ -57,6 +55,8 @@ public class SpriteSequence extends ArrayList<Sprite> {
      * @return
      */
     public static List<Sprite> extractBlobSprites(BufferedImage image, BlobSequence blobSequence, Dimension spriteDimension) {
+        if (blobSequence.size() <= 0) return new ArrayList<>();
+
         List<Sprite> spriteList = new ArrayList<>();
 
         for (List<Blob> blobRow: blobSequence.getRows()) {
@@ -73,7 +73,6 @@ public class SpriteSequence extends ArrayList<Sprite> {
                     xOffset = blob.x - rowDimensions.x;
                 }
 
-                // TODO: Why the hell is this even necessary
                 BufferedImage subImage = image.getSubimage(blob.x, blob.y,
                         blob.width+1,
                         blob.height+1);
@@ -86,6 +85,5 @@ public class SpriteSequence extends ArrayList<Sprite> {
 
         return spriteList;
     }
-
 
 }

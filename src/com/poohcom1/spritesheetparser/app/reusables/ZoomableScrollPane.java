@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class ZoomablePanel extends JScrollPane {
+public class ZoomableScrollPane<Z extends ZoomComponent> extends JScrollPane {
     public final int PAN_KEY = KeyEvent.VK_SPACE;
     public final int ZOOM_KEY = KeyEvent.VK_CONTROL;
 
@@ -19,9 +19,9 @@ public class ZoomablePanel extends JScrollPane {
     private boolean doMouseZoom = true;
 
     // Child component
-    private ZoomableComponent child;
+    private final ZoomComponent child;
 
-    public ZoomablePanel(ZoomableComponent zoomComponent) {
+    public ZoomableScrollPane(ZoomComponent zoomComponent) {
         super(zoomComponent);
         zoomComponent.setParent(this);
 
@@ -58,7 +58,7 @@ public class ZoomablePanel extends JScrollPane {
         child = zoomComponent;
     }
 
-    public ZoomableComponent getChild() {return child;}
+    public Z getChild() {return (Z) child;}
 
     public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}
     public void setKeyMove(boolean doKeyMove) {this.doKeyMove = doKeyMove;}
@@ -74,7 +74,7 @@ public class ZoomablePanel extends JScrollPane {
     }
 
     // THANK YOU MY BRO: users/1936928/absolom: https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
-    private void mouseWheel_zoom(MouseWheelEvent e, ZoomableComponent zoomComponent) {
+    private void mouseWheel_zoom(MouseWheelEvent e, ZoomComponent zoomComponent) {
         final float ZOOM_AMOUNT = 0.2f;
 
         float zoomFactor = ZOOM_AMOUNT;

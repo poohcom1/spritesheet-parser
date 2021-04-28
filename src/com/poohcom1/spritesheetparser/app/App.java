@@ -1,13 +1,13 @@
 package com.poohcom1.spritesheetparser.app;
 
+import com.poohcom1.spritesheetparser.app.animation.SpritePlayer;
 import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
-import com.poohcom1.spritesheetparser.app.reusables.EditCanvas;
 import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
-import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
-import com.poohcom1.spritesheetparser.app.reusables.ZoomablePanel;
+import com.poohcom1.spritesheetparser.app.reusables.ZoomableScrollPane;
+import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -75,13 +75,13 @@ public class App {
         final JPanel mainPanel;
         final JPanel toolsPanel;
 
-        private ZoomablePanel imageToolsPane;
+        private ZoomableScrollPane imageToolsPane;
 
         ImageTools() {
             mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
 
-            imageToolsPane = new ZoomablePanel(new ImageToolsCanvas());
+            imageToolsPane = new ZoomableScrollPane(new ImageToolsCanvas());
 
             // ======================== LOWER CROP TOOLS PANEL ========================
             JPanel performEditPanel = new JPanel();
@@ -131,7 +131,7 @@ public class App {
 
                             System.out.println("Image loaded!");
 
-                            imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
+                            imageToolsPane = new ZoomableScrollPane(new ImageToolsCanvas(spriteSheet));
 
                             ImageToolsCanvas newImageCanvas = ((ImageToolsCanvas) imageToolsPane.getChild());
 
@@ -227,14 +227,15 @@ public class App {
 
         // Objects
         private BufferedImage image;
-        private BlobSequence blobs;
+        private BlobSequence blobSequence;
 
-        ZoomablePanel blobPanel;
+        // Components
+        ZoomableScrollPane<BlobCanvas> blobPanel;
+        ZoomableScrollPane<SpritePlayer> spritePanel;
+
+        SpritePlayer spritePlayer;
 
         JPanel mainPanel;
-
-        // Modals
-        private final JTextField noImage = new JTextField("No sprites loaded");
 
         public BlobDetectionTools(BufferedImage image) {
             this.image = image;
@@ -242,6 +243,8 @@ public class App {
             mainPanel = new JPanel();
 
             if (image == null) {
+                // Modals
+                JTextField noImage = new JTextField("No sprites loaded");
                 mainPanel.add(noImage);
                 return;
             }
@@ -258,30 +261,38 @@ public class App {
             mainPanel.setLayout(new BorderLayout());
 
             // Components
-            blobPanel = new ZoomablePanel(new BlobCanvas(image));
+            blobPanel = new ZoomableScrollPane<>(new BlobCanvas(image));
             blobPanel.centerZoom();
-            updateCanvas();
+            blobPanel.getChild().addUpdateListener(() ->
+                    // Get the sprite player from the sprite panel
+                    ((SpritePlayer) spritePanel.getChild()).setSprites(new SpriteSequence(image, blobSequence))
+            );
+            updateBlobs();
+
+            spritePlayer = new SpritePlayer(new SpriteSequence(image, blobSequence), 160);
+
+            spritePanel = new ZoomableScrollPane<>(spritePlayer);
 
             // BLOB
             mainPanel.add(blobPanel, BorderLayout.CENTER);
             mainPanel.add(setCanvasOptions(), BorderLayout.WEST);
             mainPanel.add(setBlobOptions(), BorderLayout.NORTH);
+            mainPanel.add(spritePanel, BorderLayout.EAST);
             mainPanel.revalidate();
         }
-
 
         private JPanel setCanvasOptions() {
             ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
 
             optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
 
-            BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
+            BlobCanvas blobCanvas = blobPanel.getChild();
 
             blobCanvas.getToolConstants().forEach(toolName ->
-                optionsPanel.addButton(toolName, () -> blobCanvas.setTool(toolName))
+                optionsPanel.addButton(toolName, () -> {
+                    blobCanvas.setTool(toolName);
+                })
             );
-
-
 
             return optionsPanel;
         }
@@ -302,21 +313,21 @@ public class App {
             JButton down = new JButton("+");
 
             up.addActionListener((e) -> {
-                int oldCount = blobs.size();
+                int oldCount = blobSequence.size();
                 do {
                     distanceThreshold++;
                     detectBlobs();
-                } while (blobs.size() == oldCount);
+                } while (blobSequence.size() == oldCount);
                 blobPanel.getChild().repaint();
             });
 
             down.addActionListener((e) -> {
-                int oldCount = blobs.size();
+                int oldCount = blobSequence.size();
                 do {
                     if (distanceThreshold <= 2) break;
                     distanceThreshold--;
                     detectBlobs();
-                } while (blobs.size() == oldCount);
+                } while (blobSequence.size() == oldCount);
                 blobPanel.getChild().repaint();
             });
 
@@ -352,7 +363,7 @@ public class App {
                         secondaryOrder = BlobSequence.LEFT_TO_RIGHT;
                     }
                 }
-                updateCanvas();
+                updateBlobs();
             });
 
             JPanel panel = new JPanel();
@@ -364,15 +375,15 @@ public class App {
         }
 
         private void detectBlobs() {
-            blobs = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
+            blobSequence = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
             BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
 
-            blobCanvas.setBlobs(blobs);
+            blobCanvas.setBlobs(blobSequence);
             blobCanvas.setShowBlobs(showBlobs);
             blobCanvas.setShowPoints(showPoints);
         }
 
-        private void updateCanvas() {
+        private void updateBlobs() {
             detectBlobs();
             BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
             blobCanvas.repaint();

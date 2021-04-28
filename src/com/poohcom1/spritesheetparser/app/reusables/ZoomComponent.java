@@ -2,12 +2,12 @@ package com.poohcom1.spritesheetparser.app.reusables;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ZoomableComponent extends JComponent {
+public class ZoomComponent extends JComponent {
     public final int width;
     public final int height;
 
@@ -23,11 +23,16 @@ public class ZoomableComponent extends JComponent {
 
     protected AffineTransform transform = new AffineTransform();
 
-    protected ZoomablePanel parentPanel;
+    protected ZoomableScrollPane parentPanel;
 
-    public ZoomableComponent(int width, int height) {
+    // Listeners
+    private List<UpdateListener> updateListeners;
+
+    public ZoomComponent(int width, int height) {
         this.width = width;
         this.height = height;
+
+        updateListeners = new ArrayList<>();
 
         // Set children size based on margins
         panelXScale = (float) (width + MARGINS_X)/ width;
@@ -39,7 +44,7 @@ public class ZoomableComponent extends JComponent {
         return new Dimension(getScaledWidth(), getScaledHeight());
     }
 
-    public void setParent(ZoomablePanel parentPanel) {this.parentPanel = parentPanel;}
+    public void setParent(ZoomableScrollPane parentPanel) {this.parentPanel = parentPanel;}
 
     protected Point getCanvasPosition(Point pos) {
         return inverseTransformPoint(pos);
@@ -111,5 +116,21 @@ public class ZoomableComponent extends JComponent {
         transform = new AffineTransform();
         transform.scale(xScale, yScale);
         ((Graphics2D) g).transform(transform);
+    }
+
+    protected void notifyUpdateListeners() {
+        updateListeners.forEach(UpdateListener::onUpdate);
+    }
+
+    public void addUpdateListener(UpdateListener updateListener) {
+        updateListeners.add(updateListener);
+    }
+
+    public void removeUpdateListener(UpdateListener updateListener) {
+        updateListeners.remove(updateListener);
+    }
+
+    public interface UpdateListener {
+        void onUpdate();
     }
 }

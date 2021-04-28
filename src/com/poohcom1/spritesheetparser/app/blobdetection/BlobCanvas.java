@@ -59,6 +59,7 @@ public class BlobCanvas extends EditCanvas {
                     ((BlobSequence) blobs).mergeBlobs(foundBlob);
                 }
                 marquees.clear();
+                notifyUpdateListeners();
             }
         });
 
@@ -75,8 +76,13 @@ public class BlobCanvas extends EditCanvas {
                         blobs.remove(i);
                     }
                 }
+                notifyUpdateListeners();
             }
         });
+    }
+
+    public List<Blob> getBlobs() {
+        return blobs;
     }
 
 

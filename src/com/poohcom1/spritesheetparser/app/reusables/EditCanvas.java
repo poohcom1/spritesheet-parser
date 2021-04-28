@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class EditCanvas extends ZoomableComponent {
+public class EditCanvas extends ZoomComponent {
     // Tools
     public static final String MOVE_TOOL = "Move";
     public static final String MARQUEE_TOOL = "Marquee";

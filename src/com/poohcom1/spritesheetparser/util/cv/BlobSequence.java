@@ -102,6 +102,7 @@ public class BlobSequence extends ArrayList<Blob> {
     }
 
     public int rowOf(int index) {
+        if (size() <= 0) return 0;
         return get(index).getRow();
     }
 
@@ -110,6 +111,7 @@ public class BlobSequence extends ArrayList<Blob> {
     }
 
     public int rows() {
+        if (size() <= 0) return 0;
         return rowOf(size() - 1) + 1;
     }
 

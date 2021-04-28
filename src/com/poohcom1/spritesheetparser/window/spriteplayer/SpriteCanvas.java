@@ -24,9 +24,9 @@ public class SpriteCanvas extends ZoomableCanvas {
         this.sprites = sprites;
         this.msPerFrame = msPerFrame;
 
-        setSize(sprites.dimension);
+        setSize(sprites.getDimensions());
 
-        System.out.println(sprites.dimension);
+        System.out.println(sprites.getDimensions());
 
         animator = Executors.newScheduledThreadPool(1);
 
@@ -43,7 +43,7 @@ public class SpriteCanvas extends ZoomableCanvas {
 
     @Override
     public Dimension getPreferredSize() {
-        Dimension original = sprites.dimension;
+        Dimension original = sprites.getDimensions();
         return new Dimension((int) (original.getWidth() * xScale), (int) (original.getHeight() * yScale));
     }
 

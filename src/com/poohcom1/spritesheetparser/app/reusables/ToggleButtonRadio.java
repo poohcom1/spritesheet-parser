@@ -28,8 +28,6 @@ public class ToggleButtonRadio extends JPanel {
         toolButtons.add(newButton);
     }
 
-
-
     public void setButtonsEnabled(boolean enabled) {
         if (enabled) {
             toolButtons.forEach(button -> {
@@ -43,7 +41,6 @@ public class ToggleButtonRadio extends JPanel {
             });
         }
     }
-
 
     public interface ButtonToggledListener {
         void buttonToggled();

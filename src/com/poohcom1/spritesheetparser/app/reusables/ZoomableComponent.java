@@ -7,7 +7,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
-public abstract class ZoomableComponent extends JComponent {
+public class ZoomableComponent extends JComponent {
     public final int width;
     public final int height;
 

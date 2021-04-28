@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.app.imagetools;
 
-import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.EditCanvas;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
@@ -13,8 +13,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageToolsCanvas extends ImageCanvas {
-    public final static String COLOR_PICKER_TOOL = "colorPicker";
+public class ImageToolsCanvas extends EditCanvas {
+    public final static String CROP_TOOL = "Crop";
+    public final static String COLOR_PICKER_TOOL = "Set background color";
 
     private final BufferedImage originalSpriteSheet;
     private BufferedImage spriteSheet;
@@ -23,6 +24,21 @@ public class ImageToolsCanvas extends ImageCanvas {
 
     public List<Color> backgroundColors;
     public Color replacementColor = new Color(0,0,0,0);
+
+    public ImageToolsCanvas() {
+        super();
+
+        backgroundColors = new ArrayList<>();
+
+        maxMarqueeCount = 1;
+
+        originalSpriteSheet = spriteSheet;
+        this.spriteSheet = null;
+
+        //addTool(MOVE_TOOL, moveToolCallback);
+        addTool(CROP_TOOL, new MarqueeToolCallback() {});
+        addTool(COLOR_PICKER_TOOL, colorPickerCallback);
+    }
 
     public ImageToolsCanvas(BufferedImage spriteSheet) {
         super(spriteSheet.getWidth(), spriteSheet.getHeight());
@@ -34,6 +50,8 @@ public class ImageToolsCanvas extends ImageCanvas {
         originalSpriteSheet = spriteSheet;
         this.spriteSheet = spriteSheet;
 
+        addTool(MOVE_TOOL, moveToolCallback);
+        addTool(CROP_TOOL, new MarqueeToolCallback() {});
         addTool(COLOR_PICKER_TOOL, colorPickerCallback);
         repaint();
     }
@@ -41,6 +59,8 @@ public class ImageToolsCanvas extends ImageCanvas {
     protected MouseAdapter colorPickerCallback = new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
             parentPanel.setMouseMove(false);
+
+            System.out.println("Color picked");
 
             if (SwingUtilities.isLeftMouseButton(e)) {
                 Color color;
@@ -81,7 +101,6 @@ public class ImageToolsCanvas extends ImageCanvas {
 
         return crop;
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {

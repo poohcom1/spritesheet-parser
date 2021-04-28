@@ -18,27 +18,31 @@ public class ShapesUtil {
         return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
     }
 
-    public static Rect maxBoundaries(List<? extends Rect> sprites) {
+    public static Rect maxBoundaries(List<? extends Rectangle> sprites) {
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
         int maxX = 0;
         int maxY = 0;
 
-        for (Rect sprite : sprites) {
+        for (Rectangle sprite : sprites) {
             if (sprite.x < minX) minX = sprite.x;
-            if (sprite.maxX() > maxX) maxX = sprite.maxX();
+            if (((Rect)sprite).maxX() > maxX) maxX = ((Rect)sprite).maxX();
             if (sprite.y < minY) minY = sprite.y;
-            if (sprite.maxY() > maxY) maxY = sprite.maxY();
+            if (((Rect)sprite).maxY() > maxY) maxY = ((Rect)sprite).maxY();
         }
         return new Rect(minX, minY, maxX, maxY);
     }
 
-
-    public static Dimension maxDimensions(List<? extends Rect> sprites) {
+    /**
+     * Calculates the maximum dimensions of the rectangles in the list
+     * @param rectangles List of rectangles
+     * @return A Dimension object of the maximum dimensions
+     */
+    public static Dimension maxDimensions(List<? extends Rectangle> rectangles) {
         int maxHeight = 0;
         int maxWidth = 0;
 
-        for (Rect sprite : sprites) {
+        for (Rectangle sprite : rectangles) {
             if (sprite.getWidth() > maxWidth) {
                 maxWidth = (int) sprite.getWidth();
             }

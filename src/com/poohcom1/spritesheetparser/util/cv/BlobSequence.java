@@ -140,12 +140,12 @@ public class BlobSequence extends ArrayList<Blob> {
         int width = 0;
         int height = 0;
 
-        for (List<Blob> row: getRows()) {
-            int minX = Integer.MAX_VALUE;
-            int minY = Integer.MAX_VALUE;
-            int maxX = 0;
-            int maxY = 0;
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = 0;
+        int maxY = 0;
 
+        for (List<Blob> row: getRows()) {
             Rect currentBoundaries = ShapesUtil.maxBoundaries(row);
             minX = Math.min(minX, currentBoundaries.x);
             minY = Math.min(minY, currentBoundaries.y);
@@ -216,11 +216,11 @@ public class BlobSequence extends ArrayList<Blob> {
         return blobs;
     }
 
-    private void mergeBlob(Blob blob1, Blob blob2) {
-        set(indexOf(blob1), new Blob(blob1, blob2));
-        remove(blob2);
-    }
 
+    /**
+     * Merges all blobs from the given blob within this blob sequence while retaining the order of the blobs
+     * @param blobs Blobs to merge
+     */
     public void mergeBlobs(List<Blob> blobs) {
         Rect bounds = ShapesUtil.mergeRects(blobs);
         Blob newBlob = new Blob(bounds.x, bounds.y, (int) bounds.getMaxX(), (int) bounds.getMaxY());
@@ -238,7 +238,10 @@ public class BlobSequence extends ArrayList<Blob> {
         }
     }
 
-
+    /**
+     * Automatically merge all intersecting and adjacent blobs of the given list of blobs
+     * @param blobList List of blobs to auto-merge
+     */
     public static void autoMergeBlobs(List<Blob> blobList) {
         //int mergeCount = 0;
         //int originalSize = blobList.size();
@@ -266,10 +269,14 @@ public class BlobSequence extends ArrayList<Blob> {
             // If a merge was performed, check current blob again since it is a new blob
             if (!merged) i++;
         }
-        //assert originalSize == mergeCount + blobList.size();
         //System.out.printf("BlobDetector.java: Merged %d blobs. %d -> %d\n", mergeCount, originalSize, blobList.size());
     }
 
+    /**
+     * Extract all the points within a list of blobs into an array of points
+     * @param blobList List of blobs to extract the points from
+     * @return An array of points
+     */
     public static Point[] blobsToPoints(List<Blob> blobList) {
         List<Point> points = new ArrayList<>();
 

@@ -26,6 +26,9 @@ public class SpriteSequence extends ArrayList<Sprite> {
         addAll(extractBlobSprites(spriteSheet, blobSequence, dimension));
     }
 
+    /**
+     * Extract the maximum dimension in one direction, and the
+     */
     private Dimension getDimensions() {
         int width;
         int height;
@@ -45,9 +48,15 @@ public class SpriteSequence extends ArrayList<Sprite> {
         forEach(sprite -> sprite.align(alignment));
     }
 
-    // Extracts sprites from a buffered image using blobs, making sure to apply the correct paddings based on the
-    //  blobs' ordering
-    public static List<Sprite> extractBlobSprites(BufferedImage image, BlobSequence blobSequence, Dimension sheetDimensions) {
+    /**
+     * Extracts sprites from a buffered image using blobs, making sure to apply the correct paddings based on the
+     * blobs' ordering
+     * @param image Original image to extract the sprites from
+     * @param blobSequence Blob sequence used to extract the sprites
+     * @param spriteDimension The dimensions of the sprite sequence
+     * @return
+     */
+    public static List<Sprite> extractBlobSprites(BufferedImage image, BlobSequence blobSequence, Dimension spriteDimension) {
         List<Sprite> spriteList = new ArrayList<>();
 
         for (List<Blob> blobRow: blobSequence.getRows()) {
@@ -69,8 +78,7 @@ public class SpriteSequence extends ArrayList<Sprite> {
                         blob.width+1,
                         blob.height+1);
 
-                Sprite spr = new Sprite(subImage, xOffset, yOffset, sheetDimensions.width, sheetDimensions.height);
-                spr.align(Sprite.CENTER_ALIGN_X);
+                Sprite spr = new Sprite(subImage, xOffset, yOffset, spriteDimension.width, spriteDimension.height);
 
                 spriteList.add(spr);
             }
@@ -79,7 +87,5 @@ public class SpriteSequence extends ArrayList<Sprite> {
         return spriteList;
     }
 
-    public void alignSprites() {
 
-    }
 }

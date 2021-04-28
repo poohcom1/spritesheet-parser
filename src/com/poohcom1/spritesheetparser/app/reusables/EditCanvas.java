@@ -7,19 +7,17 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.NoninvertibleTransformException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ImageCanvas extends ZoomableComponent {
+public class EditCanvas extends ZoomableComponent {
     // Tools
-    public static final String MOVE_TOOL = "move";
-    public static final String MARQUEE_TOOL = "marquee";
-    public static final String PEN_TOOL = "pen";
+    public static final String MOVE_TOOL = "Move";
+    public static final String MARQUEE_TOOL = "Marquee";
+    public static final String PEN_TOOL = "Pen";
 
     private final Map<String, MouseAdapter> toolMap;
 
@@ -34,10 +32,27 @@ public class ImageCanvas extends ZoomableComponent {
 
     ScheduledExecutorService animator;
 
-    List<MouseAdapter> mouseCallbacks;
-    MouseAdapter mousePressedToolCallback;
+    MouseAdapter mouseToolCallback;
 
-    public ImageCanvas(int width, int height) {
+    public EditCanvas() {
+        super(0, 0);
+
+        maxMarqueeCount = 100;
+        marqueePoints = new ArrayList<>();
+        penPoints = new ArrayList<>();
+
+        _dashPhase = 0.0f;
+        animator = Executors.newScheduledThreadPool(1);
+
+        animator.scheduleAtFixedRate(() -> {
+            animatedDashPhase();
+            repaint();
+        }, 0, 16, TimeUnit.MILLISECONDS);
+
+        toolMap = new LinkedHashMap<>();
+    }
+
+    public EditCanvas(int width, int height) {
         super(width, height);
 
         maxMarqueeCount = 100;
@@ -52,14 +67,14 @@ public class ImageCanvas extends ZoomableComponent {
             repaint();
         }, 0, 16, TimeUnit.MILLISECONDS);
 
-        toolMap = new HashMap<>();
-        toolMap.put(MOVE_TOOL, moveToolCallback);
-        toolMap.put(MARQUEE_TOOL, new MarqueeToolCallback());
+        toolMap = new LinkedHashMap<>();
     }
 
     public void addTool(String name, MouseAdapter callback) {
         toolMap.put(name, callback);
     }
+
+    // DEFAULT TOOLS ============================================================
 
     // Move tool
     public MouseAdapter moveToolCallback = new MouseAdapter() {
@@ -121,14 +136,21 @@ public class ImageCanvas extends ZoomableComponent {
         }
     }
 
+    // TOOLS CONTROLS ======================================================================
+
+    public Set<String> getToolConstants() {
+        return toolMap.keySet();
+    }
+
     public void setTool(String tool) {
-        removeMouseListener(mousePressedToolCallback);
-        removeMouseMotionListener(mousePressedToolCallback);
+        removeMouseListener(mouseToolCallback);
+        removeMouseMotionListener(mouseToolCallback);
 
-        mousePressedToolCallback = toolMap.get(tool);
+        mouseToolCallback = toolMap.get(tool);
+        System.out.println("Switched to " + tool + ".");
 
-        addMouseListener(mousePressedToolCallback);
-        addMouseMotionListener(mousePressedToolCallback);
+        addMouseListener(mouseToolCallback);
+        addMouseMotionListener(mouseToolCallback);
     }
 
     private void animatedDashPhase() {

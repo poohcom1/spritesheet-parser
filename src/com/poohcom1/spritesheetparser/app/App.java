@@ -2,8 +2,9 @@ package com.poohcom1.spritesheetparser.app;
 
 import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
-import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.EditCanvas;
 import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
+import com.poohcom1.spritesheetparser.app.reusables.ZoomableComponent;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomablePanel;
@@ -80,6 +81,8 @@ public class App {
             mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
 
+            imageToolsPane = new ZoomablePanel(new ImageToolsCanvas());
+
             // ======================== LOWER CROP TOOLS PANEL ========================
             JPanel performEditPanel = new JPanel();
 
@@ -100,11 +103,12 @@ public class App {
             JButton loadImage = new JButton("Load Spritesheet");
             ToggleButtonRadio toolButtons = new ToggleButtonRadio();
 
-            // ImageToolsCanvas imageCanvas = ((ImageToolsCanvas) imageToolsPane.getChild());
+            ImageToolsCanvas imageCanvas = ((ImageToolsCanvas) imageToolsPane.getChild());
 
-            toolButtons.addButton("Move", () -> ((ImageToolsCanvas) imageToolsPane.getChild()).setTool(ImageCanvas.MOVE_TOOL));
-            toolButtons.addButton("Select", () -> ((ImageToolsCanvas) imageToolsPane.getChild()).setTool(ImageCanvas.MARQUEE_TOOL));
-            toolButtons.addButton("Set background", () -> ((ImageToolsCanvas) imageToolsPane.getChild()).setTool(ImageToolsCanvas.COLOR_PICKER_TOOL));
+            imageCanvas.getToolConstants().forEach(toolName ->
+                    toolButtons.addButton(toolName, () -> imageCanvas.setTool(toolName))
+            );
+
 
             toolButtons.setButtonsEnabled(false);
 
@@ -128,6 +132,16 @@ public class App {
                             System.out.println("Image loaded!");
 
                             imageToolsPane = new ZoomablePanel(new ImageToolsCanvas(spriteSheet));
+
+                            ImageToolsCanvas newImageCanvas = ((ImageToolsCanvas) imageToolsPane.getChild());
+
+                            toolButtons.removeAll();
+
+                            newImageCanvas.getToolConstants().forEach(toolName ->
+                                    toolButtons.addButton(toolName, () -> newImageCanvas.setTool(toolName))
+                            );
+
+
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
                             mainPanel.revalidate();;
 
@@ -261,11 +275,12 @@ public class App {
 
             optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
 
-            BlobCanvas imageCanvas = (BlobCanvas) blobPanel.getChild();
+            BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
 
-            optionsPanel.addButton("Move", () -> imageCanvas.setTool(ImageCanvas.MOVE_TOOL));
-            optionsPanel.addButton("Merge", () -> imageCanvas.setTool(BlobCanvas.MERGE_TOOL));
-            optionsPanel.addButton("Remove", () -> imageCanvas.setTool(BlobCanvas.REMOVE_TOOL));
+            blobCanvas.getToolConstants().forEach(toolName ->
+                optionsPanel.addButton(toolName, () -> blobCanvas.setTool(toolName))
+            );
+
 
 
             return optionsPanel;

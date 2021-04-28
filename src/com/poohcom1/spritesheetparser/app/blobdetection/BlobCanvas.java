@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.app.blobdetection;
 
-import com.poohcom1.spritesheetparser.app.reusables.ImageCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.EditCanvas;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlobCanvas extends ImageCanvas {
+public class BlobCanvas extends EditCanvas {
     // Tools
     public static String MERGE_TOOL = "merge";
     public static String REMOVE_TOOL = "remove";
@@ -40,6 +40,8 @@ public class BlobCanvas extends ImageCanvas {
         this.blobs = new ArrayList<>();
         this.points = new ArrayList<>();
 
+        addTool(MOVE_TOOL, moveToolCallback);
+
         addTool(MERGE_TOOL, new MarqueeToolCallback() {
             @Override
             protected void endMarquee(List<Rect> marquees, Point pos) {
@@ -51,7 +53,6 @@ public class BlobCanvas extends ImageCanvas {
                     blobs.forEach(blob -> {
                         if (marquee.contains(blob)) {
                             foundBlob.add(blob);
-
                         }
                     });
 
@@ -60,6 +61,7 @@ public class BlobCanvas extends ImageCanvas {
                 marquees.clear();
             }
         });
+
         addTool(REMOVE_TOOL, new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 deleteBlobAtPoint(getImagePosition(e.getPoint()));
@@ -76,7 +78,6 @@ public class BlobCanvas extends ImageCanvas {
             }
         });
     }
-
 
 
     @Override

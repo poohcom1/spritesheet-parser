@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.app.blobdetection;
 
-import com.poohcom1.spritesheetparser.app.reusables.EditCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
@@ -12,24 +12,23 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlobCanvas extends EditCanvas {
+public class BlobCanvas extends ToolsCanvas {
     // Tools
-    public static String MERGE_TOOL = "merge";
-    public static String REMOVE_TOOL = "remove";
-
+    public final static String MERGE_TOOL = "Merge";
+    public final static String DELETE_TOOL = "Delete";
+    public final static String REMOVE_TOOL = "Remove";
 
     // Options
     private boolean _showBlobs = true;
     private boolean _showPoints = true;
     private boolean _showNumbers = true;
     private Color _blobColor = Color.RED;
-    private Color _pointColor = new Color(0, 0, 255, 128);
+    private Color _pointColor = new Color(0, 0, 255, 104);
 
 
     // Objects
     private BufferedImage image;
     private List<Blob> blobs;
-    private List<Point> points;
 
     public BlobCanvas(BufferedImage image) {
         super(image.getWidth(), image.getHeight());
@@ -38,11 +37,10 @@ public class BlobCanvas extends EditCanvas {
 
         setImage(image);
         this.blobs = new ArrayList<>();
-        this.points = new ArrayList<>();
 
         addTool(MOVE_TOOL, moveToolCallback);
 
-        addTool(MERGE_TOOL, new MarqueeToolCallback() {
+        addTool(MERGE_TOOL, new MarqueeAdapter() {
             @Override
             protected void endMarquee(List<Rect> marquees, Point pos) {
                 if (marquees.size() > 0) {
@@ -63,11 +61,8 @@ public class BlobCanvas extends EditCanvas {
             }
         });
 
-        addTool(REMOVE_TOOL, new MouseAdapter() {
+        addTool(DELETE_TOOL, new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                deleteBlobAtPoint(getImagePosition(e.getPoint()));
-            }
-            public void mouseDragged(MouseEvent e) {
                 deleteBlobAtPoint(getImagePosition(e.getPoint()));
             }
             private void deleteBlobAtPoint(Point point) {
@@ -77,6 +72,36 @@ public class BlobCanvas extends EditCanvas {
                     }
                 }
                 notifyUpdateListeners();
+            }
+        });
+
+        addTool(REMOVE_TOOL, new MarqueeAdapter() {
+            @Override
+            protected void endMarquee(List<Rect> marquees, Point pos) {
+                if (marquees.size() > 0) {
+                    Rect marquee = getTrueMarqueesCoords().get(0);
+
+                    blobs.forEach(blob -> {
+                        if (marquee.intersects(blob)) {
+                            for (int i = blob.getPoints().size() - 1; i >= 0; i--) {
+                                Point point = blob.getPoints().get(i);
+                                if (marquee.contains(point)) {
+                                    blob.removePoint(point);
+                                }
+                            }
+                        }
+                    });
+                }
+                marquees.clear();
+                notifyUpdateListeners();
+            }
+        });
+
+        // Reset showPoints
+        addToolChangeListener(t -> {
+            switch (t) {
+                case REMOVE_TOOL -> _showPoints = true;
+                default -> _showPoints = false;
             }
         });
     }
@@ -119,7 +144,7 @@ public class BlobCanvas extends EditCanvas {
         }
 
         if (_showPoints) {
-            for (Point point : points) {
+            for (Point point : ((BlobSequence) blobs).toPoints()) {
                 g.setColor(_pointColor);
                 g.drawRect(point.x + xOffset, point.y + yOffset, 1, 1);
             }
@@ -135,10 +160,6 @@ public class BlobCanvas extends EditCanvas {
 
     public void setBlobs(java.util.List<Blob> blobs) {
         this.blobs = blobs;
-    }
-
-    public void setPoints(List<Point> points) {
-        this.points = points;
     }
 
     public void setShowBlobs(boolean showBlobs) {

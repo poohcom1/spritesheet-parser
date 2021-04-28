@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.app.imagetools;
 
-import com.poohcom1.spritesheetparser.app.reusables.EditCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
 
@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageToolsCanvas extends EditCanvas {
+public class ImageToolsCanvas extends ToolsCanvas {
     public final static String CROP_TOOL = "Crop";
     public final static String COLOR_PICKER_TOOL = "Set background color";
 
@@ -36,7 +36,7 @@ public class ImageToolsCanvas extends EditCanvas {
         this.spriteSheet = null;
 
         //addTool(MOVE_TOOL, moveToolCallback);
-        addTool(CROP_TOOL, new MarqueeToolCallback() {});
+        addTool(CROP_TOOL, new MarqueeAdapter() {});
         addTool(COLOR_PICKER_TOOL, colorPickerCallback);
     }
 
@@ -51,7 +51,7 @@ public class ImageToolsCanvas extends EditCanvas {
         this.spriteSheet = spriteSheet;
 
         addTool(MOVE_TOOL, moveToolCallback);
-        addTool(CROP_TOOL, new MarqueeToolCallback() {});
+        addTool(CROP_TOOL, new MarqueeAdapter() {});
         addTool(COLOR_PICKER_TOOL, colorPickerCallback);
         repaint();
     }

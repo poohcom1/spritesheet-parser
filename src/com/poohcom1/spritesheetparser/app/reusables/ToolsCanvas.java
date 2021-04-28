@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class EditCanvas extends ZoomComponent {
+public class ToolsCanvas extends ZoomComponent {
     // Tools
     public static final String MOVE_TOOL = "Move";
     public static final String MARQUEE_TOOL = "Marquee";
@@ -34,7 +34,9 @@ public class EditCanvas extends ZoomComponent {
 
     MouseAdapter mouseToolCallback;
 
-    public EditCanvas() {
+    List<ToolChangeListener> toolChangeListeners;
+
+    public ToolsCanvas() {
         super(0, 0);
 
         maxMarqueeCount = 100;
@@ -52,7 +54,7 @@ public class EditCanvas extends ZoomComponent {
         toolMap = new LinkedHashMap<>();
     }
 
-    public EditCanvas(int width, int height) {
+    public ToolsCanvas(int width, int height) {
         super(width, height);
 
         maxMarqueeCount = 100;
@@ -67,6 +69,7 @@ public class EditCanvas extends ZoomComponent {
             repaint();
         }, 0, 16, TimeUnit.MILLISECONDS);
 
+        toolChangeListeners = new ArrayList<>();
         toolMap = new LinkedHashMap<>();
     }
 
@@ -85,7 +88,7 @@ public class EditCanvas extends ZoomComponent {
     };
 
     // Marquee tool
-    protected class MarqueeToolCallback extends MouseAdapter {
+    protected class MarqueeAdapter extends MouseAdapter {
         @Override
         public void mousePressed(MouseEvent e) {
             parentPanel.setMouseMove(false);
@@ -136,6 +139,8 @@ public class EditCanvas extends ZoomComponent {
         }
     }
 
+
+
     // TOOLS CONTROLS ======================================================================
 
     public Set<String> getToolConstants() {
@@ -149,8 +154,23 @@ public class EditCanvas extends ZoomComponent {
         mouseToolCallback = toolMap.get(tool);
         System.out.println("Switched to " + tool + ".");
 
+        toolChangeListeners.forEach(t -> t.onToolChange(tool));
+
         addMouseListener(mouseToolCallback);
         addMouseMotionListener(mouseToolCallback);
+    }
+
+    // Tool Change
+    public void addToolChangeListener(ToolChangeListener t) {
+        toolChangeListeners.add(t);
+    }
+
+    public void removeToolChangeListener(ToolChangeListener t) {
+        toolChangeListeners.remove(t);
+    }
+
+    public interface ToolChangeListener {
+        void onToolChange(String nextTool);
     }
 
     private void animatedDashPhase() {

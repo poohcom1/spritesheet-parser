@@ -30,11 +30,33 @@ public class Blob extends Rect implements Comparable<Blob> {
 
         points = blob1.points;
         points.addAll(blob2.points);
-
-        // Sprite direction must be the same in two blobs from the same detection
     }
 
     public List<Point> getPoints() {return points;}
+
+    public void removePoint(Point point) {
+        points.remove(point);
+        setDimensionsFromPoints();
+    }
+
+    private void setDimensionsFromPoints() {
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = 0;
+        int maxY = 0;
+
+        for (Point p: points) {
+            if (p.x < minX) minX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y > maxY) maxY = p.y;
+        }
+
+        x = minX;
+        y = minY;
+        width = maxX - x;
+        height = maxY - y;
+    }
 
     // Extends area to cover added pixels
     public void add(int x, int y) {
@@ -50,7 +72,11 @@ public class Blob extends Rect implements Comparable<Blob> {
         return ShapesUtil.squareDistance(x, y, clampX, clampY);
     }
 
-    // If a blob is touching this blob
+    /**
+     * Detects if current blob is within/contained by or touching the given blob
+     * @param other The blob to check against
+     * @return Whether or not the blobs should be merged
+     */
     public boolean shouldMerge(Blob other) {
         return intersects(other) || touches(other) || contains(other) || other.contains(this);
     }

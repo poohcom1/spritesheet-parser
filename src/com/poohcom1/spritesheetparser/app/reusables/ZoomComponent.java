@@ -23,10 +23,10 @@ public class ZoomComponent extends JComponent {
 
     protected AffineTransform transform = new AffineTransform();
 
-    protected ZoomableScrollPane parentPanel;
+    protected ZoomableScrollPane<ZoomComponent> parentPanel;
 
     // Listeners
-    private List<UpdateListener> updateListeners;
+    private final List<UpdateListener> updateListeners;
 
     public ZoomComponent(int width, int height) {
         this.width = width;
@@ -34,7 +34,7 @@ public class ZoomComponent extends JComponent {
 
         updateListeners = new ArrayList<>();
 
-        // Set children size based on margins
+        // Set size based on margins
         panelXScale = (float) (width + MARGINS_X)/ width;
         panelYScale = (float) (height + MARGINS_Y)/height;
     }

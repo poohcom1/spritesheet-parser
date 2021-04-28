@@ -15,28 +15,26 @@ public class BlobSequence extends ArrayList<Blob> {
     public static final int RIGHT_TO_LEFT = 2;
     public static final int BOTTOM_TO_TOP = 3;
 
-    private final int primaryOrder;
-    private final int secondaryOrder;
+    private int primaryOrder;
+    private int secondaryOrder;
 
     public BlobSequence(BufferedImage image, int[] backgroundColor, int threshold, int primaryOrder, int secondaryOrder) {
         super(detectBlobs(image, backgroundColor, threshold));
 
-        this.primaryOrder = primaryOrder;
-        this.secondaryOrder = secondaryOrder;
-
-        orderBlobs();
+        orderBlobs(primaryOrder, secondaryOrder);
     }
 
     public BlobSequence(List<Blob> unorderedBlobs, int primaryOrder, int secondaryOrder) {
         super(unorderedBlobs);
 
+        orderBlobs(primaryOrder, secondaryOrder);
+    }
+
+
+    public void orderBlobs(int primaryOrder, int secondaryOrder) {
         this.primaryOrder = primaryOrder;
         this.secondaryOrder = secondaryOrder;
 
-        orderBlobs();
-    }
-
-    public void orderBlobs() {
         sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
     }
 

@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class ZoomableScrollPane<Z extends ZoomComponent> extends JScrollPane {
+public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
     public final int PAN_KEY = KeyEvent.VK_SPACE;
     public final int ZOOM_KEY = KeyEvent.VK_CONTROL;
 
@@ -19,9 +19,9 @@ public class ZoomableScrollPane<Z extends ZoomComponent> extends JScrollPane {
     private boolean doMouseZoom = true;
 
     // Child component
-    private final ZoomComponent child;
+    private final C child;
 
-    public ZoomableScrollPane(ZoomComponent zoomComponent) {
+    public ZoomableScrollPane(C zoomComponent) {
         super(zoomComponent);
         zoomComponent.setParent(this);
 
@@ -31,7 +31,6 @@ public class ZoomableScrollPane<Z extends ZoomComponent> extends JScrollPane {
 
 //        setWheelScrollingEnabled(false);
         getVerticalScrollBar().setUnitIncrement(PAN_SPEED);
-
 
 
         // Reset moving position
@@ -58,7 +57,7 @@ public class ZoomableScrollPane<Z extends ZoomComponent> extends JScrollPane {
         child = zoomComponent;
     }
 
-    public Z getChild() {return (Z) child;}
+    public C getChild() {return child;}
 
     public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}
     public void setKeyMove(boolean doKeyMove) {this.doKeyMove = doKeyMove;}

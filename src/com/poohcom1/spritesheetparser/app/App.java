@@ -263,10 +263,7 @@ public class App {
             // Components
             blobPanel = new ZoomableScrollPane<>(new BlobCanvas(image));
             blobPanel.centerZoom();
-            blobPanel.getChild().addUpdateListener(() ->
-                    // Get the sprite player from the sprite panel
-                    ((SpritePlayer) spritePanel.getChild()).setSprites(new SpriteSequence(image, blobSequence))
-            );
+            blobPanel.getChild().addUpdateListener(this::updateSpritePlayer);
             updateBlobs();
 
             spritePlayer = new SpritePlayer(new SpriteSequence(image, blobSequence), 160);
@@ -279,6 +276,11 @@ public class App {
             mainPanel.add(setBlobOptions(), BorderLayout.NORTH);
             mainPanel.add(spritePanel, BorderLayout.EAST);
             mainPanel.revalidate();
+        }
+
+        private void updateSpritePlayer() {
+            // Get the sprite player from the sprite panel
+            spritePanel.getChild().setSprites(new SpriteSequence(image, blobSequence));
         }
 
         private JPanel setCanvasOptions() {
@@ -319,6 +321,7 @@ public class App {
                     detectBlobs();
                 } while (blobSequence.size() == oldCount);
                 blobPanel.getChild().repaint();
+                updateSpritePlayer();
             });
 
             down.addActionListener((e) -> {
@@ -329,6 +332,7 @@ public class App {
                     detectBlobs();
                 } while (blobSequence.size() == oldCount);
                 blobPanel.getChild().repaint();
+                updateSpritePlayer();
             });
 
             JPanel panel = new JPanel();
@@ -356,14 +360,16 @@ public class App {
                         secondaryOrder = BlobSequence.LEFT_TO_RIGHT;
                     }case 2 -> {
                         primaryOrder = BlobSequence.RIGHT_TO_LEFT;
-                        secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
+                        secondaryOrder = BlobSequence.BOTTOM_TO_TOP;
                     }
                     case 3 -> {
                         primaryOrder = BlobSequence.BOTTOM_TO_TOP;
-                        secondaryOrder = BlobSequence.LEFT_TO_RIGHT;
+                        secondaryOrder = BlobSequence.RIGHT_TO_LEFT;
                     }
                 }
-                updateBlobs();
+                blobSequence.orderBlobs(primaryOrder, secondaryOrder);
+                blobPanel.getChild().repaint();
+                updateSpritePlayer();
             });
 
             JPanel panel = new JPanel();
@@ -376,7 +382,7 @@ public class App {
 
         private void detectBlobs() {
             blobSequence = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
-            BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
+            BlobCanvas blobCanvas = blobPanel.getChild();
 
             blobCanvas.setBlobs(blobSequence);
             blobCanvas.setShowBlobs(showBlobs);
@@ -385,7 +391,7 @@ public class App {
 
         private void updateBlobs() {
             detectBlobs();
-            BlobCanvas blobCanvas = (BlobCanvas) blobPanel.getChild();
+            BlobCanvas blobCanvas = blobPanel.getChild();
             blobCanvas.repaint();
         }
     }

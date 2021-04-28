@@ -24,10 +24,6 @@ public class SpritePlayer extends ZoomComponent {
         this.sprites = sprites;
         this.msPerFrame = msPerFrame;
 
-        setSize(sprites.getDimensions());
-
-        System.out.println(sprites.getDimensions());
-
         animator = Executors.newScheduledThreadPool(1);
 
         animator.scheduleAtFixedRate(animationCallback, 0, msPerFrame, TimeUnit.MILLISECONDS);
@@ -56,6 +52,10 @@ public class SpritePlayer extends ZoomComponent {
         this.msPerFrame = msPerFrame;
         animator = Executors.newScheduledThreadPool(1);
         animator.scheduleAtFixedRate(animationCallback, 0, msPerFrame, TimeUnit.MILLISECONDS);
+    }
+
+    public List<Sprite> getSprites() {
+        return sprites;
     }
 
     public void play() {

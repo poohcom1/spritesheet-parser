@@ -21,34 +21,31 @@ public class BlobSequence extends ArrayList<Blob> {
     public BlobSequence(BufferedImage image, int[] backgroundColor, int threshold, int primaryOrder, int secondaryOrder) {
         super(detectBlobs(image, backgroundColor, threshold));
 
-        orderBlobs(primaryOrder, secondaryOrder);
-    }
-
-    public BlobSequence(List<Blob> unorderedBlobs, int primaryOrder, int secondaryOrder) {
-        super(unorderedBlobs);
-
-        orderBlobs(primaryOrder, secondaryOrder);
-    }
-
-
-    public void orderBlobs(int primaryOrder, int secondaryOrder) {
         this.primaryOrder = primaryOrder;
         this.secondaryOrder = secondaryOrder;
 
+        orderBlobs();
+    }
+
+    public void orderBlobs() {
         sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
     }
 
     public String toString() {
         StringBuilder text = new StringBuilder();
 
+        orderBlobs();
+
         int row = 0;
         for (int i = 0; i < size();) {
             if (get(i).getRow() == row) {
-                text.append(get(i).getRow())
+                text
+                        .append(get(i).getRow())
                         .append(",")
                         .append(get(i).getColumn())
                         .append(": ")
                         .append(i)
+                        .append(String.format(" (%dx%d)", get(i).width, get(i).height))
                         .append("\t\t");
                 i++;
             } else {
@@ -77,7 +74,6 @@ public class BlobSequence extends ArrayList<Blob> {
         for (int i = 1; i < size(); i++) {
             Blob current = get(i);
             Blob previous = get(i-1);
-
 
             if (current.overlapsByOrder(previous, primaryOrder)) {
                 column++;
@@ -115,7 +111,7 @@ public class BlobSequence extends ArrayList<Blob> {
 
     public List<Blob> getRow(int row) {
         if (row < 0 || row >= rows()) {
-            return new ArrayList<Blob>();
+            return new ArrayList<>();
         }
 
         int start = 0;
@@ -236,6 +232,8 @@ public class BlobSequence extends ArrayList<Blob> {
                 remove(i);
             }
         }
+
+        orderBlobs();
     }
 
     /**

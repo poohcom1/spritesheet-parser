@@ -34,9 +34,10 @@ public class Blob extends Rect implements Comparable<Blob> {
 
     public List<Point> getPoints() {return points;}
 
-    public void removePoint(Point point) {
+    public boolean removePoint(Point point) {
         points.remove(point);
         setDimensionsFromPoints();
+        return points.size() == 0;
     }
 
     private void setDimensionsFromPoints() {

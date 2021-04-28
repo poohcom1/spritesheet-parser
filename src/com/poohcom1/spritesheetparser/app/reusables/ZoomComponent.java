@@ -11,8 +11,8 @@ public class ZoomComponent extends JComponent {
     public final int width;
     public final int height;
 
-    public double panelXScale = 1.0;
-    public double panelYScale = 1.0;
+    public double panelXScale;
+    public double panelYScale;
 
     protected final int MARGINS_X = 50;
     protected final int MARGINS_Y = 50;

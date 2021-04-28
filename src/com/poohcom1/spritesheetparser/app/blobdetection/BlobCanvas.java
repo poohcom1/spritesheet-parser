@@ -81,16 +81,19 @@ public class BlobCanvas extends ToolsCanvas {
                 if (marquees.size() > 0) {
                     Rect marquee = getTrueMarqueesCoords().get(0);
 
-                    blobs.forEach(blob -> {
-                        if (marquee.intersects(blob)) {
-                            for (int i = blob.getPoints().size() - 1; i >= 0; i--) {
-                                Point point = blob.getPoints().get(i);
+                    for (int i = blobs.size()-1; i >= 0; i--) {
+                        Blob blob = blobs.get(i);
+                        if (marquee.intersects(blob) || marquee.contains(blob)) {
+                            for (int j = blob.getPoints().size() - 1; j >= 0; j--) {
+                                Point point = blob.getPoints().get(j);
                                 if (marquee.contains(point)) {
-                                    blob.removePoint(point);
+                                    if (blob.removePoint(point)) {
+                                        blobs.remove(blob);
+                                    }
                                 }
                             }
                         }
-                    });
+                    }
                 }
                 marquees.clear();
                 notifyUpdateListeners();
@@ -98,12 +101,12 @@ public class BlobCanvas extends ToolsCanvas {
         });
 
         // Reset showPoints
-        addToolChangeListener(t -> {
-            switch (t) {
-                case REMOVE_TOOL -> _showPoints = true;
-                default -> _showPoints = false;
-            }
-        });
+//        addToolChangeListener(t -> {
+//            switch (t) {
+//                case REMOVE_TOOL -> _showPoints = true;
+//                default -> _showPoints = false;
+//            }
+//        });
     }
 
     public List<Blob> getBlobs() {

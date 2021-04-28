@@ -7,10 +7,12 @@ import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomableScrollPane;
+import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -21,8 +23,8 @@ public class App {
     private static JFrame window;
     private static JTabbedPane tabbedPane;
 
-    private static int SPRITESHEET_EDITING_PANE = 0;
-    private static int SPRITE_EXTRACTION_PANE = 1;
+    private static final int SHEET_EDITING_PANE = 0;
+    private static final int SPRITE_EXTRACTION_PANE = 1;
 
     private static BlobDetectionTools blobDetectionTools;
 
@@ -229,6 +231,7 @@ public class App {
         // Objects
         private BufferedImage image;
         private BlobSequence blobSequence;
+        private SpriteSequence spriteSequence;
 
         // Components
         ZoomableScrollPane<BlobCanvas> blobPanel;
@@ -239,6 +242,9 @@ public class App {
 
         // Sprite player controls
         int fps = 12;
+
+        // Fonts
+        Font defaultFont = new Font("Arial", Font.PLAIN,10);
 
         public BlobDetectionTools(BufferedImage image) {
             this.image = image;
@@ -266,14 +272,16 @@ public class App {
             // Components
             blobPanel = new ZoomableScrollPane<>(new BlobCanvas(image));
             blobPanel.centerZoom();
-            blobPanel.getChild().addUpdateListener(this::updateSpritePlayer);
+            blobPanel.getChild().addUpdateListener(this::resetSpritePlayer);
             updateBlobs();
 
             // Sprite player
             JPanel spritePlayerPanel = new JPanel();
             spritePlayerPanel.setLayout(new BoxLayout(spritePlayerPanel,BoxLayout.PAGE_AXIS));
 
-            spritePlayer = new SpritePlayer(new SpriteSequence(image, blobSequence), (long) SpriteUtil.MsFromFps(fps));
+            spriteSequence = new SpriteSequence(image, blobSequence);
+
+            spritePlayer = new SpritePlayer(spriteSequence, (long) SpriteUtil.MsFromFps(fps));
             spritePanel = new ZoomableScrollPane<>(spritePlayer);
 
             spritePlayerPanel.add(spritePanel);
@@ -289,11 +297,6 @@ public class App {
             mainPanel.revalidate();
         }
 
-        private void updateSpritePlayer() {
-            // Get the sprite player from the sprite panel
-            spritePanel.getChild().setSprites(new SpriteSequence(image, blobSequence));
-        }
-
         private JPanel setCanvasOptions() {
             ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
 
@@ -302,9 +305,7 @@ public class App {
             BlobCanvas blobCanvas = blobPanel.getChild();
 
             blobCanvas.getToolConstants().forEach(toolName ->
-                optionsPanel.addButton(toolName, () -> {
-                    blobCanvas.setTool(toolName);
-                })
+                optionsPanel.addButton(toolName, () -> blobCanvas.setTool(toolName))
             );
 
             return optionsPanel;
@@ -317,6 +318,7 @@ public class App {
 
             optionsPanel.add(setDistanceButtons());
             optionsPanel.add(setBlobDirectionOption());
+            optionsPanel.add(setSpriteAlignmentOptions());
 
             return optionsPanel;
         }
@@ -332,7 +334,7 @@ public class App {
                     detectBlobs();
                 } while (blobSequence.size() == oldCount);
                 blobPanel.getChild().repaint();
-                updateSpritePlayer();
+                resetSpritePlayer();
             });
 
             down.addActionListener((e) -> {
@@ -343,7 +345,7 @@ public class App {
                     detectBlobs();
                 } while (blobSequence.size() == oldCount);
                 blobPanel.getChild().repaint();
-                updateSpritePlayer();
+                resetSpritePlayer();
             });
 
             JPanel panel = new JPanel();
@@ -351,14 +353,17 @@ public class App {
             panel.add(new JLabel("Sprite Count:"));
             panel.add(up);
             panel.add(down);
+            panel.setBorder(BorderFactory.createTitledBorder("Re-detect Sprites"));
 
             return panel;
         }
 
         private JPanel setBlobDirectionOption() {
-            final String[] BLOB_DIRECTION = {"Horizontal", "Vertical", "Horizontal Reversed", "Vertical Reversed"};
+            final String[] BLOB_DIRECTION = {"Horizontal →↓", "Vertical ↓→", "Horizontal Reversed ←↑", "Vertical Reversed ↑←"};
 
             JComboBox<String> blobDirection = new JComboBox<>(BLOB_DIRECTION);
+            blobDirection.setFont(defaultFont);
+            blobDirection.setFocusable(false);
 
             blobDirection.addActionListener(actionEvent -> {
                 switch (blobDirection.getSelectedIndex()) {
@@ -378,32 +383,61 @@ public class App {
                         secondaryOrder = BlobSequence.RIGHT_TO_LEFT;
                     }
                 }
-                blobSequence.orderBlobs(primaryOrder, secondaryOrder);
+                blobSequence.orderBlobs();
                 blobPanel.getChild().repaint();
-                updateSpritePlayer();
+                resetSpritePlayer();
             });
 
             JPanel panel = new JPanel();
 
-            panel.add(new JLabel("Sprite Direction:"));
             panel.add(blobDirection);
+            panel.setBorder(BorderFactory.createTitledBorder("Sprite Direction"));
 
             return panel;
         }
 
-        private void detectBlobs() {
-            blobSequence = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
-            BlobCanvas blobCanvas = blobPanel.getChild();
+        private JPanel setSpriteAlignmentOptions() {
+            JButton left = new JButton("←");
+            JButton centerH = new JButton("↔");
+            JButton right = new JButton("→");
+            JButton top = new JButton("↑");
+            JButton centerV = new JButton("↕");
+            JButton bottom = new JButton("↓");
 
-            blobCanvas.setBlobs(blobSequence);
-            blobCanvas.setShowBlobs(showBlobs);
-            blobCanvas.setShowPoints(showPoints);
-        }
+            left.addActionListener(l -> spriteSequence.alignSprites(Sprite.LEFT_ALIGN));
+            centerH.addActionListener(l -> spriteSequence.alignSprites(Sprite.CENTER_ALIGN_X));
+            right.addActionListener(l -> spriteSequence.alignSprites(Sprite.RIGHT_ALIGN));
+            top.addActionListener(l -> spriteSequence.alignSprites(Sprite.TOP_ALIGN));
+            centerV.addActionListener(l -> spriteSequence.alignSprites(Sprite.CENTER_ALIGN_Y));
+            bottom.addActionListener(l -> spriteSequence.alignSprites(Sprite.BOTTOM_ALIGN));
 
-        private void updateBlobs() {
-            detectBlobs();
-            BlobCanvas blobCanvas = blobPanel.getChild();
-            blobCanvas.repaint();
+            JPanel hAlignPanel = new JPanel();
+            hAlignPanel.setBorder(new TitledBorder("Horizontal Alignment"));
+            JPanel vAlignPanel = new JPanel();
+            vAlignPanel.setBorder(new TitledBorder("Vertical Alignment"));
+
+            hAlignPanel.add(left);
+            hAlignPanel.add(centerH);
+            hAlignPanel.add(right);
+
+            vAlignPanel.add(top);
+            vAlignPanel.add(centerV);
+            vAlignPanel.add(bottom);
+
+            for (Component c: hAlignPanel.getComponents()) {
+                c.setFocusable(false);
+                c.setFont(defaultFont);
+            }
+
+            for (Component c: vAlignPanel.getComponents()) {
+                c.setFocusable(false);
+                c.setFont(defaultFont);
+            }
+
+            JPanel options = new JPanel();
+            options.add(hAlignPanel);
+            options.add(vAlignPanel);
+            return options;
         }
 
         private JPanel setSpritePLayerOptions() {
@@ -424,16 +458,16 @@ public class App {
             JButton fpsUp = new JButton("+");
             JButton fpsDown = new JButton("-");
 
-            JLabel fpsLabel = new JLabel(String.format("%2d", fps));
+            JLabel fpsLabel = new JLabel(String.format("%3d", fps));
             fpsUp.addActionListener(l -> {
                 fps++;
                 spritePlayer.setMsPerFrame((long) SpriteUtil.MsFromFps(fps));
-                updateSpritePlayer();
-                fpsLabel.setText(String.format("%2d", fps));
+                resetSpritePlayer();
+                fpsLabel.setText(String.format("%3d", fps));
             });
             fpsDown.addActionListener(l -> {
                 if (fps > 1) fps--;
-                updateSpritePlayer();
+                resetSpritePlayer();
                 spritePlayer.setMsPerFrame((long) SpriteUtil.MsFromFps(fps));
                 fpsLabel.setText(String.format("%2d", fps));
             });
@@ -447,6 +481,29 @@ public class App {
             for (Component c: options.getComponents()) {c.setFocusable(false);}
 
             return options;
+        }
+
+        private void detectBlobs() {
+            blobSequence = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
+            BlobCanvas blobCanvas = blobPanel.getChild();
+
+            blobCanvas.setBlobs(blobSequence);
+            blobCanvas.setShowBlobs(showBlobs);
+            blobCanvas.setShowPoints(showPoints);
+        }
+
+        private void updateBlobs() {
+            detectBlobs();
+            BlobCanvas blobCanvas = blobPanel.getChild();
+            blobCanvas.repaint();
+        }
+
+        private void resetSpritePlayer() {
+            // Get the sprite player from the sprite panel
+            spriteSequence = new SpriteSequence(image, blobSequence);
+            spritePanel.getChild().setSprites(spriteSequence);
+            //System.out.println(blobSequence);
+            System.out.println(blobSequence.getRow(0).size() + ":" + spriteSequence.size());
         }
     }
 }

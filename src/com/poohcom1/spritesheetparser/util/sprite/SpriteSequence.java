@@ -13,12 +13,10 @@ import java.util.Iterator;
 import java.util.List;
 
 public class SpriteSequence extends ArrayList<Sprite> {
-    private final BufferedImage spriteSheet;
     private final BlobSequence blobSequence;
 
 
     public SpriteSequence(BufferedImage spriteSheet, BlobSequence blobSequence) {
-        this.spriteSheet = spriteSheet;
         this.blobSequence = blobSequence;
 
         addAll(extractBlobSprites(spriteSheet, blobSequence, getDimensions()));
@@ -58,6 +56,8 @@ public class SpriteSequence extends ArrayList<Sprite> {
         if (blobSequence.size() <= 0) return new ArrayList<>();
 
         List<Sprite> spriteList = new ArrayList<>();
+
+        blobSequence.orderBlobs();
 
         for (List<Blob> blobRow: blobSequence.getRows()) {
             // Get the row relative dimensions

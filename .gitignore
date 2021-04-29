@@ -2,6 +2,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 .idea/*
+.gradle/*
 
 # User-specific stuff
 .idea/**/workspace.xml
@@ -74,3 +75,9 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 /src/com/poohcom1/spritesheetparser/Test.java
 /src/com/poohcom1/spritesheetparser/assets/sprites/
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build

@@ -18,17 +18,29 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.kordamp.ikonli.swing.*;
+import org.kordamp.ikonli.unicons.*;
 
 public class App {
+    // Icons
+    static Map<String, FontIcon> iconMap;
+
+    // Components
     private static JFrame window;
     private static JTabbedPane tabbedPane;
 
+    // Tabs
     private static final int SHEET_EDITING_PANE = 0;
     private static final int SPRITE_EXTRACTION_PANE = 1;
 
     private static BlobDetectionTools blobDetectionTools;
 
     public App() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        prepareIcons();
+
         window = new JFrame("Sprite Sheet Animator");
         tabbedPane = new JTabbedPane();
         tabbedPane.setFocusable(false);
@@ -66,6 +78,25 @@ public class App {
         int width = Math.min(window.getWidth(), bounds.width);
         int height = Math.min(window.getHeight(), bounds.height);
         window.setSize( new Dimension(width, height) );
+    }
+
+    private final static String FONT_H_ALIGN_CENTER = "h_align_center";
+    private final static String FONT_H_ALIGN_LEFT = "h_align_left";
+    private final static String FONT_H_ALIGN_RIGHT = "h_align_right";
+    private final static String FONT_V_ALIGN_CENTER = "v_align_center";
+    private final static String FONT_V_ALIGN_TOP = "v_align_top";
+    private final static String FONT_V_ALIGN_BOTTOM = "v_align_bottom";
+
+    static void prepareIcons() {
+        iconMap = new HashMap<>();
+        iconMap.put(FONT_H_ALIGN_CENTER, FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_CENTER));
+        iconMap.put(FONT_H_ALIGN_LEFT,FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_LEFT));
+        iconMap.put(FONT_H_ALIGN_RIGHT,FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_RIGHT));
+        iconMap.put(FONT_V_ALIGN_CENTER,FontIcon.of(UniconsLine.VERTICAL_ALIGN_CENTER));
+        iconMap.put(FONT_V_ALIGN_TOP,FontIcon.of(UniconsLine.VERTICAL_ALIGN_TOP));
+        iconMap.put(FONT_V_ALIGN_BOTTOM,FontIcon.of(UniconsLine.VERTICAL_ALIGN_BOTTOM));
+
+        iconMap.values().forEach(icon -> icon.setIconSize(20));
     }
 
 // =============================== Image Editing =====================================================
@@ -313,8 +344,7 @@ public class App {
 
         private JPanel setBlobOptions() {
             JPanel optionsPanel = new JPanel();
-            optionsPanel.setLayout(new FlowLayout());
-            optionsPanel.setBorder(BorderFactory.createTitledBorder("Sprite Detection"));
+            optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.LINE_AXIS));
 
             optionsPanel.add(setDistanceButtons());
             optionsPanel.add(setBlobDirectionOption());
@@ -359,7 +389,7 @@ public class App {
         }
 
         private JPanel setBlobDirectionOption() {
-            final String[] BLOB_DIRECTION = {"Horizontal →↓", "Vertical ↓→", "Horizontal Reversed ←↑", "Vertical Reversed ↑←"};
+            final String[] BLOB_DIRECTION = {"Horizontal", "Vertical", "Horizontal Reversed", "Vertical Reversed"};
 
             JComboBox<String> blobDirection = new JComboBox<>(BLOB_DIRECTION);
             blobDirection.setFont(defaultFont);
@@ -397,12 +427,12 @@ public class App {
         }
 
         private JPanel setSpriteAlignmentOptions() {
-            JButton left = new JButton("←");
-            JButton centerH = new JButton("↔");
-            JButton right = new JButton("→");
-            JButton top = new JButton("↑");
-            JButton centerV = new JButton("↕");
-            JButton bottom = new JButton("↓");
+            JButton left = new JButton(iconMap.get(FONT_H_ALIGN_LEFT));
+            JButton centerH = new JButton(iconMap.get(FONT_H_ALIGN_CENTER));
+            JButton right = new JButton(iconMap.get(FONT_H_ALIGN_RIGHT));
+            JButton top = new JButton(iconMap.get(FONT_V_ALIGN_TOP));
+            JButton centerV = new JButton(iconMap.get(FONT_V_ALIGN_CENTER));
+            JButton bottom = new JButton(iconMap.get(FONT_V_ALIGN_BOTTOM));
 
             left.addActionListener(l -> spriteSequence.alignSprites(Sprite.LEFT_ALIGN));
             centerH.addActionListener(l -> spriteSequence.alignSprites(Sprite.CENTER_ALIGN_X));
@@ -412,9 +442,9 @@ public class App {
             bottom.addActionListener(l -> spriteSequence.alignSprites(Sprite.BOTTOM_ALIGN));
 
             JPanel hAlignPanel = new JPanel();
-            hAlignPanel.setBorder(new TitledBorder("Horizontal Alignment"));
+            //hAlignPanel.setBorder(new TitledBorder("Horizontal Alignment"));
             JPanel vAlignPanel = new JPanel();
-            vAlignPanel.setBorder(new TitledBorder("Vertical Alignment"));
+            //vAlignPanel.setBorder(new TitledBorder("Vertical Alignment"));
 
             hAlignPanel.add(left);
             hAlignPanel.add(centerH);
@@ -435,6 +465,7 @@ public class App {
             }
 
             JPanel options = new JPanel();
+            options.setBorder(BorderFactory.createTitledBorder("Sprite Alignment"));
             options.add(hAlignPanel);
             options.add(vAlignPanel);
             return options;
@@ -444,7 +475,7 @@ public class App {
             JPanel options = new JPanel();
 
 
-            JToggleButton playButton = new JToggleButton("❚❚");
+            JToggleButton playButton = new JToggleButton("Pause");
             playButton.addActionListener(l -> {
                 if (spritePanel.getChild().isPlaying()){
                     playButton.setSelected(true);

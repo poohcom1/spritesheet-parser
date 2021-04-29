@@ -133,4 +133,26 @@ public class Rect extends Rectangle {
     public boolean contains(Rectangle r) {
         return r.x >= x && r.x+r.width <= x + width && r.y >= y && r.y + r.height <= y + height;
     }
+
+    @Override
+    public boolean intersects(Rectangle r) {
+        int tw = this.width;
+        int th = this.height;
+        int rw = r.width;
+        int rh = r.height;
+
+        int tx = this.x;
+        int ty = this.y;
+        int rx = r.x;
+        int ry = r.y;
+        rw += rx;
+        rh += ry;
+        tw += tx;
+        th += ty;
+        //      overflow || intersect
+        return ((rw < rx || rw > tx) &&
+                (rh < ry || rh > ty) &&
+                (tw < tx || tw > rx) &&
+                (th < ty || th > ry));
+    }
 }

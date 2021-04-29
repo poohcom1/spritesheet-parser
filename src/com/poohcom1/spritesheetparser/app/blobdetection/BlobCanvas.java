@@ -84,17 +84,28 @@ public class BlobCanvas extends ToolsCanvas {
 
                     for (int i = blobs.size()-1; i >= 0; i--) {
                         Blob blob = blobs.get(i);
+
                         // If blob is in marquee
                         if (marquee.intersects(blob)) {
+
                             for (int j = blob.getPoints().size() - 1; j >= 0; j--) {
                                 Point point = blob.getPoints().get(j);
+                                // Remove points if within marquee
                                 if (marquee.contains(point)) {
-                                    if (blob.removePoint(point)) {
+                                    // Remove point
+                                    blob.removePoint(point);
+
+                                    if (blob.width == 0 && blob.height == 0) {
                                         blobs.remove(blob);
+                                        break;
                                     }
                                 }
                             }
                         } else if (marquee.contains(blob)) {
+                            blobs.remove(blob);
+                        }
+
+                        if (blob.getPoints().size() == 0) {
                             blobs.remove(blob);
                         }
                     }

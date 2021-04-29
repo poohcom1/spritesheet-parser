@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ToolsCanvas extends ZoomComponent {
     // Tools
+    public static final String NO_TOOL = "None";
     public static final String MOVE_TOOL = "Move";
     public static final String MARQUEE_TOOL = "Marquee";
     public static final String PEN_TOOL = "Pen";
@@ -139,8 +140,6 @@ public class ToolsCanvas extends ZoomComponent {
         }
     }
 
-
-
     // TOOLS CONTROLS ======================================================================
 
     public Set<String> getToolConstants() {
@@ -153,11 +152,27 @@ public class ToolsCanvas extends ZoomComponent {
 
         mouseToolCallback = toolMap.get(tool);
         System.out.println("Switched to " + tool + ".");
+        setCursor(setToolCursor(tool));
 
         toolChangeListeners.forEach(t -> t.onToolChange(tool));
 
         addMouseListener(mouseToolCallback);
         addMouseMotionListener(mouseToolCallback);
+    }
+
+    protected Cursor setToolCursor(String tool) {
+        Cursor cursor;
+
+        switch (tool) {
+            case MOVE_TOOL:
+                cursor = new Cursor(Cursor.MOVE_CURSOR);
+                break;
+            case NO_TOOL:
+            default:
+                cursor = new Cursor(Cursor.DEFAULT_CURSOR);
+        }
+
+        return cursor;
     }
 
     // Tool Change

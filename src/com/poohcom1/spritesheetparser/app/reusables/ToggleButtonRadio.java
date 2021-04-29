@@ -28,6 +28,33 @@ public class ToggleButtonRadio extends JPanel {
         toolButtons.add(newButton);
     }
 
+    public void addButton(Icon icon, ButtonToggledListener listener) {
+        JToggleButton newButton = new JToggleButton(icon);
+        if (toolButtons.size() == 0) newButton.setSelected(true);
+        newButton.setFocusable(false);
+        newButton.addActionListener(e -> {
+            toolButtons.forEach(otherButton -> otherButton.setSelected(false));
+            newButton.setSelected(true);
+            listener.buttonToggled();
+        });
+        add(newButton);
+        toolButtons.add(newButton);
+    }
+
+    public void addButton(Icon icon, ButtonToggledListener listener, String toolTip) {
+        JToggleButton newButton = new JToggleButton(icon);
+        newButton.setToolTipText(toolTip);
+        if (toolButtons.size() == 0) newButton.setSelected(true);
+        newButton.setFocusable(false);
+        newButton.addActionListener(e -> {
+            toolButtons.forEach(otherButton -> otherButton.setSelected(false));
+            newButton.setSelected(true);
+            listener.buttonToggled();
+        });
+        add(newButton);
+        toolButtons.add(newButton);
+    }
+
     public void setButtonsEnabled(boolean enabled) {
         if (enabled) {
             toolButtons.forEach(button -> {

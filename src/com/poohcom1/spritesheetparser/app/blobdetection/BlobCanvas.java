@@ -1,5 +1,6 @@
 package com.poohcom1.spritesheetparser.app.blobdetection;
 
+import com.poohcom1.spritesheetparser.app.App;
 import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
@@ -14,9 +15,9 @@ import java.util.List;
 
 public class BlobCanvas extends ToolsCanvas {
     // Tools
-    public final static String MERGE_TOOL = "Merge";
-    public final static String DELETE_TOOL = "Delete";
-    public final static String REMOVE_TOOL = "Remove";
+    public final static String MERGE_TOOL = "Merge sprite boxes";
+    public final static String DELETE_TOOL = "Delete sprite box";
+    public final static String CUT_TOOL = "Remove pixels";
 
     // Options
     private boolean _showBlobs = true;
@@ -75,7 +76,7 @@ public class BlobCanvas extends ToolsCanvas {
             }
         });
 
-        addTool(REMOVE_TOOL, new MarqueeAdapter() {
+        addTool(CUT_TOOL, new MarqueeAdapter() {
             @Override
             protected void endMarquee(List<Rect> marquees, Point pos) {
                 if (marquees.size() > 0) {

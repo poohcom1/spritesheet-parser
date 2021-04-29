@@ -14,8 +14,8 @@ public class AppUtil {
         return ImageIO.read(f);
     }
 
-    public static File saveImage(BufferedImage image, String name, String formatName) throws  IOException {
-        File output = new File("src/com/poohcom1/spritesheetparser/assets/sprites/" + name + "." + formatName);
+    public static File saveImage(BufferedImage image, String path, String name, String formatName) throws  IOException {
+        File output = new File(path + "/" + name);
         ImageIO.write(image, formatName, output);
         return output;
     }

@@ -44,6 +44,12 @@ public class SpriteSequence extends ArrayList<Sprite> {
         forEach(sprite -> sprite.align(alignment));
     }
 
+    public List<BufferedImage> getImages() {
+        List<BufferedImage> images = new ArrayList<>();
+        forEach(sprite -> images.add(sprite.getSprite()));
+        return images;
+    }
+
     /**
      * Extracts sprites from a buffered image using blobs, making sure to apply the correct paddings based on the
      * blobs' ordering

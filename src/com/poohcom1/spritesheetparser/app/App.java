@@ -4,6 +4,7 @@ import com.poohcom1.spritesheetparser.app.animation.SpritePlayer;
 import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
 import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
+import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomableScrollPane;
@@ -13,12 +14,13 @@ import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 import org.kordamp.ikonli.boxicons.BoxiconsRegular;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
@@ -27,7 +29,7 @@ import org.kordamp.ikonli.unicons.*;
 
 public class App {
     // Icons
-    static Map<String, FontIcon> iconMap;
+    public static Map<String, FontIcon> iconMap;
 
     // Components
     private static JFrame window;
@@ -81,20 +83,25 @@ public class App {
         window.setSize(new Dimension(width, height));
     }
 
-    private final static String ICON_CURSOR = "Move";
-    private final static String ICON_CROP = "Crop";
+    public final static String ICON_MOVE = "Move";
+    public final static String ICON_CROP = "Crop";
+    public final static String ICON_COLOR = "Set transparent color";
 
-    private final static String ICON_EDIT_WARNING = "Warning: Re-detecting sprites will override your edits!";
+    public final static String ICON_CUT = "Cut sprite box";
+    public final static String ICON_DELETE = "Delete sprite box";
+    public final static String ICON_MERGE = "Merge sprite box";
 
-    private final static String ICON_H_ALIGN_CENTER = "Align center horizontally";
-    private final static String ICON_H_ALIGN_LEFT = "Align left";
-    private final static String ICON_H_ALIGN_RIGHT = "Align right";
-    private final static String ICON_V_ALIGN_CENTER = "Align center vertically";
-    private final static String ICON_V_ALIGN_TOP = "Align top";
-    private final static String ICON_V_ALIGN_BOTTOM = "Align bottom";
+    public final static String ICON_EDIT_WARNING = "Warning: Re-detecting sprites will override your edits!";
 
-    private final static String ICON_PLAY = "Play";
-    private final static String ICON_PAUSE = "Pause";
+    public final static String ICON_H_ALIGN_CENTER = "Align center horizontally";
+    public final static String ICON_H_ALIGN_LEFT = "Align left";
+    public final static String ICON_H_ALIGN_RIGHT = "Align right";
+    public final static String ICON_V_ALIGN_CENTER = "Align center vertically";
+    public final static String ICON_V_ALIGN_TOP = "Align top";
+    public final static String ICON_V_ALIGN_BOTTOM = "Align bottom";
+
+    public final static String ICON_PLAY = "Play";
+    public final static String ICON_PAUSE = "Pause";
 
     static void prepareIcons() {
         iconMap = new HashMap<>();
@@ -107,9 +114,15 @@ public class App {
 
         iconMap.put(ICON_EDIT_WARNING, FontIcon.of(BoxiconsSolid.ERROR));
 
+        iconMap.put(ICON_MOVE, FontIcon.of(BoxiconsRegular.MOVE));
+        iconMap.put(ICON_CROP, FontIcon.of(BoxiconsRegular.CROP));
+        iconMap.put(ICON_COLOR, FontIcon.of(BoxiconsRegular.COLOR_FILL));
+
+        iconMap.put(ICON_CUT, FontIcon.of(BoxiconsRegular.CUT));
+        iconMap.put(ICON_DELETE, FontIcon.of(BoxiconsSolid.ERASER));
+        iconMap.put(ICON_MERGE, FontIcon.of(BoxiconsRegular.CUSTOMIZE));
+
         iconMap.values().forEach(icon -> icon.setIconSize(20));
-
-
 
         iconMap.put(ICON_PLAY, FontIcon.of(UniconsLine.PLAY));
         iconMap.put(ICON_PAUSE, FontIcon.of(UniconsLine.PAUSE));
@@ -120,18 +133,18 @@ public class App {
         private BufferedImage spriteSheet;
 
         // Components
-        final JFileChooser fileChooser = new JFileChooser();
+        final JFileChooser fileChooser;
 
         final JPanel mainPanel;
         final JPanel toolsPanel;
 
-        private ZoomableScrollPane imageToolsPane;
+        private ZoomableScrollPane<ImageToolsCanvas> imageToolsPane;
 
         ImageTools() {
             mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
 
-            imageToolsPane = new ZoomableScrollPane(new ImageToolsCanvas());
+            imageToolsPane = new ZoomableScrollPane<>(new ImageToolsCanvas());
 
             // ======================== LOWER CROP TOOLS PANEL ========================
             JPanel performEditPanel = new JPanel();
@@ -139,8 +152,11 @@ public class App {
             JButton confirmButton = new JButton("Extract Sprites!");
             confirmButton.setFocusable(false);
             confirmButton.setEnabled(false);
+
+            // On extract sprites
             confirmButton.addActionListener(l -> {
-                blobDetectionTools.init(((ImageToolsCanvas) imageToolsPane.getChild()).crop());
+                // Crop sprites
+                blobDetectionTools.init((imageToolsPane.getChild()).crop());
                 blobDetectionTools.mainPanel.repaint();
                 tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE);
             });
@@ -153,22 +169,20 @@ public class App {
             JButton loadImage = new JButton("Load Spritesheet");
             ToggleButtonRadio toolButtons = new ToggleButtonRadio();
 
-            ImageToolsCanvas imageCanvas = ((ImageToolsCanvas) imageToolsPane.getChild());
-
-            imageCanvas.getToolConstants().forEach(toolName ->
-                    toolButtons.addButton(toolName, () -> imageCanvas.setTool(toolName))
-            );
-
 
             toolButtons.setButtonsEnabled(false);
 
             toolsPanel.add(loadImage);
             toolsPanel.add(toolButtons);
 
+            fileChooser = new JFileChooser();
+
+            fileChooser.setMultiSelectionEnabled(false);
+            fileChooser.addChoosableFileFilter(new ImageFilter());
+            fileChooser.setAcceptAllFileFilterUsed(true);
+
             loadImage.setFocusable(false);
             loadImage.addActionListener((e) -> {
-                fileChooser.addChoosableFileFilter(new ImageFilter());
-                fileChooser.setAcceptAllFileFilterUsed(true);
                 int fileOption = fileChooser.showOpenDialog(mainPanel);
                 if (fileOption == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
@@ -181,20 +195,19 @@ public class App {
 
                             System.out.println("Image loaded!");
 
-                            imageToolsPane = new ZoomableScrollPane(new ImageToolsCanvas(spriteSheet));
+                            imageToolsPane = new ZoomableScrollPane<>(new ImageToolsCanvas(spriteSheet));
 
-                            ImageToolsCanvas newImageCanvas = ((ImageToolsCanvas) imageToolsPane.getChild());
+                            ImageToolsCanvas newImageCanvas = imageToolsPane.getChild();
 
                             toolButtons.removeAll();
 
-                            newImageCanvas.getToolConstants().forEach(toolName ->
-                                    toolButtons.addButton(toolName, () -> newImageCanvas.setTool(toolName))
-                            );
-
+                            toolButtons.addButton(iconMap.get(ICON_MOVE), () -> newImageCanvas.setTool(ImageToolsCanvas.MOVE_TOOL), ImageToolsCanvas.MOVE_TOOL);
+                            toolButtons.addButton(iconMap.get(ICON_CROP), () -> newImageCanvas.setTool(ImageToolsCanvas.CROP_TOOL), ImageToolsCanvas.CROP_TOOL);
+                            toolButtons.addButton(iconMap.get(ICON_COLOR), () -> newImageCanvas.setTool(ImageToolsCanvas.COLOR_PICKER_TOOL), ImageToolsCanvas.COLOR_PICKER_TOOL);
+                            newImageCanvas.setTool(ToolsCanvas.MOVE_TOOL);
 
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
                             mainPanel.revalidate();
-                            ;
 
                             packInBounds();
 
@@ -215,13 +228,18 @@ public class App {
     }
 
     // Courtesy of https://www.tutorialspoint.com/swingexamples/show_file_chooser_images_only.htm
+    public final static String JPEG = "jpeg";
+    public final static String JPG = "jpg";
+    public final static String GIF = "gif";
+    public final static String TIFF = "tiff";
+    public final static String TIF = "tif";
+    public final static String PNG = "png";
+
+    private static FileNameExtensionFilter getImageExtensions(String extensionConstant) {
+        return new FileNameExtensionFilter(extensionConstant.toUpperCase(), extensionConstant);
+    }
+
     static class ImageFilter extends FileFilter {
-        public final static String JPEG = "jpeg";
-        public final static String JPG = "jpg";
-        public final static String GIF = "gif";
-        public final static String TIFF = "tiff";
-        public final static String TIF = "tif";
-        public final static String PNG = "png";
 
         @Override
         public boolean accept(File f) {
@@ -231,16 +249,12 @@ public class App {
 
             String extension = getExtension(f);
             if (extension != null) {
-                if (extension.equals(TIFF) ||
+                return extension.equals(TIFF) ||
                         extension.equals(TIF) ||
                         extension.equals(GIF) ||
                         extension.equals(JPEG) ||
                         extension.equals(JPG) ||
-                        extension.equals(PNG)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                        extension.equals(PNG);
             }
             return false;
         }
@@ -271,11 +285,6 @@ public class App {
         private int primaryOrder = BlobSequence.LEFT_TO_RIGHT;
         private int secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
 
-        // Display parameters
-        private boolean showBlobs = true;
-        private boolean showNumbers = true;
-        private boolean showPoints = false;
-
         // Objects
         private BufferedImage image;
         private BlobSequence blobSequence;
@@ -293,9 +302,6 @@ public class App {
 
         // Fonts
         Font defaultFont = new Font("Arial", Font.PLAIN, 10);
-
-        // Editing
-        private boolean blobsEdited = false;
 
         public BlobDetectionTools(BufferedImage image) {
             this.image = image;
@@ -342,35 +348,37 @@ public class App {
 
             // BLOB
             mainPanel.add(blobPanel, BorderLayout.CENTER);
-            mainPanel.add(setCanvasOptions(), BorderLayout.WEST);
-            mainPanel.add(setTopMenuBar(), BorderLayout.NORTH);
+            mainPanel.add(setCanvasPanel(), BorderLayout.WEST);
+            mainPanel.add(setTopPanel(), BorderLayout.NORTH);
             mainPanel.add(spritePlayerPanel, BorderLayout.EAST);
             mainPanel.revalidate();
         }
 
         // =========================== CANVAS NAVIGATION/EDITING TOOLS
-        private JPanel setCanvasOptions() {
+        private JPanel setCanvasPanel() {
             ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
 
             optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
 
             BlobCanvas blobCanvas = blobPanel.getChild();
 
-            blobCanvas.getToolConstants().forEach(toolName ->
-                    optionsPanel.addButton(toolName, () -> blobCanvas.setTool(toolName))
-            );
+            optionsPanel.addButton(iconMap.get(ICON_MOVE), () -> blobCanvas.setTool(ToolsCanvas.MOVE_TOOL), ToolsCanvas.MOVE_TOOL);
+            optionsPanel.addButton(iconMap.get(ICON_MERGE), () -> blobCanvas.setTool(BlobCanvas.MERGE_TOOL), BlobCanvas.MERGE_TOOL);
+            optionsPanel.addButton(iconMap.get(ICON_DELETE), () -> blobCanvas.setTool(BlobCanvas.DELETE_TOOL), BlobCanvas.DELETE_TOOL);
+            optionsPanel.addButton(iconMap.get(ICON_CUT), () -> blobCanvas.setTool(BlobCanvas.CUT_TOOL), BlobCanvas.CUT_TOOL);
 
             return optionsPanel;
         }
 
         // ======================= TOP MENU BAR OPTIONS
-        private JPanel setTopMenuBar() {
+        private JPanel setTopPanel() {
             JPanel optionsPanel = new JPanel();
             optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.LINE_AXIS));
 
             optionsPanel.add(setDistanceButtons());
             optionsPanel.add(setBlobDirectionOption());
             optionsPanel.add(setSpriteAlignmentOptions());
+            optionsPanel.add(setExportOptions());
 
             return optionsPanel;
         }
@@ -525,6 +533,85 @@ public class App {
             return options;
         }
 
+        private JFileChooser fileChooser;
+
+        private JPanel setExportOptions() {
+            JPanel panel = new JPanel();
+
+            JButton exportButton = new JButton("Export sprites...");
+
+            fileChooser = new JFileChooser() {
+                // Courtesy of /users/190165/roberto-luis-bisbé: https://stackoverflow.com/questions/3651494/jfilechooser-with-confirmation-dialog
+                @Override
+                public void approveSelection(){
+                    File f = getSelectedFile();
+                    if(f.exists() && getDialogType() == SAVE_DIALOG){
+
+                        int result = JOptionPane.showConfirmDialog(this,"Overwrite existing files?","Existing file", JOptionPane.YES_NO_CANCEL_OPTION);
+                        switch(result){
+                            case JOptionPane.YES_OPTION:
+                                super.approveSelection();
+                                return;
+                            case JOptionPane.NO_OPTION:
+                            case JOptionPane.CLOSED_OPTION:
+                                return;
+                            case JOptionPane.CANCEL_OPTION:
+                                cancelSelection();
+                                return;
+                        }
+                    }
+                    super.approveSelection();
+                }
+            };
+
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            fileChooser.addChoosableFileFilter(getImageExtensions(PNG));
+            fileChooser.addChoosableFileFilter(getImageExtensions(JPEG));
+            fileChooser.addChoosableFileFilter(getImageExtensions(JPG));
+            fileChooser.addChoosableFileFilter(getImageExtensions(GIF));
+
+            exportButton.setFocusable(false);
+            exportButton.addActionListener((e) -> {
+                List<BufferedImage> images = spriteSequence.getImages();
+
+                int fileOption = fileChooser.showSaveDialog(mainPanel);
+                if (fileOption == JFileChooser.APPROVE_OPTION) {
+                    File savedFile = fileChooser.getSelectedFile();
+
+                    String name = savedFile.getName();
+                    String dir = fileChooser.getCurrentDirectory().getPath();
+                    String format = fileChooser.getFileFilter().getDescription();
+
+                    if (name.toLowerCase().contains(format.toLowerCase())) {
+                        String[] splitName = name.split("\\.");
+                        if (splitName[splitName.length - 1].equalsIgnoreCase(format)) {
+                            name = name.substring(0, name.length() - format.length() - 1);
+                        }
+                    }
+
+                    boolean replaceFile = false;
+
+                    if (name.charAt(name.length()-1) == '0') {
+                        name = name.substring(0, name.length()-1);
+                    }
+
+                    System.out.println(name);
+
+                    try {
+                        for (int i = 0; i < images.size(); i++) {
+                                AppUtil.saveImage(images.get(i), dir, name + i + "." + format.toLowerCase(), format);
+                        }
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    }
+                }
+            });
+
+            panel.add(exportButton);
+            return panel;
+        }
+
+        // =================================== SPRITE PLAYER PANELS
         private JPanel setSpritePLayerOptions() {
             JPanel options = new JPanel();
 
@@ -574,8 +661,8 @@ public class App {
             BlobCanvas blobCanvas = blobPanel.getChild();
 
             blobCanvas.setBlobs(blobSequence);
-            blobCanvas.setShowBlobs(showBlobs);
-            blobCanvas.setShowPoints(showPoints);
+            blobCanvas.setShowBlobs(true);
+            blobCanvas.setShowPoints(false);
         }
 
         private void updateBlobs() {

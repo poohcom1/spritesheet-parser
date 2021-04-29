@@ -31,27 +31,32 @@ import org.kordamp.ikonli.boxicons.BoxiconsSolid;
 import org.kordamp.ikonli.material2.Material2RoundAL;
 import org.kordamp.ikonli.unicons.*;
 
-public class App {
+public class App extends JFrame {
     // Icons
     public static Map<String, FontIcon> iconMap;
 
     // Components
-    private static JFrame window;
     private static JTabbedPane tabbedPane;
 
     // Tabs
     private static final int SPRITE_EXTRACTION_PANE_TAB = 1;
-
     private static BlobDetectionTools blobDetectionTools;
 
-    public static void runApp() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private static App app;
+
+    public App() {
+        super("Sprite Sheet Parser");
+
         prepareIcons();
 
-        window = new JFrame("Sprite Sheet Animator");
         tabbedPane = new JTabbedPane();
         tabbedPane.setFocusable(false);
 
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
 
         blobDetectionTools = new BlobDetectionTools();
 
@@ -60,15 +65,16 @@ public class App {
 
         tabbedPane.addChangeListener(l -> packInBounds());
 
-
-        window.add(tabbedPane);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.pack();
-        window.setVisible(true);
+        add(tabbedPane);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
     }
 
-    public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        runApp();
+    public static void main(String[] args) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            app = new App();
+            app.setVisible(true);
+        });
     }
 
 
@@ -79,11 +85,11 @@ public class App {
     private static void packInBounds() {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Rectangle bounds = env.getMaximumWindowBounds();
-        window.pack();
-        window.revalidate();
-        int width = Math.min(window.getWidth(), bounds.width);
-        int height = Math.min(window.getHeight(), bounds.height);
-        window.setSize(new Dimension(width, height));
+        app.pack();
+        app.revalidate();
+        int width = Math.min(app.getWidth(), bounds.width);
+        int height = Math.min(app.getHeight(), bounds.height);
+        app.setSize(new Dimension(width, height));
     }
 
     public final static String ICON_MOVE = "Move";
@@ -202,7 +208,7 @@ public class App {
                             cropButton.setEnabled(true);
                             toolButtons.setButtonsEnabled(true);
                         } else {
-                            JOptionPane.showMessageDialog(window, "Invalid file type! Please select an image file", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(app, "Invalid file type! Please select an image file", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     } catch (IOException ioException) {
                         ioException.printStackTrace();

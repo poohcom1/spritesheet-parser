@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'edu.sc.seis.launch4j' version '2.5.0'
 }
 
 group 'com.poohcom1'
@@ -39,3 +40,10 @@ jar {
     }
 }
 
+launch4j {
+    headerType="gui"
+    mainClassName = 'com.poohcom1.spritesheetparser.app.App'
+    outfile = "Burj2.exe"
+    icon = "${projectDir}/src/main/resources/images/icon.ico"
+    jar = '../libs/Master_Mode_System_Config-all-1.0-SNAPSHOT.jar'
+}

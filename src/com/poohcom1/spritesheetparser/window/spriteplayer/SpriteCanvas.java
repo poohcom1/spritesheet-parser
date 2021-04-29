@@ -60,6 +60,6 @@ public class SpriteCanvas extends ZoomableCanvas {
         Graphics2D g = zoomedGraphic(graphics);
 
 
-        g.drawImage(sprites.get(_frame).getSprite(), 0, 0, null);
+        g.drawImage(((SpriteSequence)sprites).getImages().get(_frame), 0, 0, null);
     }
 }

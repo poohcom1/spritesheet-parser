@@ -14,10 +14,11 @@ import java.util.List;
 
 public class SpriteSequence extends ArrayList<Sprite> {
     private final BlobSequence blobSequence;
+    private final int backgroundColor;
 
-
-    public SpriteSequence(BufferedImage spriteSheet, BlobSequence blobSequence) {
+    public SpriteSequence(BufferedImage spriteSheet, BlobSequence blobSequence, int backgroundColor) {
         this.blobSequence = blobSequence;
+        this.backgroundColor = backgroundColor;
 
         addAll(extractBlobSprites(spriteSheet, blobSequence, getDimensions()));
     }
@@ -46,8 +47,12 @@ public class SpriteSequence extends ArrayList<Sprite> {
 
     public List<BufferedImage> getImages() {
         List<BufferedImage> images = new ArrayList<>();
-        forEach(sprite -> images.add(sprite.getSprite()));
+        forEach(sprite -> images.add(sprite.getSprite(backgroundColor)));
         return images;
+    }
+
+    public BufferedImage getImage(int index) {
+        return get(index).getSprite(backgroundColor);
     }
 
     /**

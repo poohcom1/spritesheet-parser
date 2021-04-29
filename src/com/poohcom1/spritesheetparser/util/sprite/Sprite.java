@@ -82,8 +82,8 @@ public class Sprite extends Rect {
         yOffset = height - image.getHeight();
     }
 
-    public BufferedImage getSprite() {
-        return ImageUtil.alignImage(image, xOffset, yOffset);
+    public BufferedImage getSprite(int backgroundColor) {
+        return ImageUtil.alignImage(image, xOffset, yOffset, backgroundColor);
     }
 
     public int getOriginalWidth() { return image.getWidth(); }

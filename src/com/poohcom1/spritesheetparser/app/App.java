@@ -323,18 +323,16 @@ public class App {
 
             image = newImage;
 
-            System.out.println(backgroundColors.length);
 
             if (backgroundColors.length > 0) {
                 this.backgroundColors = backgroundColors;
             } else {
+                // If no background color was set in the Image Editing tab, automatically find the background color
                 this.backgroundColors = ImageUtil.findBackgroundColor(newImage);
             }
 
-            System.out.println(this.backgroundColors[0]);
-
+            // Finds the background color, and replaces it with a new color
             image = ImageUtil.replaceColors(image, this.backgroundColors,  new Color(0,0,0,0).getRGB());
-
             this.backgroundColors = new int[]{new Color(0, 0, 0, 0).getRGB()};
 
             mainPanel.setLayout(new BorderLayout());
@@ -349,7 +347,7 @@ public class App {
             JPanel spritePlayerPanel = new JPanel();
             spritePlayerPanel.setLayout(new BoxLayout(spritePlayerPanel, BoxLayout.PAGE_AXIS));
 
-            spriteSequence = new SpriteSequence(image, blobSequence);
+            spriteSequence = new SpriteSequence(image, blobSequence, this.backgroundColors[0]);
 
             spritePlayer = new SpritePlayer(spriteSequence, (long) SpriteUtil.MsFromFps(fps));
             spritePanel = new ZoomableScrollPane<>(spritePlayer);
@@ -684,7 +682,7 @@ public class App {
 
         private void resetSpritePlayer() {
             // Get the sprite player from the sprite panel
-            spriteSequence = new SpriteSequence(image, blobSequence);
+            spriteSequence = new SpriteSequence(image, blobSequence, backgroundColors[0]);
             spritePanel.getChild().setSprites(spriteSequence);
             //System.out.println(blobSequence);
             System.out.println(blobSequence.getRow(0).size() + ":" + spriteSequence.size());

@@ -71,6 +71,6 @@ public class SpritePlayer extends ZoomComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (sprites.size() > 0) g.drawImage(sprites.get(_frame).getSprite(), 0, 0, null);
+        if (sprites.size() > 0) g.drawImage(((SpriteSequence)sprites).getImage(_frame), 0, 0, null);
     }
 }

@@ -117,7 +117,7 @@ public class SpriteParserWindow {
     }
 
     private void playerWindowSetup(JPanel mainPanel) {
-        SpriteSequence sprites = new SpriteSequence(image, (BlobSequence) blobs);
+        SpriteSequence sprites = new SpriteSequence(image, (BlobSequence) blobs, backgroundColors[0]);
 
         spritePlayer = new SpritePlayer(sprites);
     }

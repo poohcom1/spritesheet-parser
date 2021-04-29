@@ -27,7 +27,7 @@ public class Main {
 
         BlobSequence blobs = new BlobSequence(spriteSheet, new int[] {alpha}, 8, BlobSequence.LEFT_TO_RIGHT, BlobSequence.TOP_TO_BOTTOM);
 
-        SpriteSequence sprites = new SpriteSequence(spriteSheet, blobs);
+        SpriteSequence sprites = new SpriteSequence(spriteSheet, blobs, background[0]);
 
         new SpriteParserWindow(spriteSheet, new int[] {alpha});
         new SpriteWindow(sprites, 12);

@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.util.*;
+import java.util.List;
 
 public class ImageUtil {
     public static String colorIntToHex(int color) {
@@ -27,17 +29,66 @@ public class ImageUtil {
         return (rgba[3] << 24) + (rgba[0] << 16) + (rgba[1] << 8) + rgba[2];
     }
 
-    public static int[] findBackgroundColor(BufferedImage spriteSheet) {
-        int[] colors = new int[1];
-        colors[0] = spriteSheet.getRGB(0, 0);
-
-        return colors;
+    public static Color rgbaIntToColor(int rgba) {
+        return new Color(rgba & 0x00ff, (rgba >> 8) & 0x00ff, (rgba >> 16) & 0x00ff, (rgba >> 24) & 0x00ff);
     }
+
+    /**
+     * Attempts to find the background color of an image by checking the corner and side pixels and finding the most
+     * common color.
+     * @param spriteSheet Sprite-sheet to find the background color of
+     * @return A array of size 1 of the background color
+     */
+    public static int[] findBackgroundColor(BufferedImage spriteSheet) {
+        List<Integer> colorCounter = new ArrayList<>();
+
+        final int STEPS = 10;
+
+        for (int i = 0; i < STEPS-1; i++) {
+            int x = (spriteSheet.getWidth()/STEPS) * i;
+            colorCounter.add(spriteSheet.getRGB(x, 0));
+            colorCounter.add(spriteSheet.getRGB(x, spriteSheet.getHeight()-1));
+        }
+
+        for (int i = 0; i < STEPS-1; i++) {
+            int y = (spriteSheet.getHeight()/STEPS) * i;
+            colorCounter.add(spriteSheet.getRGB(0, y));
+            colorCounter.add(spriteSheet.getRGB(spriteSheet.getWidth()-1, y));
+        }
+
+        return new int[] {ImageUtil.getMode(colorCounter).get(0)};
+    }
+
+    public static <T> List<T> getMode(List<T> list) {
+        List <T> mostCommonItems = new ArrayList<>();
+        int maxCount = 0;
+
+        // Find most common edge pixel
+        Map<T, Integer> itemMap = new HashMap<>();
+
+        for (T item: list) {
+            if (itemMap.containsKey(item)) {
+                itemMap.put(item, itemMap.get(item) + 1);
+            } else {
+                itemMap.put(item, 1);
+            }
+
+            if (itemMap.get(item) > maxCount) {
+                mostCommonItems.clear();
+                mostCommonItems.add(item);
+                maxCount = itemMap.get(item);
+            } else if (itemMap.get(item) == maxCount) {
+                mostCommonItems.add(item);
+            }
+        };
+
+        return mostCommonItems;
+    }
+
 
     public interface PixelEditor {
         int[] editPixel(int[] rgba, int x, int y);
     }
-
 
     public static BufferedImage pointProcessing(BufferedImage image, PixelEditor pixelEditor) {
         return pointProcessing(image, pixelEditor, true);
@@ -116,7 +167,7 @@ public class ImageUtil {
         });
     }
 
-    public static BufferedImage alignImage(BufferedImage image, int xOffset, int yOffset) {
+    public static BufferedImage alignImage(BufferedImage image, int xOffset, int yOffset, int backgroundColor) {
         BufferedImage alignedImage = new BufferedImage(image.getWidth() + xOffset, image.getHeight() + yOffset, BufferedImage.TYPE_4BYTE_ABGR);
 
         Graphics g = alignedImage.getGraphics();
@@ -133,12 +184,7 @@ public class ImageUtil {
             yOffset = 0;
         }
 
-        // First value of background image should be the on to be expanded
-        int bgC = ImageUtil.findBackgroundColor(image)[0];
-
-        int[] bg = rbgaIntToArray(bgC);
-
-        g.setColor(new Color(bg[0], bg[1], bg[2], bg[3]));
+        g.setColor(rgbaIntToColor(backgroundColor));
 
         g.fillRect(0, 0, alignedImage.getWidth(), alignedImage.getHeight());
 

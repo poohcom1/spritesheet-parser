@@ -22,13 +22,15 @@ public class ImageToolsCanvas extends ToolsCanvas {
 
     public Color SHADE_COLOR = new Color(0 , 0, 0, 74);
 
-    private List<Color> backgroundColors;
-    private Color replacementColor = new Color(0,0,0,0);
+    private final List<Color> backgroundColors;
+    private final Color replacementColor = new Color(0,0,0,0);
+    private final int autoBackground;
 
     public ImageToolsCanvas() {
         super();
 
         backgroundColors = new ArrayList<>();
+        autoBackground = 0;
 
         maxMarqueeCount = 1;
 
@@ -44,6 +46,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
         super(spriteSheet.getWidth(), spriteSheet.getHeight());
 
         backgroundColors = new ArrayList<>();
+        autoBackground = ImageUtil.findBackgroundColor(spriteSheet)[0];
 
         maxMarqueeCount = 1;
 
@@ -134,6 +137,10 @@ public class ImageToolsCanvas extends ToolsCanvas {
         int[] backgroundColorArray = new int[backgroundColors.size()];
         for (int i = 0; i < backgroundColorArray.length; i++) {
             backgroundColorArray[i] = backgroundColors.get(i).getRGB();
+        }
+
+        if (backgroundColorArray.length == 0) {
+            return new int[] {autoBackground};
         }
 
         return backgroundColorArray;

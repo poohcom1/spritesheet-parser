@@ -124,7 +124,11 @@ public class Rect extends Rectangle {
         }
     }
 
-    // Allows checks for rects with height or width of 0
+    /**
+     * Checks whether or not this Rectangle entirely contains the specified Rectangle, including Rectangles of size 0.
+     * @param r Rectangle to check whether or not this Rectangle contains
+     * @return Whether or not the given Rectangle is contained in this Rectangle
+     */
     @Override
     public boolean contains(Rectangle r) {
         return r.x >= x && r.x+r.width <= x + width && r.y >= y && r.y + r.height <= y + height;

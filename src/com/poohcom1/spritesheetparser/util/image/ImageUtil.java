@@ -30,7 +30,7 @@ public class ImageUtil {
     }
 
     public static Color rgbaIntToColor(int rgba) {
-        return new Color(rgba & 0x00ff, (rgba >> 8) & 0x00ff, (rgba >> 16) & 0x00ff, (rgba >> 24) & 0x00ff);
+        return new Color((rgba >> 16) & 0x00ff, (rgba >> 8) & 0x00ff, rgba & 0x00ff, (rgba >> 24) & 0x00ff);
     }
 
     /**

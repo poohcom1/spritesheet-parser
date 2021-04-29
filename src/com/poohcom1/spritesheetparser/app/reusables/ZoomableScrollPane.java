@@ -58,6 +58,7 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         child = zoomComponent;
     }
 
+
     public C getChild() {return child;}
 
     public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}

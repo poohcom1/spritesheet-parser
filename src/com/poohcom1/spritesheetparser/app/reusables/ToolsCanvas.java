@@ -17,7 +17,6 @@ public class ToolsCanvas extends ZoomComponent {
     // Tools
     public static final String NO_TOOL = "None";
     public static final String MOVE_TOOL = "Move";
-    public static final String MARQUEE_TOOL = "Marquee";
     public static final String PEN_TOOL = "Pen";
 
     private final Map<String, MouseAdapter> toolMap;
@@ -200,7 +199,7 @@ public class ToolsCanvas extends ZoomComponent {
     protected  void drawClear(Graphics g) {
         // Draw white background
         Point edge = new Point(screenSize.width, screenSize.height);
-        edge = inverseTransformPoint(edge);
+        edge = transformPoint(edge);
 
         g.setColor(canvasColor);
         g.fillRect(0, 0, edge.x, edge.y);

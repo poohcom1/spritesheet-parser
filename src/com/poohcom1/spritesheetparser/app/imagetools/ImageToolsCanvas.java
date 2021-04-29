@@ -1,6 +1,5 @@
 package com.poohcom1.spritesheetparser.app.imagetools;
 
-import com.poohcom1.spritesheetparser.app.App;
 import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
@@ -20,31 +19,14 @@ public class ImageToolsCanvas extends ToolsCanvas {
 
     public final static BufferedImage BLANK_CANVAS = new BufferedImage(175, 50, BufferedImage.TYPE_4BYTE_ABGR);
 
-    private final BufferedImage originalSpriteSheet;
-    private BufferedImage spriteSheet;
+    private BufferedImage originalImage;
+    private BufferedImage image;
 
     public Color SHADE_COLOR = new Color(101, 101, 101, 156);
 
     private final List<Color> backgroundColors;
     private final Color replacementColor = new Color(0,0,0,0);
-    private final int autoBackground;
-
-    public ImageToolsCanvas() {
-        super(175, 50);
-
-        backgroundColors = new ArrayList<>();
-        autoBackground = 0;
-
-        maxMarqueeCount = 1;
-
-        originalSpriteSheet = null;
-        spriteSheet = null;
-
-
-        addTool(MOVE_TOOL, moveToolCallback);
-        addTool(CROP_TOOL, new MarqueeAdapter() {});
-        addTool(COLOR_PICKER_TOOL, colorPickerCallback);
-    }
+    private int autoBackground;
 
     public ImageToolsCanvas(BufferedImage spriteSheet) {
         super(spriteSheet.getWidth(), spriteSheet.getHeight());
@@ -54,8 +36,8 @@ public class ImageToolsCanvas extends ToolsCanvas {
 
         maxMarqueeCount = 1;
 
-        this.originalSpriteSheet = spriteSheet;
-        this.spriteSheet = spriteSheet;
+        this.originalImage = spriteSheet;
+        this.image = spriteSheet;
 
         addTool(MOVE_TOOL, moveToolCallback);
         addTool(CROP_TOOL, new MarqueeAdapter() {});
@@ -88,7 +70,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
                 for (int i = 0; i < colors.length; i++) {
                     colors[i] = backgroundColors.get(i).getRGB();
                 }
-                spriteSheet = (ImageUtil.replaceColorsBuffered(originalSpriteSheet, colors, replacementColor.getRGB()));
+                image = (ImageUtil.replaceColorsBuffered(originalImage, colors, replacementColor.getRGB()));
             } else if (SwingUtilities.isRightMouseButton(e)) {
                 backgroundColors.clear();
             }
@@ -101,9 +83,9 @@ public class ImageToolsCanvas extends ToolsCanvas {
         BufferedImage crop;
         if (getTrueMarqueesCoords().size() > 0) {
             Rect marquee = getTrueMarqueesCoords().get(0);
-            crop = spriteSheet.getSubimage(marquee.x, marquee.y, marquee.width, marquee.height);
+            crop = image.getSubimage(marquee.x, marquee.y, marquee.width, marquee.height);
         } else {
-            crop = spriteSheet;
+            crop = image;
         }
 
         return crop;
@@ -118,7 +100,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
         int xOffset = getXOffset();
         int yOffset = getYOffset();
 
-        g.drawImage(spriteSheet, xOffset, yOffset, null);
+        g.drawImage(image, xOffset, yOffset, null);
 
         drawMarquees(g);
     }
@@ -128,7 +110,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
 
         Graphics2D g2 = ((Graphics2D) g);
 
-        Rectangle shade = new Rectangle(getXOffset(), getYOffset(), spriteSheet.getWidth(), spriteSheet.getHeight());
+        Rectangle shade = new Rectangle(getXOffset(), getYOffset(), image.getWidth(), image.getHeight());
 
         Area area = new Area(shade);
 
@@ -150,5 +132,18 @@ public class ImageToolsCanvas extends ToolsCanvas {
         }
 
         return backgroundColorArray;
+    }
+
+    public void setImage(BufferedImage image) {
+        width = image.getWidth();
+        height = image.getHeight();
+        this.image = image;
+        this.originalImage = image;
+
+        initScale(width, height);
+
+        autoBackground = ImageUtil.findBackgroundColor(image)[0];
+        notifyUpdateListeners();
+        repaint();
     }
 }

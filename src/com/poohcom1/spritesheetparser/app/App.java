@@ -146,16 +146,18 @@ public class App {
         final JPanel mainPanel;
         final JPanel topPanel;
         final ToggleButtonRadio toolButtons;
-        private ZoomableScrollPane<ImageToolsCanvas> imageToolsPane;
+        private final ZoomableScrollPane<ImageToolsCanvas> imageToolsPane;
+        private final ImageToolsCanvas imageToolsCanvas;
 
         ImageTools() {
             mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
 
-            imageToolsPane = new ZoomableScrollPane<>(new ImageToolsCanvas());
+            imageToolsCanvas = new ImageToolsCanvas(ImageToolsCanvas.BLANK_CANVAS);
+            imageToolsPane = new ZoomableScrollPane<>(imageToolsCanvas);
             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
 
-            JButton confirmButton = new JButton("Extract Sprites!");
+            JButton cropButton = new JButton("Crop Sprites!");
             // ======================== UPPER/LEFT IMAGE TOOLS PANEL ========================
             topPanel = new JPanel();
             toolButtons = new ToggleButtonRadio();
@@ -163,7 +165,11 @@ public class App {
 
             JButton loadImage = new CustomButton("Load Spritesheet");
 
-            setToolsButton(toolButtons, new ImageToolsCanvas());
+            toolButtons.removeAll();
+            toolButtons.addButton(iconMap.get(ICON_MOVE), () -> imageToolsCanvas.setTool(ImageToolsCanvas.MOVE_TOOL), ImageToolsCanvas.MOVE_TOOL);
+            toolButtons.addButton(iconMap.get(ICON_CROP), () -> imageToolsCanvas.setTool(ImageToolsCanvas.CROP_TOOL), ImageToolsCanvas.CROP_TOOL);
+            toolButtons.addButton(iconMap.get(ICON_COLOR), () -> imageToolsCanvas.setTool(ImageToolsCanvas.COLOR_PICKER_TOOL), ImageToolsCanvas.COLOR_PICKER_TOOL);
+
             toolButtons.setButtonsEnabled(false);
 
             topPanel.add(loadImage);
@@ -184,22 +190,16 @@ public class App {
                         spriteSheet = AppUtil.loadImage(file);
 
                         if (spriteSheet != null) {
-                            if (imageToolsPane != null) mainPanel.remove(imageToolsPane);
-
                             System.out.println("Image loaded!");
 
-                            imageToolsPane = new ZoomableScrollPane<>(new ImageToolsCanvas(spriteSheet));
-
-                            ImageToolsCanvas newImageCanvas = imageToolsPane.getChild();
-
-                            setToolsButton(toolButtons, newImageCanvas);
+                            imageToolsCanvas.setImage(spriteSheet);
 
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
                             mainPanel.revalidate();
 
                             packInBounds();
 
-                            confirmButton.setEnabled(true);
+                            cropButton.setEnabled(true);
                             toolButtons.setButtonsEnabled(true);
                         } else {
                             JOptionPane.showMessageDialog(window, "Invalid file type! Please select an image file", "Error", JOptionPane.ERROR_MESSAGE);
@@ -213,15 +213,31 @@ public class App {
             // ======================== LOWER CROP TOOLS PANEL ========================
             JPanel performEditPanel = new JPanel();
             performEditPanel.setLayout(new GridLayout(1, 3));
+            performEditPanel.setAlignmentY(JPanel.CENTER_ALIGNMENT);
 
-            confirmButton.setFocusable(false);
-            confirmButton.setEnabled(false);
+            cropButton.setFocusable(false);
+            cropButton.setEnabled(false);
+            cropButton.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
 
             // On extract sprites
-            confirmButton.addActionListener(l -> {
+            cropButton.addActionListener(l -> {
+                if (imageToolsCanvas.crop().getHeight() > 300) {
+                    int result = JOptionPane.showOptionDialog(
+                            mainPanel,
+                            "This image is very large; are you sure you want to proceed without cropping?",
+                            "Large file warning",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE,
+                            null,
+                            new String[] {"  Yes   ", "   No   "},
+                            "   No   ");
+                    if (result != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                }
 
                 // Crop sprites
-                blobDetectionTools.init((imageToolsPane.getChild()).crop(), imageToolsPane.getChild().getBackgroundColors());
+                blobDetectionTools.init(imageToolsCanvas.crop(), imageToolsCanvas.getBackgroundColors());
                 blobDetectionTools.mainPanel.repaint();
                 tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE_TAB);
             });
@@ -229,8 +245,8 @@ public class App {
             JLabel backgroundColorLabel = new JLabel("Background Color: ");
             JLabel backgroundColorBox = new JLabel(new ImageIcon(ShapesUtil.createColoredRectangle(10, 10, Color.WHITE)));
 
-            imageToolsPane.getChild().addUpdateListener(() -> {
-                backgroundColorBox.setIcon(new ImageIcon(ShapesUtil.createColoredRectangle(10, 10, ImageUtil.rgbaIntToColor(imageToolsPane.getChild().getBackgroundColors()[0]))));
+            imageToolsCanvas.addUpdateListener(() -> {
+                backgroundColorBox.setIcon(new ImageIcon(ShapesUtil.createColoredRectangle(10, 10, ImageUtil.rgbaIntToColor(imageToolsCanvas.getBackgroundColors()[0]))));
             });
 
 
@@ -239,20 +255,19 @@ public class App {
             backgroundColorPanel.add(backgroundColorLabel);
             backgroundColorPanel.add(backgroundColorBox);
 
+            JPanel cropButtonWrapper = new JPanel();
+            cropButtonWrapper.add(cropButton);
+            cropButton.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+            cropButtonWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 5));
+
             performEditPanel.add(new JPanel());
-            performEditPanel.add(confirmButton);
+            performEditPanel.add(cropButtonWrapper);
             performEditPanel.add(backgroundColorPanel);
+            performEditPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
             mainPanel.add(topPanel, BorderLayout.NORTH);
             mainPanel.add(toolButtons, BorderLayout.WEST);
             mainPanel.add(performEditPanel, BorderLayout.SOUTH);
-        }
-
-        public void setToolsButton(ToggleButtonRadio toolButtons, ToolsCanvas imageCanvas) {
-            toolButtons.removeAll();
-            toolButtons.addButton(iconMap.get(ICON_MOVE), () -> imageCanvas.setTool(ImageToolsCanvas.MOVE_TOOL), ImageToolsCanvas.MOVE_TOOL);
-            toolButtons.addButton(iconMap.get(ICON_CROP), () -> imageCanvas.setTool(ImageToolsCanvas.CROP_TOOL), ImageToolsCanvas.CROP_TOOL);
-            toolButtons.addButton(iconMap.get(ICON_COLOR), () -> imageCanvas.setTool(ImageToolsCanvas.COLOR_PICKER_TOOL), ImageToolsCanvas.COLOR_PICKER_TOOL);
         }
     }
 

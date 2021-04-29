@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ZoomComponent extends JComponent {
-    public final int width;
-    public final int height;
+    public int width;
+    public int height;
 
     public double panelXScale;
     public double panelYScale;
@@ -34,6 +34,10 @@ public class ZoomComponent extends JComponent {
 
         updateListeners = new ArrayList<>();
 
+        initScale(width, height);
+    }
+
+    protected void initScale(int width, int height) {
         // Set size based on margins
         panelXScale = (float) (width + MARGINS_X)/ width;
         panelYScale = (float) (height + MARGINS_Y)/height;

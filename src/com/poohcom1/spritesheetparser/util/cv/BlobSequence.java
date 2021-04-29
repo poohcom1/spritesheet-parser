@@ -155,6 +155,11 @@ public class BlobSequence extends ArrayList<Blob> {
         return new Dimension(width, height);
     }
 
+    public void setOrder(int primaryOrder, int secondaryOrder) {
+        this.primaryOrder = primaryOrder;
+        this.secondaryOrder = secondaryOrder;
+    }
+
     public int getPrimaryOrder() {
         return primaryOrder;
     }

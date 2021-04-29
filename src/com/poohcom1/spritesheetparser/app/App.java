@@ -467,6 +467,8 @@ public class App {
                         secondaryOrder = BlobSequence.RIGHT_TO_LEFT;
                     }
                 }
+
+                blobSequence.setOrder(primaryOrder, secondaryOrder);
                 blobSequence.orderBlobs();
                 blobPanel.getChild().repaint();
                 resetSpritePlayer();

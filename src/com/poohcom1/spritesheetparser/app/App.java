@@ -41,7 +41,7 @@ public class App {
 
     private static BlobDetectionTools blobDetectionTools;
 
-    public App() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void runApp() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         prepareIcons();
 
         window = new JFrame("Sprite Sheet Animator");
@@ -50,7 +50,7 @@ public class App {
 
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        blobDetectionTools = new BlobDetectionTools(null);
+        blobDetectionTools = new BlobDetectionTools();
 
         tabbedPane.addTab("Spritesheet Editing", new ImageTools().mainPanel);
         tabbedPane.addTab("Sprite Extraction", blobDetectionTools.mainPanel);
@@ -65,7 +65,7 @@ public class App {
     }
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        new App();
+        runApp();
     }
 
 
@@ -136,7 +136,8 @@ public class App {
         final JFileChooser fileChooser;
 
         final JPanel mainPanel;
-        final JPanel toolsPanel;
+        final JPanel topPanel;
+        final ToggleButtonRadio toolButtons;
 
         private ZoomableScrollPane<ImageToolsCanvas> imageToolsPane;
 
@@ -146,34 +147,19 @@ public class App {
 
             imageToolsPane = new ZoomableScrollPane<>(new ImageToolsCanvas());
 
-            // ======================== LOWER CROP TOOLS PANEL ========================
-            JPanel performEditPanel = new JPanel();
-
             JButton confirmButton = new JButton("Extract Sprites!");
-            confirmButton.setFocusable(false);
-            confirmButton.setEnabled(false);
 
-            // On extract sprites
-            confirmButton.addActionListener(l -> {
-                // Crop sprites
-                blobDetectionTools.init((imageToolsPane.getChild()).crop());
-                blobDetectionTools.mainPanel.repaint();
-                tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE);
-            });
-
-            performEditPanel.add(confirmButton);
-
-            // ======================== UPPER IMAGE TOOLS PANEL ========================
-            toolsPanel = new JPanel();
+            // ======================== UPPER/LEFT IMAGE TOOLS PANEL ========================
+            topPanel = new JPanel();
+            toolButtons = new ToggleButtonRadio();
+            toolButtons.setLayout(new BoxLayout(toolButtons, BoxLayout.PAGE_AXIS));
 
             JButton loadImage = new JButton("Load Spritesheet");
-            ToggleButtonRadio toolButtons = new ToggleButtonRadio();
 
-
+            setToolsButton(toolButtons, new ImageToolsCanvas());
             toolButtons.setButtonsEnabled(false);
 
-            toolsPanel.add(loadImage);
-            toolsPanel.add(toolButtons);
+            topPanel.add(loadImage);
 
             fileChooser = new JFileChooser();
 
@@ -201,9 +187,7 @@ public class App {
 
                             toolButtons.removeAll();
 
-                            toolButtons.addButton(iconMap.get(ICON_MOVE), () -> newImageCanvas.setTool(ImageToolsCanvas.MOVE_TOOL), ImageToolsCanvas.MOVE_TOOL);
-                            toolButtons.addButton(iconMap.get(ICON_CROP), () -> newImageCanvas.setTool(ImageToolsCanvas.CROP_TOOL), ImageToolsCanvas.CROP_TOOL);
-                            toolButtons.addButton(iconMap.get(ICON_COLOR), () -> newImageCanvas.setTool(ImageToolsCanvas.COLOR_PICKER_TOOL), ImageToolsCanvas.COLOR_PICKER_TOOL);
+                            setToolsButton(toolButtons, newImageCanvas);
                             newImageCanvas.setTool(ToolsCanvas.MOVE_TOOL);
 
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
@@ -222,8 +206,31 @@ public class App {
                 }
             });
 
-            mainPanel.add(toolsPanel, BorderLayout.NORTH);
+            // ======================== LOWER CROP TOOLS PANEL ========================
+            JPanel performEditPanel = new JPanel();
+
+            confirmButton.setFocusable(false);
+            confirmButton.setEnabled(false);
+
+            // On extract sprites
+            confirmButton.addActionListener(l -> {
+                // Crop sprites
+                blobDetectionTools.init((imageToolsPane.getChild()).crop(), imageToolsPane.getChild().getBackgroundColors());
+                blobDetectionTools.mainPanel.repaint();
+                tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE);
+            });
+
+            performEditPanel.add(confirmButton);
+
+            mainPanel.add(topPanel, BorderLayout.NORTH);
+            mainPanel.add(toolButtons, BorderLayout.WEST);
             mainPanel.add(performEditPanel, BorderLayout.SOUTH);
+        }
+
+        public void setToolsButton(ToggleButtonRadio toolButtons, ToolsCanvas imageCanvas) {
+            toolButtons.addButton(iconMap.get(ICON_MOVE), () -> imageCanvas.setTool(ImageToolsCanvas.MOVE_TOOL), ImageToolsCanvas.MOVE_TOOL);
+            toolButtons.addButton(iconMap.get(ICON_CROP), () -> imageCanvas.setTool(ImageToolsCanvas.CROP_TOOL), ImageToolsCanvas.CROP_TOOL);
+            toolButtons.addButton(iconMap.get(ICON_COLOR), () -> imageCanvas.setTool(ImageToolsCanvas.COLOR_PICKER_TOOL), ImageToolsCanvas.COLOR_PICKER_TOOL);
         }
     }
 
@@ -303,26 +310,32 @@ public class App {
         // Fonts
         Font defaultFont = new Font("Arial", Font.PLAIN, 10);
 
-        public BlobDetectionTools(BufferedImage image) {
-            this.image = image;
-
+        public BlobDetectionTools() {
             mainPanel = new JPanel();
 
-            if (image == null) {
-                // Modals
-                JTextField noImage = new JTextField("No sprites loaded");
-                mainPanel.add(noImage);
-                return;
-            }
-            init(image);
+            // Modals
+            JTextField noImage = new JTextField("No sprites loaded");
+            mainPanel.add(noImage);
         }
 
-        private void init(BufferedImage image) {
-            this.image = image;
-
+        private void init(BufferedImage newImage, int[] backgroundColors) {
             mainPanel.removeAll();
 
-            backgroundColors = ImageUtil.findBackgroundColor(image);
+            image = newImage;
+
+            System.out.println(backgroundColors.length);
+
+            if (backgroundColors.length > 0) {
+                this.backgroundColors = backgroundColors;
+            } else {
+                this.backgroundColors = ImageUtil.findBackgroundColor(newImage);
+            }
+
+            System.out.println(this.backgroundColors[0]);
+
+            image = ImageUtil.replaceColors(image, this.backgroundColors,  new Color(0,0,0,0).getRGB());
+
+            this.backgroundColors = new int[]{new Color(0, 0, 0, 0).getRGB()};
 
             mainPanel.setLayout(new BorderLayout());
 
@@ -588,8 +601,6 @@ public class App {
                             name = name.substring(0, name.length() - format.length() - 1);
                         }
                     }
-
-                    boolean replaceFile = false;
 
                     if (name.charAt(name.length()-1) == '0') {
                         name = name.substring(0, name.length()-1);

@@ -100,14 +100,6 @@ public class BlobCanvas extends ToolsCanvas {
                 notifyUpdateListeners();
             }
         });
-
-        // Reset showPoints
-//        addToolChangeListener(t -> {
-//            switch (t) {
-//                case REMOVE_TOOL -> _showPoints = true;
-//                default -> _showPoints = false;
-//            }
-//        });
     }
 
     public List<Blob> getBlobs() {

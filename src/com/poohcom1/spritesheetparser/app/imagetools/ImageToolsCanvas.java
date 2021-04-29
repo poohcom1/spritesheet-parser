@@ -22,8 +22,8 @@ public class ImageToolsCanvas extends ToolsCanvas {
 
     public Color SHADE_COLOR = new Color(0 , 0, 0, 74);
 
-    public List<Color> backgroundColors;
-    public Color replacementColor = new Color(0,0,0,0);
+    private List<Color> backgroundColors;
+    private Color replacementColor = new Color(0,0,0,0);
 
     public ImageToolsCanvas() {
         super();
@@ -128,5 +128,14 @@ public class ImageToolsCanvas extends ToolsCanvas {
         g2.setColor(SHADE_COLOR);
         g2.fill(area);
 
+    }
+
+    public int[] getBackgroundColors() {
+        int[] backgroundColorArray = new int[backgroundColors.size()];
+        for (int i = 0; i < backgroundColorArray.length; i++) {
+            backgroundColorArray[i] = backgroundColors.get(i).getRGB();
+        }
+
+        return backgroundColorArray;
     }
 }

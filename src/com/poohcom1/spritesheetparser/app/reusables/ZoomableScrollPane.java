@@ -21,9 +21,10 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
     // Child component
     private final C child;
 
+    @SuppressWarnings("unchecked")
     public ZoomableScrollPane(C zoomComponent) {
         super(zoomComponent);
-        zoomComponent.setParent(this);
+         zoomComponent.setParent((ZoomableScrollPane<ZoomComponent>) this);
 
         setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

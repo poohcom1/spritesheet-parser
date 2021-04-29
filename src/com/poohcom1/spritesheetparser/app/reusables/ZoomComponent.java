@@ -44,7 +44,7 @@ public class ZoomComponent extends JComponent {
         return new Dimension(getScaledWidth(), getScaledHeight());
     }
 
-    public void setParent(ZoomableScrollPane parentPanel) {this.parentPanel = parentPanel;}
+    public void setParent(ZoomableScrollPane<ZoomComponent> parentPanel) {this.parentPanel = parentPanel;}
 
     protected Point getCanvasPosition(Point pos) {
         return inverseTransformPoint(pos);

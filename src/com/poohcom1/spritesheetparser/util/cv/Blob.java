@@ -40,7 +40,6 @@ public class Blob extends Rect implements Comparable<Blob> {
         return points.size() == 0;
     }
 
-
     private void setDimensionsFromPoints() {
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;

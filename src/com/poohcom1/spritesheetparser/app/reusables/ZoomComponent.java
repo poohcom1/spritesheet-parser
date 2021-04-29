@@ -50,7 +50,7 @@ public class ZoomComponent extends JComponent {
         return inverseTransformPoint(pos);
     }
 
-    protected Point getImagePosition(Point pos) {
+    protected Point getPositionOnImage(Point pos) {
         Point transformedPoint = inverseTransformPoint(pos);
         transformedPoint.x -= getXOffset();
         transformedPoint.y -= getYOffset();

@@ -1,6 +1,5 @@
 package com.poohcom1.spritesheetparser.app.blobdetection;
 
-import com.poohcom1.spritesheetparser.app.App;
 import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
@@ -64,11 +63,16 @@ public class BlobCanvas extends ToolsCanvas {
 
         addTool(DELETE_TOOL, new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                deleteBlobAtPoint(getImagePosition(e.getPoint()));
+                deleteBlobAtPoint(getPositionOnImage(e.getPoint()));
+            }
+            public void mouseDragged(MouseEvent e) {
+                parentPanel.setMouseMove(false);
+                deleteBlobAtPoint(getPositionOnImage(e.getPoint()));
             }
             private void deleteBlobAtPoint(Point point) {
                 for (int i = blobs.size()-1; i >= 0; i--) {
-                    if (blobs.get(i).contains(point)) {
+                    Blob blob = blobs.get(i);
+                    if (blob.contains(point) || (blob.x == point.x && blob.y == point.y)) {
                         blobs.remove(i);
                     }
                 }
@@ -133,18 +137,21 @@ public class BlobCanvas extends ToolsCanvas {
 
         g.drawImage(image, xOffset, yOffset, null);
 
-        if (_showBlobs) {
+        if (_showBlobs || _showNumbers) {
             for (int i = 0; i < blobs.size(); i++) {
                 Rect rect = blobs.get(i);
-                g.setColor(_blobColor);
-                ((Graphics2D) g).setStroke(new BasicStroke(
-                        (float) (1.5f / xScale),                      // Width
-                        BasicStroke.CAP_SQUARE,    // End cap
-                        BasicStroke.JOIN_BEVEL,    // Join style
-                        1.0f,                     // Miter limit
-                        new float[]{2.0f, 2.0f},          // Dash pattern
-                        0.1f));
-                g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width + 1, rect.height + 1);
+
+                if (_showBlobs) {
+                    g.setColor(_blobColor);
+                    ((Graphics2D) g).setStroke(new BasicStroke(
+                            (float) (1.5f / xScale),                      // Width
+                            BasicStroke.CAP_SQUARE,    // End cap
+                            BasicStroke.JOIN_BEVEL,    // Join style
+                            1.0f,                     // Miter limit
+                            new float[]{2.0f, 2.0f},          // Dash pattern
+                            0.1f));
+                    g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width + 1, rect.height + 1);
+                }
 
                 if (_showNumbers) {
 
@@ -186,5 +193,17 @@ public class BlobCanvas extends ToolsCanvas {
     public void setShowPoints(boolean showPoints) {
         _showPoints = showPoints;
         repaint();
+    }
+
+    public boolean isShowingBlobs() {
+        return _showBlobs;
+    }
+
+    public boolean isShowingPoints() {
+        return _showPoints;
+    }
+
+    public boolean isShowingNumbers() {
+        return _showNumbers;
     }
 }

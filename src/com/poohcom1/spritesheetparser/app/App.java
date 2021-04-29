@@ -36,8 +36,7 @@ public class App {
     private static JTabbedPane tabbedPane;
 
     // Tabs
-    private static final int SHEET_EDITING_PANE = 0;
-    private static final int SPRITE_EXTRACTION_PANE = 1;
+    private static final int SPRITE_EXTRACTION_PANE_TAB = 1;
 
     private static BlobDetectionTools blobDetectionTools;
 
@@ -87,6 +86,9 @@ public class App {
     public final static String ICON_CROP = "Crop";
     public final static String ICON_COLOR = "Set transparent color";
 
+    public final static String ICON_PLUS = "Plus";
+    public final static String ICON_MINUS = "Minus";
+
     public final static String ICON_CUT = "Cut sprite box";
     public final static String ICON_DELETE = "Delete sprite box";
     public final static String ICON_MERGE = "Merge sprite box";
@@ -111,6 +113,9 @@ public class App {
         iconMap.put(ICON_V_ALIGN_CENTER, FontIcon.of(UniconsLine.VERTICAL_ALIGN_CENTER));
         iconMap.put(ICON_V_ALIGN_TOP, FontIcon.of(UniconsLine.VERTICAL_ALIGN_TOP));
         iconMap.put(ICON_V_ALIGN_BOTTOM, FontIcon.of(UniconsLine.VERTICAL_ALIGN_BOTTOM));
+
+        iconMap.put(ICON_PLUS, FontIcon.of(UniconsLine.PLUS));
+        iconMap.put(ICON_MINUS, FontIcon.of(UniconsLine.MINUS));
 
         iconMap.put(ICON_EDIT_WARNING, FontIcon.of(BoxiconsSolid.ERROR));
 
@@ -217,7 +222,7 @@ public class App {
                 // Crop sprites
                 blobDetectionTools.init((imageToolsPane.getChild()).crop(), imageToolsPane.getChild().getBackgroundColors());
                 blobDetectionTools.mainPanel.repaint();
-                tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE);
+                tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE_TAB);
             });
 
             performEditPanel.add(confirmButton);
@@ -362,6 +367,7 @@ public class App {
             mainPanel.add(setCanvasPanel(), BorderLayout.WEST);
             mainPanel.add(setTopPanel(), BorderLayout.NORTH);
             mainPanel.add(spritePlayerPanel, BorderLayout.EAST);
+            mainPanel.add(setBottomPanel(), BorderLayout.SOUTH);
             mainPanel.revalidate();
         }
 
@@ -395,8 +401,8 @@ public class App {
         }
 
         private JPanel setDistanceButtons() {
-            JButton up = new JButton("-");
-            JButton down = new JButton("+");
+            JButton up = new JButton(iconMap.get(ICON_MINUS));
+            JButton down = new JButton(iconMap.get(ICON_PLUS));
             JLabel countLabel = new JLabel(String.valueOf(blobSequence.size()));
 
             JLabel warningLabel = new JLabel(iconMap.get(ICON_EDIT_WARNING));
@@ -617,6 +623,32 @@ public class App {
             });
 
             panel.add(exportButton);
+            return panel;
+        }
+
+        // ================================== BOTTOM MENU BAR
+        private JPanel setBottomPanel() {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+            panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JCheckBox showBlobs = new JCheckBox("Show sprite boxes");
+            JCheckBox showNumbers = new JCheckBox("Show sprite number");
+            JCheckBox showPoints = new JCheckBox("Show sprite pixels");
+
+            showBlobs.setSelected(blobPanel.getChild().isShowingBlobs());
+            showNumbers.setSelected(blobPanel.getChild().isShowingNumbers());
+            showPoints.setSelected(blobPanel.getChild().isShowingPoints());
+
+            showBlobs.addActionListener(l -> blobPanel.getChild().setShowBlobs(showBlobs.isSelected()));
+            showNumbers.addActionListener(l -> blobPanel.getChild().setShowNumbers(showNumbers.isSelected()));
+            showPoints.addActionListener(l -> blobPanel.getChild().setShowPoints(showPoints.isSelected()));
+
+            panel.add(showBlobs);
+            panel.add(showNumbers);
+            panel.add(showPoints);
+
+            panel.setBorder(BorderFactory.createEmptyBorder(5, 100, 5, 0));
             return panel;
         }
 

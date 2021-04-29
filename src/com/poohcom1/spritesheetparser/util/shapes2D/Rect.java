@@ -135,6 +135,11 @@ public class Rect extends Rectangle {
     }
 
     @Override
+    public boolean contains(Point p) {
+        return (p.x >= x && p.x <= x + width && p.y >= y && p.y <= x + height);
+    }
+
+    @Override
     public boolean intersects(Rectangle r) {
         int tw = this.width;
         int th = this.height;

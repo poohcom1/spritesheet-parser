@@ -22,38 +22,23 @@ public class ToolsCanvas extends ZoomComponent {
 
     private final Map<String, MouseAdapter> toolMap;
 
-    // Objects
+
     protected int maxMarqueeCount;
 
-    private List<Rect> marqueePoints;
-    private List<Point> penPoints;
+    private final List<Rect> marqueePoints;
+    private final List<Point> penPoints;
 
     private float _dashPhase;
     private float _dashInc = 0;
 
     ScheduledExecutorService animator;
-
     MouseAdapter mouseToolCallback;
+
+    // Scale
+    protected Dimension screenSize;
 
     List<ToolChangeListener> toolChangeListeners;
 
-    public ToolsCanvas() {
-        super(0, 0);
-
-        maxMarqueeCount = 100;
-        marqueePoints = new ArrayList<>();
-        penPoints = new ArrayList<>();
-
-        _dashPhase = 0.0f;
-        animator = Executors.newScheduledThreadPool(1);
-
-        animator.scheduleAtFixedRate(() -> {
-            animatedDashPhase();
-            repaint();
-        }, 0, 16, TimeUnit.MILLISECONDS);
-
-        toolMap = new LinkedHashMap<>();
-    }
 
     public ToolsCanvas(int width, int height) {
         super(width, height);
@@ -72,6 +57,8 @@ public class ToolsCanvas extends ZoomComponent {
 
         toolChangeListeners = new ArrayList<>();
         toolMap = new LinkedHashMap<>();
+
+        screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     }
 
     public void addTool(String name, MouseAdapter callback) {
@@ -208,6 +195,13 @@ public class ToolsCanvas extends ZoomComponent {
         super.paintComponent(g);
     }
 
+    protected  void drawClear(Graphics g) {
+        // Draw white background
+        Point edge = new Point(screenSize.width, screenSize.height);
+        edge = inverseTransformPoint(edge);
+
+        g.clearRect(0, 0, edge.x, edge.y);
+    }
 
     protected void drawMarquees(Graphics g){
         marqueePoints.forEach(marquee -> {

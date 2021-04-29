@@ -58,7 +58,7 @@ public class BlobSequence extends ArrayList<Blob> {
     }
 
 
-    public Point[] toPoints() {
+    public Point[] getPoints() {
         return blobsToPoints(this);
     }
 

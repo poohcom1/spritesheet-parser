@@ -6,70 +6,103 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ToggleButtonRadio extends JPanel {
-    private final List<JToggleButton> toolButtons;
+    private static final Color BUTTON_UNSELECTED_COLOR = Color.black;
+    private static final Color BUTTON_SELECTED_COLOR = Color.BLUE;
+    private static final Color BUTTON_BACKGROUND = new Color(122, 131, 167);
+
+    private final List<JToggleButton> buttons;
+
+    private int selectedIndex = 0;
 
     public ToggleButtonRadio() {
         setLayout(new FlowLayout());
 
-        toolButtons = new ArrayList<>();
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        buttons = new ArrayList<>();
     }
 
+    private void buttonInit(JToggleButton button, String toolTip) {
+        button.setFocusable(false);
+        button.setContentAreaFilled(false);
+        button.setToolTipText(toolTip);
+        button.setBackground(BUTTON_BACKGROUND);
+        button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
 
-    public void addButton(String name, ButtonToggledListener listener) {
-        JToggleButton newButton = new JToggleButton(name);
-        if (toolButtons.size() == 0) newButton.setSelected(true);
-        newButton.setFocusable(false);
-        newButton.addActionListener(e -> {
-            toolButtons.forEach(otherButton -> otherButton.setSelected(false));
-            newButton.setSelected(true);
-            listener.buttonToggled();
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setOpaque(true);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (!button.isSelected()) button.setOpaque(false);
+            }
         });
-        add(newButton);
-        toolButtons.add(newButton);
     }
 
-    public void addButton(Icon icon, ButtonToggledListener listener) {
-        JToggleButton newButton = new JToggleButton(icon);
-        if (toolButtons.size() == 0) newButton.setSelected(true);
-        newButton.setFocusable(false);
+    private void onSelected(JToggleButton button) {
+        button.setSelected(true);
+        button.setOpaque(true);
+        //((FontIcon) button.getIcon()).setIconColor(BUTTON_SELECTED_COLOR);
+    }
+
+    private void onUnSelected(JToggleButton button) {
+        button.setSelected(false);
+        button.setOpaque(false);
+        //((FontIcon) button.getIcon()).setIconColor(BUTTON_UNSELECTED_COLOR);
+    }
+
+    public void addButton(JToggleButton newButton, ButtonToggledListener listener, String toolTip) {
+        buttonInit(newButton, toolTip);
+
+        if (buttons.size() == 0) onSelected(newButton);
+
         newButton.addActionListener(e -> {
-            toolButtons.forEach(otherButton -> otherButton.setSelected(false));
-            newButton.setSelected(true);
+            buttons.forEach(this::onUnSelected);
+
+            selectedIndex = buttons.indexOf(newButton);
+            onSelected(newButton);
             listener.buttonToggled();
         });
+
         add(newButton);
-        toolButtons.add(newButton);
+        buttons.add(newButton);
+    }
+
+    public void addButton(String name, ButtonToggledListener listener, String toolTip) {
+        addButton(new JToggleButton(name), listener, toolTip);
     }
 
     public void addButton(Icon icon, ButtonToggledListener listener, String toolTip) {
-        JToggleButton newButton = new JToggleButton(icon);
-        newButton.setToolTipText(toolTip);
-        if (toolButtons.size() == 0) newButton.setSelected(true);
-        newButton.setFocusable(false);
-        newButton.addActionListener(e -> {
-            toolButtons.forEach(otherButton -> otherButton.setSelected(false));
-            newButton.setSelected(true);
-            listener.buttonToggled();
-        });
-        add(newButton);
-        toolButtons.add(newButton);
+        addButton(new JToggleButton(icon), listener, toolTip);
     }
+
 
     public void setButtonsEnabled(boolean enabled) {
         if (enabled) {
-            toolButtons.forEach(button -> {
-                button.setSelected(toolButtons.indexOf(button) == 0);
+            buttons.forEach(button -> {
+                button.setSelected(buttons.indexOf(button) == 0);
                 button.setEnabled(true);
             });
         } else {
-            toolButtons.forEach(button -> {
+            buttons.forEach(button -> {
                 button.setSelected(false);
                 button.setEnabled(false);
             });
         }
     }
 
+    public List<JToggleButton> getButtons() {
+        return buttons;
+    }
+
     public interface ButtonToggledListener {
         void buttonToggled();
+    }
+
+    @Override
+    public void removeAll() {
+        super.removeAll();
+        buttons.clear();
     }
 }

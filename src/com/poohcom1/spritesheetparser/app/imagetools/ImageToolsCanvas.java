@@ -27,17 +27,18 @@ public class ImageToolsCanvas extends ToolsCanvas {
     private final int autoBackground;
 
     public ImageToolsCanvas() {
-        super();
+        super(175, 50);
 
         backgroundColors = new ArrayList<>();
         autoBackground = 0;
 
         maxMarqueeCount = 1;
 
-        originalSpriteSheet = spriteSheet;
-        this.spriteSheet = null;
+        originalSpriteSheet = null;
+        spriteSheet = null;
 
-        //addTool(MOVE_TOOL, moveToolCallback);
+
+        addTool(MOVE_TOOL, moveToolCallback);
         addTool(CROP_TOOL, new MarqueeAdapter() {});
         addTool(COLOR_PICKER_TOOL, colorPickerCallback);
     }
@@ -50,7 +51,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
 
         maxMarqueeCount = 1;
 
-        originalSpriteSheet = spriteSheet;
+        this.originalSpriteSheet = spriteSheet;
         this.spriteSheet = spriteSheet;
 
         addTool(MOVE_TOOL, moveToolCallback);
@@ -108,6 +109,8 @@ public class ImageToolsCanvas extends ToolsCanvas {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        drawClear(g);
 
         int xOffset = getXOffset();
         int yOffset = getYOffset();

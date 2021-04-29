@@ -3,6 +3,7 @@ package com.poohcom1.spritesheetparser.app;
 import com.poohcom1.spritesheetparser.app.animation.SpritePlayer;
 import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
 import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
+import com.poohcom1.spritesheetparser.app.reusables.CustomButton;
 import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
 import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
+import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.boxicons.BoxiconsRegular;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
 import org.kordamp.ikonli.swing.*;
@@ -139,11 +141,9 @@ public class App {
 
         // Components
         final JFileChooser fileChooser;
-
         final JPanel mainPanel;
         final JPanel topPanel;
         final ToggleButtonRadio toolButtons;
-
         private ZoomableScrollPane<ImageToolsCanvas> imageToolsPane;
 
         ImageTools() {
@@ -151,6 +151,7 @@ public class App {
             mainPanel.setLayout(new BorderLayout());
 
             imageToolsPane = new ZoomableScrollPane<>(new ImageToolsCanvas());
+            mainPanel.add(imageToolsPane, BorderLayout.CENTER);
 
             JButton confirmButton = new JButton("Extract Sprites!");
 
@@ -159,7 +160,7 @@ public class App {
             toolButtons = new ToggleButtonRadio();
             toolButtons.setLayout(new BoxLayout(toolButtons, BoxLayout.PAGE_AXIS));
 
-            JButton loadImage = new JButton("Load Spritesheet");
+            JButton loadImage = new CustomButton("Load Spritesheet");
 
             setToolsButton(toolButtons, new ImageToolsCanvas());
             toolButtons.setButtonsEnabled(false);
@@ -190,10 +191,7 @@ public class App {
 
                             ImageToolsCanvas newImageCanvas = imageToolsPane.getChild();
 
-                            toolButtons.removeAll();
-
                             setToolsButton(toolButtons, newImageCanvas);
-                            newImageCanvas.setTool(ToolsCanvas.MOVE_TOOL);
 
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
                             mainPanel.revalidate();
@@ -219,6 +217,7 @@ public class App {
 
             // On extract sprites
             confirmButton.addActionListener(l -> {
+
                 // Crop sprites
                 blobDetectionTools.init((imageToolsPane.getChild()).crop(), imageToolsPane.getChild().getBackgroundColors());
                 blobDetectionTools.mainPanel.repaint();
@@ -233,6 +232,7 @@ public class App {
         }
 
         public void setToolsButton(ToggleButtonRadio toolButtons, ToolsCanvas imageCanvas) {
+            toolButtons.removeAll();
             toolButtons.addButton(iconMap.get(ICON_MOVE), () -> imageCanvas.setTool(ImageToolsCanvas.MOVE_TOOL), ImageToolsCanvas.MOVE_TOOL);
             toolButtons.addButton(iconMap.get(ICON_CROP), () -> imageCanvas.setTool(ImageToolsCanvas.CROP_TOOL), ImageToolsCanvas.CROP_TOOL);
             toolButtons.addButton(iconMap.get(ICON_COLOR), () -> imageCanvas.setTool(ImageToolsCanvas.COLOR_PICKER_TOOL), ImageToolsCanvas.COLOR_PICKER_TOOL);
@@ -383,6 +383,7 @@ public class App {
             optionsPanel.addButton(iconMap.get(ICON_MERGE), () -> blobCanvas.setTool(BlobCanvas.MERGE_TOOL), BlobCanvas.MERGE_TOOL);
             optionsPanel.addButton(iconMap.get(ICON_DELETE), () -> blobCanvas.setTool(BlobCanvas.DELETE_TOOL), BlobCanvas.DELETE_TOOL);
             optionsPanel.addButton(iconMap.get(ICON_CUT), () -> blobCanvas.setTool(BlobCanvas.CUT_TOOL), BlobCanvas.CUT_TOOL);
+
 
             return optionsPanel;
         }
@@ -702,12 +703,11 @@ public class App {
             BlobCanvas blobCanvas = blobPanel.getChild();
 
             blobCanvas.setBlobs(blobSequence);
-            blobCanvas.setShowBlobs(true);
-            blobCanvas.setShowPoints(false);
         }
 
         private void updateBlobs() {
             detectBlobs();
+            System.out.println(blobSequence.getPoints().length);
             BlobCanvas blobCanvas = blobPanel.getChild();
             blobCanvas.repaint();
         }
@@ -716,8 +716,6 @@ public class App {
             // Get the sprite player from the sprite panel
             spriteSequence = new SpriteSequence(image, blobSequence, backgroundColors[0]);
             spritePanel.getChild().setSprites(spriteSequence);
-            //System.out.println(blobSequence);
-            System.out.println(blobSequence.getRow(0).size() + ":" + spriteSequence.size());
         }
     }
 }

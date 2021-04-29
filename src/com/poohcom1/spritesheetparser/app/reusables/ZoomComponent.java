@@ -113,6 +113,7 @@ public class ZoomComponent extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         transform = new AffineTransform();
         transform.scale(xScale, yScale);
         ((Graphics2D) g).transform(transform);

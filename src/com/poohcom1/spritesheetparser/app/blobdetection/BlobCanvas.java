@@ -20,7 +20,7 @@ public class BlobCanvas extends ToolsCanvas {
 
     // Options
     private boolean _showBlobs = true;
-    private boolean _showPoints = true;
+    private boolean _showPoints = false;
     private boolean _showNumbers = true;
     private Color _blobColor = Color.RED;
     private Color _pointColor = new Color(0, 0, 255, 104);
@@ -30,13 +30,18 @@ public class BlobCanvas extends ToolsCanvas {
     private BufferedImage image;
     private List<Blob> blobs;
 
+    // Cache
+    private BufferedImage pointImage;
+    private int pointCount = 0;
+
     public BlobCanvas(BufferedImage image) {
         super(image.getWidth(), image.getHeight());
 
-        maxMarqueeCount = -1;
-
         setImage(image);
         this.blobs = new ArrayList<>();
+
+        pointImage = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        pointCount = 0;
 
         addTool(MOVE_TOOL, moveToolCallback);
 
@@ -125,10 +130,11 @@ public class BlobCanvas extends ToolsCanvas {
         return blobs;
     }
 
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        drawClear(g);
 
         Stroke defaultStroke = ((Graphics2D) g).getStroke();
 
@@ -162,13 +168,27 @@ public class BlobCanvas extends ToolsCanvas {
         }
 
         if (_showPoints) {
-            for (Point point : ((BlobSequence) blobs).toPoints()) {
-                g.setColor(_pointColor);
-                g.drawRect(point.x + xOffset, point.y + yOffset, 1, 1);
-            }
+            updatePoints();
+
+            g.drawImage(pointImage, xOffset, yOffset, null);
         }
 
         drawMarquees(g);
+    }
+
+    private void updatePoints() {
+        if (pointCount != ((BlobSequence) blobs).getPoints().length) {
+            pointCount = ((BlobSequence) blobs).getPoints().length;
+
+            pointImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+
+            Graphics g = pointImage.getGraphics();
+            g.setColor(_pointColor);
+
+            for (Point point : ((BlobSequence) blobs).getPoints()) {
+                g.drawLine(point.x, point.y, point.x, point.y);
+            }
+        }
     }
 
     public void setImage(BufferedImage image) {
@@ -178,6 +198,7 @@ public class BlobCanvas extends ToolsCanvas {
 
     public void setBlobs(java.util.List<Blob> blobs) {
         this.blobs = blobs;
+        pointImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
     }
 
     public void setShowBlobs(boolean showBlobs) {

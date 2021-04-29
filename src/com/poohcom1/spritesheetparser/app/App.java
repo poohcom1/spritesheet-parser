@@ -12,7 +12,6 @@ import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -21,6 +20,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.kordamp.ikonli.boxicons.BoxiconsRegular;
+import org.kordamp.ikonli.boxicons.BoxiconsSolid;
 import org.kordamp.ikonli.swing.*;
 import org.kordamp.ikonli.unicons.*;
 
@@ -77,29 +78,44 @@ public class App {
         window.revalidate();
         int width = Math.min(window.getWidth(), bounds.width);
         int height = Math.min(window.getHeight(), bounds.height);
-        window.setSize( new Dimension(width, height) );
+        window.setSize(new Dimension(width, height));
     }
 
-    private final static String FONT_H_ALIGN_CENTER = "h_align_center";
-    private final static String FONT_H_ALIGN_LEFT = "h_align_left";
-    private final static String FONT_H_ALIGN_RIGHT = "h_align_right";
-    private final static String FONT_V_ALIGN_CENTER = "v_align_center";
-    private final static String FONT_V_ALIGN_TOP = "v_align_top";
-    private final static String FONT_V_ALIGN_BOTTOM = "v_align_bottom";
+    private final static String ICON_CURSOR = "Move";
+    private final static String ICON_CROP = "Crop";
+
+    private final static String ICON_EDIT_WARNING = "Warning: Re-detecting sprites will override your edits!";
+
+    private final static String ICON_H_ALIGN_CENTER = "Align center horizontally";
+    private final static String ICON_H_ALIGN_LEFT = "Align left";
+    private final static String ICON_H_ALIGN_RIGHT = "Align right";
+    private final static String ICON_V_ALIGN_CENTER = "Align center vertically";
+    private final static String ICON_V_ALIGN_TOP = "Align top";
+    private final static String ICON_V_ALIGN_BOTTOM = "Align bottom";
+
+    private final static String ICON_PLAY = "Play";
+    private final static String ICON_PAUSE = "Pause";
 
     static void prepareIcons() {
         iconMap = new HashMap<>();
-        iconMap.put(FONT_H_ALIGN_CENTER, FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_CENTER));
-        iconMap.put(FONT_H_ALIGN_LEFT,FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_LEFT));
-        iconMap.put(FONT_H_ALIGN_RIGHT,FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_RIGHT));
-        iconMap.put(FONT_V_ALIGN_CENTER,FontIcon.of(UniconsLine.VERTICAL_ALIGN_CENTER));
-        iconMap.put(FONT_V_ALIGN_TOP,FontIcon.of(UniconsLine.VERTICAL_ALIGN_TOP));
-        iconMap.put(FONT_V_ALIGN_BOTTOM,FontIcon.of(UniconsLine.VERTICAL_ALIGN_BOTTOM));
+        iconMap.put(ICON_H_ALIGN_CENTER, FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_CENTER));
+        iconMap.put(ICON_H_ALIGN_LEFT, FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_LEFT));
+        iconMap.put(ICON_H_ALIGN_RIGHT, FontIcon.of(UniconsLine.HORIZONTAL_ALIGN_RIGHT));
+        iconMap.put(ICON_V_ALIGN_CENTER, FontIcon.of(UniconsLine.VERTICAL_ALIGN_CENTER));
+        iconMap.put(ICON_V_ALIGN_TOP, FontIcon.of(UniconsLine.VERTICAL_ALIGN_TOP));
+        iconMap.put(ICON_V_ALIGN_BOTTOM, FontIcon.of(UniconsLine.VERTICAL_ALIGN_BOTTOM));
+
+        iconMap.put(ICON_EDIT_WARNING, FontIcon.of(BoxiconsSolid.ERROR));
 
         iconMap.values().forEach(icon -> icon.setIconSize(20));
+
+
+
+        iconMap.put(ICON_PLAY, FontIcon.of(UniconsLine.PLAY));
+        iconMap.put(ICON_PAUSE, FontIcon.of(UniconsLine.PAUSE));
     }
 
-// =============================== Image Editing =====================================================
+    // =============================== Image Editing =====================================================
     static class ImageTools {
         private BufferedImage spriteSheet;
 
@@ -124,7 +140,7 @@ public class App {
             confirmButton.setFocusable(false);
             confirmButton.setEnabled(false);
             confirmButton.addActionListener(l -> {
-                blobDetectionTools.init(((ImageToolsCanvas)imageToolsPane.getChild()).crop());
+                blobDetectionTools.init(((ImageToolsCanvas) imageToolsPane.getChild()).crop());
                 blobDetectionTools.mainPanel.repaint();
                 tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE);
             });
@@ -177,7 +193,8 @@ public class App {
 
 
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
-                            mainPanel.revalidate();;
+                            mainPanel.revalidate();
+                            ;
 
                             packInBounds();
 
@@ -275,7 +292,10 @@ public class App {
         int fps = 12;
 
         // Fonts
-        Font defaultFont = new Font("Arial", Font.PLAIN,10);
+        Font defaultFont = new Font("Arial", Font.PLAIN, 10);
+
+        // Editing
+        private boolean blobsEdited = false;
 
         public BlobDetectionTools(BufferedImage image) {
             this.image = image;
@@ -308,7 +328,7 @@ public class App {
 
             // Sprite player
             JPanel spritePlayerPanel = new JPanel();
-            spritePlayerPanel.setLayout(new BoxLayout(spritePlayerPanel,BoxLayout.PAGE_AXIS));
+            spritePlayerPanel.setLayout(new BoxLayout(spritePlayerPanel, BoxLayout.PAGE_AXIS));
 
             spriteSequence = new SpriteSequence(image, blobSequence);
 
@@ -323,11 +343,12 @@ public class App {
             // BLOB
             mainPanel.add(blobPanel, BorderLayout.CENTER);
             mainPanel.add(setCanvasOptions(), BorderLayout.WEST);
-            mainPanel.add(setBlobOptions(), BorderLayout.NORTH);
+            mainPanel.add(setTopMenuBar(), BorderLayout.NORTH);
             mainPanel.add(spritePlayerPanel, BorderLayout.EAST);
             mainPanel.revalidate();
         }
 
+        // =========================== CANVAS NAVIGATION/EDITING TOOLS
         private JPanel setCanvasOptions() {
             ToggleButtonRadio optionsPanel = new ToggleButtonRadio();
 
@@ -336,13 +357,14 @@ public class App {
             BlobCanvas blobCanvas = blobPanel.getChild();
 
             blobCanvas.getToolConstants().forEach(toolName ->
-                optionsPanel.addButton(toolName, () -> blobCanvas.setTool(toolName))
+                    optionsPanel.addButton(toolName, () -> blobCanvas.setTool(toolName))
             );
 
             return optionsPanel;
         }
 
-        private JPanel setBlobOptions() {
+        // ======================= TOP MENU BAR OPTIONS
+        private JPanel setTopMenuBar() {
             JPanel optionsPanel = new JPanel();
             optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.LINE_AXIS));
 
@@ -356,33 +378,64 @@ public class App {
         private JPanel setDistanceButtons() {
             JButton up = new JButton("-");
             JButton down = new JButton("+");
+            JLabel countLabel = new JLabel(String.valueOf(blobSequence.size()));
 
+            JLabel warningLabel = new JLabel(iconMap.get(ICON_EDIT_WARNING));
+            warningLabel.setToolTipText(ICON_EDIT_WARNING);
+            warningLabel.setVisible(false);
+
+            Font font = countLabel.getFont();
+
+            up.setFocusable(false);
             up.addActionListener((e) -> {
+                warningLabel.setVisible(false);
+                countLabel.setFont(font.deriveFont(font.getStyle() | Font.PLAIN));
                 int oldCount = blobSequence.size();
+
+                if (blobSequence.size() == 2) {
+                    countLabel.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
+                    return;
+                }
+
                 do {
                     distanceThreshold++;
                     detectBlobs();
                 } while (blobSequence.size() == oldCount);
+
+                countLabel.setText(String.valueOf(blobSequence.size()));
+
                 blobPanel.getChild().repaint();
                 resetSpritePlayer();
             });
 
+            down.setFocusable(false);
             down.addActionListener((e) -> {
+                warningLabel.setVisible(false);
+                countLabel.setFont(font.deriveFont(font.getStyle() | Font.PLAIN));
                 int oldCount = blobSequence.size();
                 do {
                     if (distanceThreshold <= 2) break;
                     distanceThreshold--;
                     detectBlobs();
                 } while (blobSequence.size() == oldCount);
+
+                countLabel.setText(String.valueOf(blobSequence.size()));
+                if (blobSequence.size() == oldCount) countLabel.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
+
                 blobPanel.getChild().repaint();
                 resetSpritePlayer();
             });
+
+            // Show warning after edit to blob canvas
+            blobPanel.getChild().addUpdateListener(() -> warningLabel.setVisible(true));
 
             JPanel panel = new JPanel();
 
             panel.add(new JLabel("Sprite Count:"));
             panel.add(up);
+            panel.add(countLabel);
             panel.add(down);
+            panel.add(warningLabel);
             panel.setBorder(BorderFactory.createTitledBorder("Re-detect Sprites"));
 
             return panel;
@@ -404,7 +457,8 @@ public class App {
                     case 1 -> {
                         primaryOrder = BlobSequence.TOP_TO_BOTTOM;
                         secondaryOrder = BlobSequence.LEFT_TO_RIGHT;
-                    }case 2 -> {
+                    }
+                    case 2 -> {
                         primaryOrder = BlobSequence.RIGHT_TO_LEFT;
                         secondaryOrder = BlobSequence.BOTTOM_TO_TOP;
                     }
@@ -427,12 +481,12 @@ public class App {
         }
 
         private JPanel setSpriteAlignmentOptions() {
-            JButton left = new JButton(iconMap.get(FONT_H_ALIGN_LEFT));
-            JButton centerH = new JButton(iconMap.get(FONT_H_ALIGN_CENTER));
-            JButton right = new JButton(iconMap.get(FONT_H_ALIGN_RIGHT));
-            JButton top = new JButton(iconMap.get(FONT_V_ALIGN_TOP));
-            JButton centerV = new JButton(iconMap.get(FONT_V_ALIGN_CENTER));
-            JButton bottom = new JButton(iconMap.get(FONT_V_ALIGN_BOTTOM));
+            JButton left = new JButton(iconMap.get(ICON_H_ALIGN_LEFT));
+            JButton centerH = new JButton(iconMap.get(ICON_H_ALIGN_CENTER));
+            JButton right = new JButton(iconMap.get(ICON_H_ALIGN_RIGHT));
+            JButton top = new JButton(iconMap.get(ICON_V_ALIGN_TOP));
+            JButton centerV = new JButton(iconMap.get(ICON_V_ALIGN_CENTER));
+            JButton bottom = new JButton(iconMap.get(ICON_V_ALIGN_BOTTOM));
 
             left.addActionListener(l -> spriteSequence.alignSprites(Sprite.LEFT_ALIGN));
             centerH.addActionListener(l -> spriteSequence.alignSprites(Sprite.CENTER_ALIGN_X));
@@ -454,14 +508,12 @@ public class App {
             vAlignPanel.add(centerV);
             vAlignPanel.add(bottom);
 
-            for (Component c: hAlignPanel.getComponents()) {
+            for (Component c : hAlignPanel.getComponents()) {
                 c.setFocusable(false);
-                c.setFont(defaultFont);
             }
 
-            for (Component c: vAlignPanel.getComponents()) {
+            for (Component c : vAlignPanel.getComponents()) {
                 c.setFocusable(false);
-                c.setFont(defaultFont);
             }
 
             JPanel options = new JPanel();
@@ -474,14 +526,13 @@ public class App {
         private JPanel setSpritePLayerOptions() {
             JPanel options = new JPanel();
 
-
-            JToggleButton playButton = new JToggleButton("Pause");
+            JToggleButton playButton = new JToggleButton(iconMap.get(ICON_PAUSE));
             playButton.addActionListener(l -> {
-                if (spritePanel.getChild().isPlaying()){
-                    playButton.setSelected(true);
+                if (spritePanel.getChild().isPlaying()) {
+                    playButton.setIcon(iconMap.get(ICON_PLAY));
                     spritePanel.getChild().pause();
                 } else {
-                    playButton.setSelected(false);
+                    playButton.setIcon(iconMap.get(ICON_PAUSE));
                     spritePanel.getChild().play();
                 }
             });
@@ -509,7 +560,9 @@ public class App {
             options.add(fpsLabel);
             options.add(fpsUp);
 
-            for (Component c: options.getComponents()) {c.setFocusable(false);}
+            for (Component c : options.getComponents()) {
+                c.setFocusable(false);
+            }
 
             return options;
         }

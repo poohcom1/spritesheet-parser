@@ -34,6 +34,8 @@ public class ToolsCanvas extends ZoomComponent {
     ScheduledExecutorService animator;
     MouseAdapter mouseToolCallback;
 
+    private Color canvasColor = Color.white;
+
     // Scale
     protected Dimension screenSize;
 
@@ -200,7 +202,17 @@ public class ToolsCanvas extends ZoomComponent {
         Point edge = new Point(screenSize.width, screenSize.height);
         edge = inverseTransformPoint(edge);
 
-        g.clearRect(0, 0, edge.x, edge.y);
+        g.setColor(canvasColor);
+        g.fillRect(0, 0, edge.x, edge.y);
+    }
+
+    public Color getCanvasColor() {
+        return canvasColor;
+    }
+
+    public void setCanvasColor(Color canvasColor) {
+        this.canvasColor = canvasColor;
+        repaint();
     }
 
     protected void drawMarquees(Graphics g){
@@ -223,10 +235,10 @@ public class ToolsCanvas extends ZoomComponent {
         _dashInc = (float) dashes[1];
 
         ((Graphics2D) g).setStroke(new BasicStroke(
-                (float) (1.0f / xScale),                      // Width
+                (float) (1.0f / xScale),   // Width
                 BasicStroke.CAP_SQUARE,    // End cap
                 BasicStroke.JOIN_BEVEL,    // Join style
-                1.0f,                     // Miter limit
+                1.0f,              // Miter limit
                 floatDashes,          // Dash pattern
                 _dashPhase));
 

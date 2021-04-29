@@ -22,8 +22,9 @@ public class BlobCanvas extends ToolsCanvas {
     private boolean _showBlobs = true;
     private boolean _showPoints = false;
     private boolean _showNumbers = true;
-    private Color _blobColor = Color.RED;
-    private Color _pointColor = new Color(0, 0, 255, 104);
+    private Color blobColor = Color.RED;
+    private Color textColor = Color.BLACK;
+    private Color pointColor = new Color(0, 0, 255, 104);
 
 
     // Objects
@@ -148,7 +149,7 @@ public class BlobCanvas extends ToolsCanvas {
                 Rect rect = blobs.get(i);
 
                 if (_showBlobs) {
-                    g.setColor(_blobColor);
+                    g.setColor(blobColor);
                     ((Graphics2D) g).setStroke(new BasicStroke(
                             (float) (1.5f / xScale),                      // Width
                             BasicStroke.CAP_SQUARE,    // End cap
@@ -161,7 +162,7 @@ public class BlobCanvas extends ToolsCanvas {
 
                 if (_showNumbers) {
 
-                    g.setColor(Color.BLACK);
+                    g.setColor(textColor);
                     g.drawString(String.valueOf(i), rect.x + rect.width + xOffset, rect.y + rect.height + yOffset);
                 }
             }
@@ -183,7 +184,7 @@ public class BlobCanvas extends ToolsCanvas {
             pointImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
 
             Graphics g = pointImage.getGraphics();
-            g.setColor(_pointColor);
+            g.setColor(pointColor);
 
             for (Point point : ((BlobSequence) blobs).getPoints()) {
                 g.drawLine(point.x, point.y, point.x, point.y);

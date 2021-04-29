@@ -9,11 +9,13 @@ import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomableScrollPane;
+import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
 import com.poohcom1.spritesheetparser.util.sprite.Sprite;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
 import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
 
 import javax.swing.*;
+import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -23,10 +25,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.swing.*;
 import org.kordamp.ikonli.boxicons.BoxiconsRegular;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
-import org.kordamp.ikonli.swing.*;
+import org.kordamp.ikonli.material2.Material2RoundAL;
 import org.kordamp.ikonli.unicons.*;
 
 public class App {
@@ -123,7 +125,7 @@ public class App {
 
         iconMap.put(ICON_MOVE, FontIcon.of(BoxiconsRegular.MOVE));
         iconMap.put(ICON_CROP, FontIcon.of(BoxiconsRegular.CROP));
-        iconMap.put(ICON_COLOR, FontIcon.of(BoxiconsRegular.COLOR_FILL));
+        iconMap.put(ICON_COLOR, FontIcon.of(Material2RoundAL.COLORIZE));
 
         iconMap.put(ICON_CUT, FontIcon.of(BoxiconsRegular.CUT));
         iconMap.put(ICON_DELETE, FontIcon.of(BoxiconsSolid.ERASER));
@@ -154,7 +156,6 @@ public class App {
             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
 
             JButton confirmButton = new JButton("Extract Sprites!");
-
             // ======================== UPPER/LEFT IMAGE TOOLS PANEL ========================
             topPanel = new JPanel();
             toolButtons = new ToggleButtonRadio();
@@ -211,6 +212,7 @@ public class App {
 
             // ======================== LOWER CROP TOOLS PANEL ========================
             JPanel performEditPanel = new JPanel();
+            performEditPanel.setLayout(new GridLayout(1, 3));
 
             confirmButton.setFocusable(false);
             confirmButton.setEnabled(false);
@@ -224,7 +226,22 @@ public class App {
                 tabbedPane.setSelectedIndex(SPRITE_EXTRACTION_PANE_TAB);
             });
 
+            JLabel backgroundColorLabel = new JLabel("Background Color: ");
+            JLabel backgroundColorBox = new JLabel(new ImageIcon(ShapesUtil.createColoredRectangle(10, 10, Color.WHITE)));
+
+            imageToolsPane.getChild().addUpdateListener(() -> {
+                backgroundColorBox.setIcon(new ImageIcon(ShapesUtil.createColoredRectangle(10, 10, ImageUtil.rgbaIntToColor(imageToolsPane.getChild().getBackgroundColors()[0]))));
+            });
+
+
+            JPanel backgroundColorPanel = new JPanel();
+            backgroundColorPanel.setLayout(new BoxLayout(backgroundColorPanel, BoxLayout.LINE_AXIS));
+            backgroundColorPanel.add(backgroundColorLabel);
+            backgroundColorPanel.add(backgroundColorBox);
+
+            performEditPanel.add(new JPanel());
             performEditPanel.add(confirmButton);
+            performEditPanel.add(backgroundColorPanel);
 
             mainPanel.add(topPanel, BorderLayout.NORTH);
             mainPanel.add(toolButtons, BorderLayout.WEST);
@@ -637,6 +654,7 @@ public class App {
             JCheckBox showNumbers = new JCheckBox("Show sprite number");
             JCheckBox showPoints = new JCheckBox("Show sprite pixels");
 
+
             showBlobs.setSelected(blobPanel.getChild().isShowingBlobs());
             showNumbers.setSelected(blobPanel.getChild().isShowingNumbers());
             showPoints.setSelected(blobPanel.getChild().isShowingPoints());
@@ -648,6 +666,25 @@ public class App {
             panel.add(showBlobs);
             panel.add(showNumbers);
             panel.add(showPoints);
+
+            // Set color picker
+            JColorChooser colorChooser = new JColorChooser();
+            AbstractColorChooserPanel[] defaultPanels = colorChooser.getChooserPanels();
+            colorChooser.removeChooserPanel( defaultPanels[0] );  // HSL
+            colorChooser.removeChooserPanel( defaultPanels[1] );  // HSL
+            colorChooser.removeChooserPanel( defaultPanels[2] );  // HSL
+            colorChooser.removeChooserPanel( defaultPanels[4] ); // CMYK
+            colorChooser.setPreviewPanel(new JPanel());
+
+            JDialog colorChooserDialog = JColorChooser.createDialog(mainPanel, "Pick color", true, colorChooser, null, null);
+            colorChooser.getSelectionModel().addChangeListener(l -> {
+                blobPanel.getChild().setCanvasColor(colorChooser.getColor());
+            });
+
+            JButton pickBackgroundColor = new JButton("Pick background color");
+            pickBackgroundColor.addActionListener(l -> colorChooserDialog.setVisible(true));
+
+            panel.add(pickBackgroundColor);
 
             panel.setBorder(BorderFactory.createEmptyBorder(5, 100, 5, 0));
             return panel;

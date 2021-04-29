@@ -3,6 +3,7 @@ package com.poohcom1.spritesheetparser.util.shapes2D;
 import com.poohcom1.spritesheetparser.util.cv.Blob;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.List;
 
@@ -88,5 +89,13 @@ public class ShapesUtil {
         }
 
         return new Rect(minX, minY, maxX, maxY);
+    }
+
+    public static BufferedImage createColoredRectangle(int width, int height, Color color) {
+        BufferedImage square = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics g = square.getGraphics();
+        g.setColor(color);
+        g.fillRect(0, 0, width, height);
+        return square;
     }
 }

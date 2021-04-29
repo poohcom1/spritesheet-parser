@@ -199,5 +199,13 @@ public class ImageUtil {
         WritableRaster raster = bi.copyData(null);
         return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
+
+    public BufferedImage createColoredRectangle(int width, int height, Color color) {
+        BufferedImage square = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics g = square.getGraphics();
+        g.setColor(color);
+        g.fillRect(0, 0, width, height);
+        return square;
+    }
 }
 

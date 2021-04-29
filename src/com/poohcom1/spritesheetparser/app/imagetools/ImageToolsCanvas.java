@@ -1,5 +1,6 @@
 package com.poohcom1.spritesheetparser.app.imagetools;
 
+import com.poohcom1.spritesheetparser.app.App;
 import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.util.image.ImageUtil;
 import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
@@ -17,10 +18,12 @@ public class ImageToolsCanvas extends ToolsCanvas {
     public final static String CROP_TOOL = "Crop";
     public final static String COLOR_PICKER_TOOL = "Set background color";
 
+    public final static BufferedImage BLANK_CANVAS = new BufferedImage(175, 50, BufferedImage.TYPE_4BYTE_ABGR);
+
     private final BufferedImage originalSpriteSheet;
     private BufferedImage spriteSheet;
 
-    public Color SHADE_COLOR = new Color(0 , 0, 0, 74);
+    public Color SHADE_COLOR = new Color(101, 101, 101, 156);
 
     private final List<Color> backgroundColors;
     private final Color replacementColor = new Color(0,0,0,0);
@@ -86,10 +89,10 @@ public class ImageToolsCanvas extends ToolsCanvas {
                     colors[i] = backgroundColors.get(i).getRGB();
                 }
                 spriteSheet = (ImageUtil.replaceColorsBuffered(originalSpriteSheet, colors, replacementColor.getRGB()));
-                System.out.println("ImageToolsCanvas: Color replaced!");
             } else if (SwingUtilities.isRightMouseButton(e)) {
                 backgroundColors.clear();
             }
+            notifyUpdateListeners();
         }
     };
 

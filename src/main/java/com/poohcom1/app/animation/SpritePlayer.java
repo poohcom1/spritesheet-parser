@@ -1,6 +1,6 @@
-package com.poohcom1.spritesheetparser.app.animation;
+package com.poohcom1.app.animation;
 
-import com.poohcom1.spritesheetparser.app.reusables.ZoomComponent;
+import com.poohcom1.app.reusables.ZoomComponent;
 import com.poohcom1.spritesheetparser.sprite.Sprite;
 import com.poohcom1.spritesheetparser.sprite.SpriteSequence;
 

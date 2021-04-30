@@ -1,4 +1,4 @@
-package com.poohcom1.spritesheetparser.app.reusables;
+package com.poohcom1.app.reusables;
 
 import com.poohcom1.spritesheetparser.shapes2D.Rect;
 
@@ -33,7 +33,7 @@ public class ToolsCanvas extends ZoomComponent {
     ScheduledExecutorService animator;
     MouseAdapter mouseToolCallback;
 
-    private Color canvasColor = Color.white;
+    private Color canvasColor = new Color(208, 208, 208);
 
     // Scale
     protected Dimension screenSize;
@@ -199,10 +199,13 @@ public class ToolsCanvas extends ZoomComponent {
     protected  void drawClear(Graphics g) {
         // Draw white background
         Point edge = new Point(screenSize.width, screenSize.height);
-        edge = transformPoint(edge);
+
+        if (xScale < 1.0) {
+            edge = inverseTransformPoint(edge);
+        }
 
         g.setColor(canvasColor);
-        g.fillRect(0, 0, edge.x, edge.y);
+        g.fillRect(0, 0, edge.x + getXOffset()*2, edge.y + getYOffset()*2);
     }
 
     public Color getCanvasColor() {

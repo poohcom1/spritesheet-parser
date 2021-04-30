@@ -4,6 +4,14 @@ plugins {
     id 'edu.sc.seis.launch4j' version '2.5.0'
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs "src/main/resources", "src/main/configs"
+        }
+    }
+}
+
 group 'com.poohcom1'
 version '1.0-SNAPSHOT'
 
@@ -13,7 +21,7 @@ repositories {
 sourceSets {
     main {
         java {
-            srcDirs = ['src']
+            srcDirs = ['src/main/java']
         }
     }
 }
@@ -31,7 +39,7 @@ shadowJar {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.poohcom1.spritesheetparser.app.App'
+        attributes 'Main-Class': 'com.poohcom1.app.App'
     }
 
     from {
@@ -41,8 +49,8 @@ jar {
 
 createExe {
     headerType="gui"
-    mainClassName = 'com.poohcom1.spritesheetparser.app.App'
+    mainClassName = 'com.poohcom1.app.App'
     outfile = "Sprite Sheet Parser.exe"
-    icon = "${projectDir}/src/com/poohcom1/spritesheetparser/resources/SSP.ico"
+    icon = "${projectDir}/src/main/resources/icon.ico"
     jar = '../libs/spritesheetparser-1.0-SNAPSHOT-all.jar'
 }

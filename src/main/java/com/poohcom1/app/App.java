@@ -1,14 +1,14 @@
-package com.poohcom1.spritesheetparser.app;
+package com.poohcom1.app;
 
-import com.poohcom1.spritesheetparser.app.animation.SpritePlayer;
-import com.poohcom1.spritesheetparser.app.blobdetection.BlobCanvas;
-import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
-import com.poohcom1.spritesheetparser.app.reusables.CustomButton;
-import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
-import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
+import com.poohcom1.app.animation.SpritePlayer;
+import com.poohcom1.app.blobdetection.BlobCanvas;
+import com.poohcom1.app.imagetools.ImageToolsCanvas;
+import com.poohcom1.app.reusables.CustomButton;
+import com.poohcom1.app.reusables.ToggleButtonRadio;
+import com.poohcom1.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.image.ImageUtil;
-import com.poohcom1.spritesheetparser.app.reusables.ZoomableScrollPane;
+import com.poohcom1.app.reusables.ZoomableScrollPane;
 import com.poohcom1.spritesheetparser.shapes2D.ShapesUtil;
 import com.poohcom1.spritesheetparser.sprite.Sprite;
 import com.poohcom1.spritesheetparser.sprite.SpriteSequence;
@@ -69,14 +69,13 @@ public class App extends JFrame {
         add(tabbedPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
-//
-//        try {
-//            BufferedImage icon = ImageIO.read(getClass().getResource("SSP.png"));
-//            setIconImage(icon);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
+        try {
+            BufferedImage icon = ImageIO.read(App.class.getResource("/icon.png"));
+            setIconImage(icon);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
@@ -154,7 +153,7 @@ public class App extends JFrame {
     }
 
     // =============================== Image Editing =====================================================
-    static class ImageTools {
+    class ImageTools {
         private BufferedImage spriteSheet;
 
         // Components

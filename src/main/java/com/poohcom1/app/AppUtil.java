@@ -1,4 +1,4 @@
-package com.poohcom1.spritesheetparser.app;
+package com.poohcom1.app;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

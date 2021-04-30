@@ -1,4 +1,4 @@
-package com.poohcom1.spritesheetparser.app.reusables;
+package com.poohcom1.app.reusables;
 
 import javax.swing.*;
 

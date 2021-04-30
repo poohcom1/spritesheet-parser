@@ -1,6 +1,6 @@
-package com.poohcom1.spritesheetparser.app.blobdetection;
+package com.poohcom1.app.blobdetection;
 
-import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
+import com.poohcom1.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.cv.Blob;
 import com.poohcom1.spritesheetparser.cv.BlobSequence;
 import com.poohcom1.spritesheetparser.shapes2D.Rect;
@@ -133,9 +133,9 @@ public class BlobCanvas extends ToolsCanvas {
 
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
         drawClear(g);
+
+        super.paintComponent(g);
 
         Stroke defaultStroke = ((Graphics2D) g).getStroke();
 

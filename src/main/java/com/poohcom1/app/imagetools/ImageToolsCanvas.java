@@ -1,6 +1,6 @@
-package com.poohcom1.spritesheetparser.app.imagetools;
+package com.poohcom1.app.imagetools;
 
-import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
+import com.poohcom1.app.reusables.ToolsCanvas;
 import com.poohcom1.spritesheetparser.image.ImageUtil;
 import com.poohcom1.spritesheetparser.shapes2D.Rect;
 

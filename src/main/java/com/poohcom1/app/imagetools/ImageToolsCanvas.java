@@ -91,14 +91,16 @@ public class ImageToolsCanvas extends ToolsCanvas {
         return crop;
     }
 
+
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        drawCanvasBackground(g);
+        //drawCanvasBackground(g);
 
-        int xOffset = getXOffset();
-        int yOffset = getYOffset();
+        int xOffset = (int) (image.getWidth() *  panelXScale - image.getWidth())/2;
+        int yOffset = (int) (image.getHeight() * panelYScale - image.getHeight())/2;
 
         g.drawImage(image, xOffset, yOffset, null);
 
@@ -137,6 +139,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
     public void setImage(BufferedImage image) {
         width = image.getWidth();
         height = image.getHeight();
+
         this.image = image;
         this.originalImage = image;
 

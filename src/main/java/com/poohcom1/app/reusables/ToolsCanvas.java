@@ -21,7 +21,6 @@ public class ToolsCanvas extends ZoomComponent {
 
     private final Map<String, MouseAdapter> toolMap;
 
-
     protected int maxMarqueeCount;
 
     private final List<Rect> marqueePoints;
@@ -191,15 +190,11 @@ public class ToolsCanvas extends ZoomComponent {
         return new Point(x, y);
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-    }
-
+    /**
+     * Draws a background based on canvasColor
+     * @param g Graphics object
+     */
     protected  void drawCanvasBackground(Graphics g) {
-        // Draw white background
-
-
         int screenWidth = screenSize.width;
         // Check if the image ratio is larger than the screen ratio, if so resize screen ratio
         int screenHeight = height < width ? screenSize.height : screenSize.height*(height/width);

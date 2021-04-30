@@ -212,6 +212,7 @@ public class App extends JFrame {
                             imageToolsCanvas.setImage(spriteSheet);
 
                             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
+                            imageToolsPane.centerZoom();
                             mainPanel.revalidate();
 
                             packInBounds();

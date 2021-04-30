@@ -14,9 +14,6 @@ public class ZoomComponent extends JComponent {
     public double panelXScale;
     public double panelYScale;
 
-    protected final int MARGINS_X = 50;
-    protected final int MARGINS_Y = 50;
-
     // Zooming
     protected double xScale = 1.0;
     protected double yScale = 1.0;
@@ -39,8 +36,14 @@ public class ZoomComponent extends JComponent {
 
     protected void initScale(int width, int height) {
         // Set size based on margins
-        panelXScale = (float) (width + MARGINS_X)/ width;
-        panelYScale = (float) (height + MARGINS_Y)/height;
+        //double marginX = Math.log(width) * 70;
+        double marginY = Math.log(height) * 70;
+
+        double marginX = width/2.;
+        //double marginY = width/2.;
+
+        panelXScale = (float) (width + marginX)/ width;
+        panelYScale = (float) (height + marginY)/height;
     }
 
     @Override
@@ -102,9 +105,8 @@ public class ZoomComponent extends JComponent {
         yScale *= zoomAmount;
     }
 
-
     protected int getXOffset() {
-        return (int) ((width *  panelXScale - width)/2);
+        return (int) ((width * panelXScale - width)/2);
     }
 
     protected int getYOffset() {
@@ -113,7 +115,6 @@ public class ZoomComponent extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
         transform = new AffineTransform();
         transform.scale(xScale, yScale);
         ((Graphics2D) g).transform(transform);

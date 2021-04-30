@@ -26,7 +26,6 @@ public class BlobCanvas extends ToolsCanvas {
     private Color textColor = Color.BLACK;
     private Color pointColor = new Color(0, 0, 255, 104);
 
-
     // Objects
     private BufferedImage image;
     private List<Blob> blobs;
@@ -135,7 +134,7 @@ public class BlobCanvas extends ToolsCanvas {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        drawCanvasBackground(g);
+        //drawCanvasBackground(g);
 
         Stroke defaultStroke = ((Graphics2D) g).getStroke();
 
@@ -161,7 +160,6 @@ public class BlobCanvas extends ToolsCanvas {
                 }
 
                 if (_showNumbers) {
-
                     g.setColor(textColor);
                     g.drawString(String.valueOf(i), rect.x + rect.width + xOffset, rect.y + rect.height + yOffset);
                 }

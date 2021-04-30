@@ -30,9 +30,8 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         setFocusable(true);
 
-//        setWheelScrollingEnabled(false);
+        setWheelScrollingEnabled(false);
         getVerticalScrollBar().setUnitIncrement(PAN_SPEED);
-
 
         // Reset moving position
         viewport.getView().addMouseListener(new MouseAdapter() {
@@ -41,10 +40,9 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
             }
         });
 
-
         // Mouse wheel listener for zooming
         addMouseWheelListener(e -> {
-            if (doMouseZoom) mouseWheel_zoom(e, zoomComponent);
+            if (doMouseZoom) mouseWheel_zoom(e);
         });
 
         // Mouse listener for screen panning
@@ -53,7 +51,6 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
                 if (doMouseMove || SwingUtilities.isMiddleMouseButton(e)) mouseDragged_moveScreen(e);
             }
         });
-
 
         child = zoomComponent;
     }
@@ -66,34 +63,35 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
     public void setMouseZoom(boolean doKeyMove) {this.doMouseZoom = doMouseMove;}
 
     public void centerZoom() {
-        Rectangle bounds = viewport.getViewRect();
-        Dimension size = viewport.getSize();
+        Rectangle bounds = getViewport().getViewRect();
+        Dimension size = getViewport().getSize();
 
         int x = (size.width - bounds.width)/2;
         int y = (size.height - bounds.height)/2;
-        viewport.setViewPosition(new Point(x, y));
+        getViewport().setViewPosition(new Point(x, y));
     }
 
     // THANK YOU MY BRO: users/1936928/absolom: https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
-    private void mouseWheel_zoom(MouseWheelEvent e, ZoomComponent zoomComponent) {
-        final float ZOOM_AMOUNT = 0.2f;
+    private void mouseWheel_zoom(MouseWheelEvent e) {
+        final float ZOOM_AMOUNT = 0.1f;
 
         float zoomFactor = 0;
 
         if (e.getWheelRotation() > 0) {
+            if (child.getXZoom() <= 1.0) return;
             zoomFactor = 1 - ZOOM_AMOUNT;
-            zoomComponent.zoom(zoomFactor);
+            child.zoom(zoomFactor);
         } else if (e.getWheelRotation() < 0) {
             zoomFactor = 1 + ZOOM_AMOUNT;
-            zoomComponent.zoom(zoomFactor);
+            child.zoom(zoomFactor);
         }
 
-        Point pos = this.getViewport().getViewPosition();
+        Point pos = getViewport().getViewPosition();
 
-        // todo: Not working at all
-        int newX = (int)(e.getX()*(zoomFactor - 1f) + (zoomFactor)*pos.x);
-        int newY = (int)(e.getY()*(zoomFactor - 1f) + (zoomFactor)*pos.y);
-        viewport.setViewPosition(new Point(newX, newY));
+        int newX = (int) (e.getX()*(zoomFactor - 1f) + (zoomFactor)*pos.x);
+        int newY = (int) (e.getY()*(zoomFactor - 1f) + (zoomFactor)*pos.y);
+
+        getViewport().setViewPosition(new Point(newX, newY));
     }
 
     private void mouseDragged_moveScreen(MouseEvent e) {
@@ -108,7 +106,6 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
 
         moveViewport(-deltaX, -deltaY);
     }
-
 
     private void moveViewport(int xMove, int yMove) {
         Point newPosition = viewport.getViewPosition();

@@ -1,12 +1,10 @@
 package com.poohcom1.spritesheetparser.app.animation;
 
 import com.poohcom1.spritesheetparser.app.reusables.ZoomComponent;
-import com.poohcom1.spritesheetparser.util.sprite.Sprite;
-import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
+import com.poohcom1.spritesheetparser.sprite.Sprite;
+import com.poohcom1.spritesheetparser.sprite.SpriteSequence;
 
-import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

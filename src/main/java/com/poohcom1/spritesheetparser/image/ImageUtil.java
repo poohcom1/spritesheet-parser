@@ -1,4 +1,4 @@
-package com.poohcom1.spritesheetparser.util.image;
+package com.poohcom1.spritesheetparser.image;
 
 
 import java.awt.*;

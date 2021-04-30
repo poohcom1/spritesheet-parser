@@ -1,15 +1,13 @@
-package com.poohcom1.spritesheetparser.util.sprite;
+package com.poohcom1.spritesheetparser.sprite;
 
-import com.poohcom1.spritesheetparser.util.cv.Blob;
-import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
-import com.poohcom1.spritesheetparser.util.image.ImageUtil;
-import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
-import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
+import com.poohcom1.spritesheetparser.cv.Blob;
+import com.poohcom1.spritesheetparser.cv.BlobSequence;
+import com.poohcom1.spritesheetparser.shapes2D.Rect;
+import com.poohcom1.spritesheetparser.shapes2D.ShapesUtil;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class SpriteSequence extends ArrayList<Sprite> {

@@ -1,7 +1,7 @@
-package com.poohcom1.spritesheetparser.util.sprite;
+package com.poohcom1.spritesheetparser.sprite;
 
-import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
-import com.poohcom1.spritesheetparser.util.cv.Blob;
+import com.poohcom1.spritesheetparser.shapes2D.Rect;
+import com.poohcom1.spritesheetparser.cv.Blob;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

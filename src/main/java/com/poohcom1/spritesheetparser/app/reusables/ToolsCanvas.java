@@ -1,6 +1,6 @@
 package com.poohcom1.spritesheetparser.app.reusables;
 
-import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
+import com.poohcom1.spritesheetparser.shapes2D.Rect;
 
 import javax.swing.*;
 import java.awt.*;

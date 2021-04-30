@@ -1,7 +1,6 @@
 package com.poohcom1.spritesheetparser.app.reusables;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class CustomButton extends JButton {
     public CustomButton(String text) {

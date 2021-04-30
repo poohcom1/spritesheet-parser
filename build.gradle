@@ -25,7 +25,6 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-material2-pack:12.2.0'
 }
 
-
 shadowJar {
     mergeServiceFiles()
 }
@@ -40,10 +39,10 @@ jar {
     }
 }
 
-launch4j {
+createExe {
     headerType="gui"
     mainClassName = 'com.poohcom1.spritesheetparser.app.App'
-    outfile = "Burj2.exe"
-    icon = "${projectDir}/src/main/resources/images/icon.ico"
-    jar = '../libs/Master_Mode_System_Config-all-1.0-SNAPSHOT.jar'
+    outfile = "Sprite Sheet Parser.exe"
+    icon = "${projectDir}/src/com/poohcom1/spritesheetparser/resources/SSP.ico"
+    jar = '../libs/spritesheetparser-1.0-SNAPSHOT-all.jar'
 }

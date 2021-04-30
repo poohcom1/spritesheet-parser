@@ -1,9 +1,9 @@
 package com.poohcom1.spritesheetparser.app.blobdetection;
 
 import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
-import com.poohcom1.spritesheetparser.util.cv.Blob;
-import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
-import com.poohcom1.spritesheetparser.util.shapes2D.Rect;
+import com.poohcom1.spritesheetparser.cv.Blob;
+import com.poohcom1.spritesheetparser.cv.BlobSequence;
+import com.poohcom1.spritesheetparser.shapes2D.Rect;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;

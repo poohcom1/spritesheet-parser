@@ -6,14 +6,15 @@ import com.poohcom1.spritesheetparser.app.imagetools.ImageToolsCanvas;
 import com.poohcom1.spritesheetparser.app.reusables.CustomButton;
 import com.poohcom1.spritesheetparser.app.reusables.ToggleButtonRadio;
 import com.poohcom1.spritesheetparser.app.reusables.ToolsCanvas;
-import com.poohcom1.spritesheetparser.util.cv.BlobSequence;
-import com.poohcom1.spritesheetparser.util.image.ImageUtil;
+import com.poohcom1.spritesheetparser.cv.BlobSequence;
+import com.poohcom1.spritesheetparser.image.ImageUtil;
 import com.poohcom1.spritesheetparser.app.reusables.ZoomableScrollPane;
-import com.poohcom1.spritesheetparser.util.shapes2D.ShapesUtil;
-import com.poohcom1.spritesheetparser.util.sprite.Sprite;
-import com.poohcom1.spritesheetparser.util.sprite.SpriteSequence;
-import com.poohcom1.spritesheetparser.util.sprite.SpriteUtil;
+import com.poohcom1.spritesheetparser.shapes2D.ShapesUtil;
+import com.poohcom1.spritesheetparser.sprite.Sprite;
+import com.poohcom1.spritesheetparser.sprite.SpriteSequence;
+import com.poohcom1.spritesheetparser.sprite.SpriteUtil;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.filechooser.FileFilter;
@@ -68,11 +69,20 @@ public class App extends JFrame {
         add(tabbedPane);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
+//
+//        try {
+//            BufferedImage icon = ImageIO.read(getClass().getResource("SSP.png"));
+//            setIconImage(icon);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
     }
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(() -> {
             app = new App();
+
             app.setVisible(true);
         });
     }
@@ -161,6 +171,8 @@ public class App extends JFrame {
 
             imageToolsCanvas = new ImageToolsCanvas(ImageToolsCanvas.BLANK_CANVAS);
             imageToolsPane = new ZoomableScrollPane<>(imageToolsCanvas);
+
+
             mainPanel.add(imageToolsPane, BorderLayout.CENTER);
 
             JButton cropButton = new JButton("Crop Sprites!");
@@ -273,6 +285,7 @@ public class App extends JFrame {
 
             mainPanel.add(topPanel, BorderLayout.NORTH);
             mainPanel.add(toolButtons, BorderLayout.WEST);
+            mainPanel.add(new JPanel(), BorderLayout.EAST);
             mainPanel.add(performEditPanel, BorderLayout.SOUTH);
         }
     }

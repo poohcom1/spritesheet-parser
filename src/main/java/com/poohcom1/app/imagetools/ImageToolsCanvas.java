@@ -95,7 +95,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        drawClear(g);
+        drawCanvasBackground(g);
 
         int xOffset = getXOffset();
         int yOffset = getYOffset();

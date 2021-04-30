@@ -703,19 +703,26 @@ public class App extends JFrame {
             // Set color picker
             JColorChooser colorChooser = new JColorChooser();
             AbstractColorChooserPanel[] defaultPanels = colorChooser.getChooserPanels();
-            colorChooser.removeChooserPanel( defaultPanels[0] );  // HSL
-            colorChooser.removeChooserPanel( defaultPanels[1] );  // HSL
-            colorChooser.removeChooserPanel( defaultPanels[2] );  // HSL
+            colorChooser.removeChooserPanel( defaultPanels[1] );
+            colorChooser.removeChooserPanel( defaultPanels[2] );
+            colorChooser.removeChooserPanel( defaultPanels[3] );  // HSL
             colorChooser.removeChooserPanel( defaultPanels[4] ); // CMYK
             colorChooser.setPreviewPanel(new JPanel());
 
-            JDialog colorChooserDialog = JColorChooser.createDialog(mainPanel, "Pick color", true, colorChooser, null, null);
             colorChooser.getSelectionModel().addChangeListener(l -> {
                 blobPanel.getChild().setCanvasColor(colorChooser.getColor());
             });
 
             JButton pickBackgroundColor = new JButton("Pick background color");
-            pickBackgroundColor.addActionListener(l -> colorChooserDialog.setVisible(true));
+            pickBackgroundColor.addActionListener(l -> {
+                Color originalColor = blobPanel.getChild().getCanvasColor();
+                colorChooser.setColor(originalColor);
+                JDialog colorChooserDialog = JColorChooser.createDialog(mainPanel, "Pick color", false, colorChooser,
+                        null,
+                        c -> blobPanel.getChild().setCanvasColor(originalColor)
+                        );
+                colorChooserDialog.setVisible(true);
+            });
 
             panel.add(pickBackgroundColor);
 

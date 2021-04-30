@@ -78,19 +78,21 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
     private void mouseWheel_zoom(MouseWheelEvent e, ZoomComponent zoomComponent) {
         final float ZOOM_AMOUNT = 0.2f;
 
-        float zoomFactor = ZOOM_AMOUNT;
+        float zoomFactor = 0;
 
         if (e.getWheelRotation() > 0) {
-            zoomComponent.zoomOut(ZOOM_AMOUNT);
-            zoomFactor = -zoomFactor;
-        } else if (e.getWheelRotation() < 0)
-            zoomComponent.zoomIn(ZOOM_AMOUNT);
+            zoomFactor = 1 - ZOOM_AMOUNT;
+            zoomComponent.zoom(zoomFactor);
+        } else if (e.getWheelRotation() < 0) {
+            zoomFactor = 1 + ZOOM_AMOUNT;
+            zoomComponent.zoom(zoomFactor);
+        }
 
         Point pos = this.getViewport().getViewPosition();
 
-        // TODO: Not working near the bottom of images with large y bounds
-        int newX = (int)(e.getX()*(zoomFactor) + (1.0 + zoomFactor)*pos.x);
-        int newY = (int)(e.getY()*(zoomFactor) + (1.0 + zoomFactor)*pos.y);
+        // todo: Not working at all
+        int newX = (int)(e.getX()*(zoomFactor - 1f) + (zoomFactor)*pos.x);
+        int newY = (int)(e.getY()*(zoomFactor - 1f) + (zoomFactor)*pos.y);
         viewport.setViewPosition(new Point(newX, newY));
     }
 

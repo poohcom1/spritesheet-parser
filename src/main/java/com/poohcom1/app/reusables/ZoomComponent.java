@@ -97,15 +97,11 @@ public class ZoomComponent extends JComponent {
         return yScale;
     }
 
-    public void zoomIn(float zoomAmount) {
-        xScale *= 1.0 + zoomAmount;
-        yScale *= 1.0 + zoomAmount;
+    public void zoom(float zoomAmount) {
+        xScale *= zoomAmount;
+        yScale *= zoomAmount;
     }
 
-    public void zoomOut(float zoomAmount) {
-        xScale *= 1.0 - zoomAmount;
-        yScale *= 1.0 - zoomAmount;
-    }
 
     protected int getXOffset() {
         return (int) ((width *  panelXScale - width)/2);

@@ -196,9 +196,15 @@ public class ToolsCanvas extends ZoomComponent {
         super.paintComponent(g);
     }
 
-    protected  void drawClear(Graphics g) {
+    protected  void drawCanvasBackground(Graphics g) {
         // Draw white background
-        Point edge = new Point(screenSize.width, screenSize.height);
+
+
+        int screenWidth = screenSize.width;
+        // Check if the image ratio is larger than the screen ratio, if so resize screen ratio
+        int screenHeight = height < width ? screenSize.height : screenSize.height*(height/width);
+
+        Point edge = new Point(screenWidth, screenHeight);
 
         if (xScale < 1.0) {
             edge = inverseTransformPoint(edge);

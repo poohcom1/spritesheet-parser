@@ -133,9 +133,9 @@ public class BlobCanvas extends ToolsCanvas {
 
     @Override
     public void paintComponent(Graphics g) {
-        drawClear(g);
-
         super.paintComponent(g);
+
+        drawCanvasBackground(g);
 
         Stroke defaultStroke = ((Graphics2D) g).getStroke();
 

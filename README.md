@@ -13,7 +13,7 @@ https://github.com/poohcom1/spritesheet-parser/releases/
 - **Spritesheet editing**: Crop sprites from large sprite sheets before extracting, so no need for slow manual cropping
 
 ## Basic use
-1. Crop out the sprite sequence you want to animated from the main sprite sheet with the crop tool (or used an already cropped sheet)
+1. Load a sprite sheet and crop out the sprite sequence you want to animated from the main sprite sheet with the crop tool
 2. Use the "Re-detect" panel to let the program automatically figure out how to extract sprites. If sprites contains separated pixels, lower the "sprite count" so that the program detects larger blobs of sprites.
 3. Align the sprites
-4. Export to image sequence ready for use in your game or animation!
+4. Export an image sequence that is ready for use in your game or animation!

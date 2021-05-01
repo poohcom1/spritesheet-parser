@@ -138,7 +138,6 @@ public class ToolsCanvas extends ZoomComponent {
         removeMouseMotionListener(mouseToolCallback);
 
         mouseToolCallback = toolMap.get(tool);
-        System.out.println("Switched to " + tool + ".");
         setCursor(setToolCursor(tool));
 
         toolChangeListeners.forEach(t -> t.onToolChange(tool));

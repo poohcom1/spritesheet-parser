@@ -112,8 +112,6 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
             child.zoom(zoomFactor);
         }
 
-        System.out.println(child.getXZoom());
-
         Point pos = getViewport().getViewPosition();
 
         int newX = (int) (zoomPoint.getX()*(zoomFactor - 1f) + (zoomFactor)*pos.x);
@@ -134,8 +132,6 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         previousY = e.getYOnScreen();
 
         moveViewportWithinBounds(-deltaX, -deltaY);
-
-        System.out.println(viewport.getViewPosition().x + " " + viewport.getViewSize().width);
     }
 
     private void moveViewportWithinBounds(int xMove, int yMove) {

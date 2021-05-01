@@ -19,9 +19,10 @@ public class BlobCanvas extends ToolsCanvas {
     public final static String CUT_TOOL = "Remove pixels";
 
     // Options
-    private boolean _showBlobs = true;
-    private boolean _showPoints = false;
-    private boolean _showNumbers = true;
+    private boolean showBlobs = true;
+    private boolean showPoints = false;
+    private boolean _showPointsForTool = false;
+    private boolean showNumbers = true;
     private Color blobColor = Color.RED;
     private Color textColor = Color.BLACK;
     private Color pointColor = new Color(0, 0, 255, 104);
@@ -91,6 +92,8 @@ public class BlobCanvas extends ToolsCanvas {
                 if (marquees.size() > 0) {
                     Rect marquee = getTrueMarqueesCoords().get(0);
 
+                    System.out.println(marquee);
+
                     for (int i = blobs.size()-1; i >= 0; i--) {
                         Blob blob = blobs.get(i);
 
@@ -99,17 +102,26 @@ public class BlobCanvas extends ToolsCanvas {
 
                             for (int j = blob.getPoints().size() - 1; j >= 0; j--) {
                                 Point point = blob.getPoints().get(j);
+
+                                System.out.println(marquee + " -> " + point + ": " + marquee.contains(point));
+
                                 // Remove points if within marquee
                                 if (marquee.contains(point)) {
+
                                     // Remove point
                                     blob.removePoint(point);
+                                    System.out.print("\nX -> ");
 
                                     if (blob.width == 0 && blob.height == 0) {
                                         blobs.remove(blob);
                                         break;
                                     }
                                 }
+
+                                //System.out.print("("+point.x + ", " + point.y+ ") ");
                             }
+                            System.out.println("\n\n");
+
                         } else if (marquee.contains(blob)) {
                             blobs.remove(blob);
                         }
@@ -124,7 +136,13 @@ public class BlobCanvas extends ToolsCanvas {
                 notifyUpdateListeners();
             }
         });
+
+        addToolChangeListener(tool -> {
+            _showPointsForTool = tool.equals(CUT_TOOL);
+        });
     }
+
+
 
     public List<Blob> getBlobs() {
         return blobs;
@@ -143,11 +161,11 @@ public class BlobCanvas extends ToolsCanvas {
 
         g.drawImage(image, xOffset, yOffset, null);
 
-        if (_showBlobs || _showNumbers) {
+        if (showBlobs || showNumbers) {
             for (int i = 0; i < blobs.size(); i++) {
                 Rect rect = blobs.get(i);
 
-                if (_showBlobs) {
+                if (showBlobs) {
                     g.setColor(blobColor);
                     ((Graphics2D) g).setStroke(new BasicStroke(
                             (float) (1.5f / xScale),                      // Width
@@ -159,14 +177,14 @@ public class BlobCanvas extends ToolsCanvas {
                     g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width + 1, rect.height + 1);
                 }
 
-                if (_showNumbers) {
+                if (showNumbers) {
                     g.setColor(textColor);
                     g.drawString(String.valueOf(i), rect.x + rect.width + xOffset, rect.y + rect.height + yOffset);
                 }
             }
         }
 
-        if (_showPoints) {
+        if (showPoints || _showPointsForTool) {
             updatePoints();
 
             g.drawImage(pointImage, xOffset, yOffset, null);
@@ -201,29 +219,29 @@ public class BlobCanvas extends ToolsCanvas {
     }
 
     public void setShowBlobs(boolean showBlobs) {
-        _showBlobs = showBlobs;
+        this.showBlobs = showBlobs;
         repaint();
     }
 
     public void setShowNumbers(boolean showNumbers) {
-        _showNumbers = showNumbers;
+        this.showNumbers = showNumbers;
         repaint();
     }
 
     public void setShowPoints(boolean showPoints) {
-        _showPoints = showPoints;
+        this.showPoints = showPoints;
         repaint();
     }
 
     public boolean isShowingBlobs() {
-        return _showBlobs;
+        return showBlobs;
     }
 
     public boolean isShowingPoints() {
-        return _showPoints;
+        return showPoints;
     }
 
     public boolean isShowingNumbers() {
-        return _showNumbers;
+        return showNumbers;
     }
 }

@@ -80,7 +80,7 @@ public class Rect extends Rectangle {
     }
 
     public String toString() {
-        return "(" + x + ", " + y + ", " + (x + width) + ", " + (y + height) + ")";
+        return "(" + x + ", " + y + ", x2:" + (x + width) + ", y2:" + (y + height) + ")";
     }
 
     public int[] getSides() {
@@ -136,7 +136,8 @@ public class Rect extends Rectangle {
 
     @Override
     public boolean contains(Point p) {
-        return (p.x >= x && p.x <= x + width && p.y >= y && p.y <= x + height);
+        System.out.println(height);
+        return (p.x > x-1 && p.x < x + width && p.y > y-1 && p.y < y + height);
     }
 
     @Override
@@ -155,9 +156,9 @@ public class Rect extends Rectangle {
         tw += tx;
         th += ty;
         //      overflow || intersect
-        return ((rw < rx || rw > tx) &&
-                (rh < ry || rh > ty) &&
-                (tw < tx || tw > rx) &&
-                (th < ty || th > ry));
+        return ((rw <= rx || rw >= tx) &&
+                (rh <= ry || rh >= ty) &&
+                (tw <= tx || tw >= rx) &&
+                (th <= ty || th >= ry));
     }
 }

@@ -12,6 +12,7 @@ sourceSets {
     }
 }
 
+
 group 'com.poohcom1'
 version '1.0-SNAPSHOT'
 
@@ -42,10 +43,10 @@ jar {
     }
 }
 
-createExe {
+launch4j {
     headerType="gui"
     mainClassName = 'com.poohcom1.app.App'
     outfile = "Sprite Sheet Parser.exe"
     icon = "${projectDir}/src/main/resources/icon.ico"
-    jar = '../libs/spritesheetparser-1.0-SNAPSHOT-all.jar'
+    jarTask = project.tasks.shadowJar
 }

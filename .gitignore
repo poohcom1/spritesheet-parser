@@ -81,3 +81,4 @@ fabric.properties
 
 # Ignore Gradle build output directory
 build
+/src/main/java/com/poohcom1/spritesheetparser/Test.java

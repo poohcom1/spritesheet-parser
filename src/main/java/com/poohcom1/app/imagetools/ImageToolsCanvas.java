@@ -97,7 +97,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        //drawCanvasBackground(g);
+        drawCanvasBackground(g);
 
         int xOffset = (int) (image.getWidth() *  panelXScale - image.getWidth())/2;
         int yOffset = (int) (image.getHeight() * panelYScale - image.getHeight())/2;

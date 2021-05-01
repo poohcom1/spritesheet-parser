@@ -50,7 +50,6 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
             if (doMouseZoom) {
                 zoomToPoint(e.getPoint(), e.getWheelRotation());
             }
-            //centerZoom();
         });
 
         // Mouse listener for screen panning
@@ -151,5 +150,5 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
 
     public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}
     public void setKeyMove(boolean doKeyMove) {this.doKeyMove = doKeyMove;}
-    public void setMouseZoom(boolean doKeyMove) {this.doMouseZoom = doMouseMove;}
+    public void setMouseZoom(boolean doMouseZoom) {this.doMouseZoom = doMouseZoom;}
 }

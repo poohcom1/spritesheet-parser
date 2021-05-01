@@ -34,7 +34,7 @@ class ImageTools extends JPanel {
 
         imageToolsCanvas = new ImageToolsCanvas(ImageToolsCanvas.BLANK_CANVAS);
         imageToolsPane = new ZoomableScrollPane<>(imageToolsCanvas);
-
+        imageToolsPane.setMouseZoom(false);
 
         mainPanel.add(imageToolsPane, BorderLayout.CENTER);
 
@@ -75,10 +75,9 @@ class ImageTools extends JPanel {
                         System.out.println("Image loaded!");
 
                         imageToolsCanvas.setImage(spriteSheet);
-                        repaint();
+                        imageToolsPane.setMouseZoom(true);
 
                         mainPanel.add(imageToolsPane, BorderLayout.CENTER);
-                        mainPanel.revalidate();
 
                         app.packInBounds();
 

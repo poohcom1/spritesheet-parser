@@ -152,7 +152,7 @@ public class BlobCanvas extends ToolsCanvas {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        //drawCanvasBackground(g);
+        drawCanvasBackground(g);
 
         Stroke defaultStroke = ((Graphics2D) g).getStroke();
 

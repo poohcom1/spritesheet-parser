@@ -22,46 +22,18 @@ public class ToggleButtonRadio extends JPanel {
         buttons = new ArrayList<>();
     }
 
-    private void buttonInit(JToggleButton button, String toolTip) {
-        button.setFocusable(false);
-        button.setContentAreaFilled(false);
-        button.setToolTipText(toolTip);
-        button.setBackground(BUTTON_BACKGROUND);
-        button.setPreferredSize(new Dimension(button.getIcon().getIconWidth(), button.getIcon().getIconHeight()));
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setOpaque(true);
-            }
 
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                if (!button.isSelected()) button.setOpaque(false);
-            }
-        });
-    }
+    public void addButton(ToggleButton newButton, ButtonToggledListener listener, String toolTip) {
+        newButton.setToolTipText(toolTip);
 
-    private void onSelected(JToggleButton button) {
-        button.setSelected(true);
-        button.setOpaque(true);
-        //((FontIcon) button.getIcon()).setIconColor(BUTTON_SELECTED_COLOR);
-    }
-
-    private void onUnSelected(JToggleButton button) {
-        button.setSelected(false);
-        button.setOpaque(false);
-        //((FontIcon) button.getIcon()).setIconColor(BUTTON_UNSELECTED_COLOR);
-    }
-
-    public void addButton(JToggleButton newButton, ButtonToggledListener listener, String toolTip) {
-        buttonInit(newButton, toolTip);
-
-        if (buttons.size() == 0) onSelected(newButton);
+        if (buttons.size() == 0) newButton.setSelected(true);
 
         newButton.addActionListener(e -> {
-            buttons.forEach(this::onUnSelected);
+            buttons.forEach(b -> b.setSelected(false));
 
             selectedIndex = buttons.indexOf(newButton);
-            onSelected(newButton);
+            newButton.setSelected(true);
             listener.buttonToggled();
         });
 
@@ -70,11 +42,11 @@ public class ToggleButtonRadio extends JPanel {
     }
 
     public void addButton(String name, ButtonToggledListener listener, String toolTip) {
-        addButton(new JToggleButton(name), listener, toolTip);
+        addButton(new ToggleButton(name), listener, toolTip);
     }
 
     public void addButton(Icon icon, ButtonToggledListener listener, String toolTip) {
-        addButton(new JToggleButton(icon), listener, toolTip);
+        addButton(new ToggleButton(icon), listener, toolTip);
     }
 
 

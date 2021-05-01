@@ -77,7 +77,7 @@ public class App extends JFrame {
      * Courtesy of users/131872/camickr: https://stackoverflow.com/questions/40577930/java-set-maximum-size-of-jframe
      * Packs frame while making sure not to overlap with taskbar
      */
-    public void packInBounds() {
+    static void packInBounds() {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Rectangle bounds = env.getMaximumWindowBounds();
         app.pack();

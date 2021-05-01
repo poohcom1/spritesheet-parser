@@ -50,9 +50,8 @@ class BlobDetectionTools {
     public BlobDetectionTools() {
         mainPanel = new JPanel();
 
-        // Modals
-        JTextField noImage = new JTextField("No sprites loaded");
-        mainPanel.add(noImage);
+        // Set empty
+        mainPanel.add(new JLabel("No sprites loaded"));
     }
 
     void init(BufferedImage newImage, int[] backgroundColors) {

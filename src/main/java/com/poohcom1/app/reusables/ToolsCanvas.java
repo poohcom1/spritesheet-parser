@@ -32,7 +32,7 @@ public class ToolsCanvas extends ZoomComponent {
     ScheduledExecutorService animator;
     MouseAdapter mouseToolCallback;
 
-    private Color canvasColor = new Color(208, 208, 208);
+    private Color canvasColor = new Color(245, 245, 245);
 
     // Scale
     protected Dimension screenSize;

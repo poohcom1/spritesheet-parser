@@ -1,6 +1,6 @@
 # Spritesheet Parser
 
-A simple tool to automatically animate sprites in a sprite sheet that isn't aligned with fixed rows and columns. Outputs an image sequence of the sprites that is ready to be animated.
+A simple tool to automatically animate sprites in sprite sheets that aren't aligned with fixed rows or columns. Outputs an image sequence of the sprites that is ready to be animated.
 
 ## Download
 

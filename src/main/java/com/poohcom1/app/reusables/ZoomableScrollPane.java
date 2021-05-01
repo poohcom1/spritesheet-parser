@@ -8,6 +8,8 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
     public final int PAN_KEY = KeyEvent.VK_SPACE;
     public final int ZOOM_KEY = KeyEvent.VK_CONTROL;
 
+    public final float ZOOM_AMOUNT = 0.1f;
+
     public int PAN_SPEED = 16;
 
     private int previousX = -1;
@@ -18,6 +20,9 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
     private boolean doKeyMove = true;
     private boolean doMouseZoom = true;
 
+    // Zoom
+    private float minZoom = 1.0f;
+
     // Child component
     private final C child;
 
@@ -26,8 +31,8 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         super(zoomComponent);
          zoomComponent.setParent((ZoomableScrollPane<ZoomComponent>) this);
 
-        setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         setFocusable(true);
 
         setWheelScrollingEnabled(false);
@@ -42,7 +47,10 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
 
         // Mouse wheel listener for zooming
         addMouseWheelListener(e -> {
-            if (doMouseZoom) mouseWheel_zoom(e);
+            if (doMouseZoom) {
+                zoomToPoint(e.getPoint(), e.getWheelRotation());
+            }
+            //centerZoom();
         });
 
         // Mouse listener for screen panning
@@ -55,44 +63,70 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         child = zoomComponent;
     }
 
+    public void findMinZoom() {
+        int childSize = child.width + child.marginX;
+        int viewSize = getViewport().getViewSize().width;
 
-    public C getChild() {return child;}
+        double zoom = 1.0;
 
-    public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}
-    public void setKeyMove(boolean doKeyMove) {this.doKeyMove = doKeyMove;}
-    public void setMouseZoom(boolean doKeyMove) {this.doMouseZoom = doMouseMove;}
+        while (childSize > viewSize) {
+            viewSize *= ZOOM_AMOUNT + 1;
+            child.zoom(ZOOM_AMOUNT + 1);
+        }
 
-    public void centerZoom() {
+        while (childSize < viewSize) {
+            viewSize *= 1-ZOOM_AMOUNT;
+            child.zoom(1 - ZOOM_AMOUNT);
+        }
+
+        repaint();
+        revalidate();
+    }
+
+    public void centerViewToPoint() {
         Rectangle bounds = getViewport().getViewRect();
-        Dimension size = getViewport().getSize();
+        //Then you need the size of the component, but once it's added to the scroll pane, you can get this from the view port...
 
-        int x = (size.width - bounds.width)/2;
-        int y = (size.height - bounds.height)/2;
+        Dimension size = getViewport().getViewSize();
+        //Now you need to calculate the centre position...
+
+        int x = (size.width - bounds.width) / 2;
+        int y = (size.height - bounds.height) / 2;
+
+        if (child.height > child.width) {
+            y = child.marginY/2;
+        }
+
+        //Then you need to simply adjust the view port position...
         getViewport().setViewPosition(new Point(x, y));
     }
 
     // THANK YOU MY BRO: users/1936928/absolom: https://stackoverflow.com/questions/13155382/jscrollpane-zoom-relative-to-mouse-position
-    private void mouseWheel_zoom(MouseWheelEvent e) {
-        final float ZOOM_AMOUNT = 0.1f;
-
+    private void zoomToPoint(Point zoomPoint, int zoomDirection) {
         float zoomFactor = 0;
 
-        if (e.getWheelRotation() > 0) {
-            if (child.getXZoom() <= 1.0) return;
+        if (zoomDirection > 0) {
+            JScrollBar vertical = getHorizontalScrollBar();
+            if (vertical.getWidth() >= vertical.getMaximum() * 0.8) {
+                return;
+            }
             zoomFactor = 1 - ZOOM_AMOUNT;
             child.zoom(zoomFactor);
-        } else if (e.getWheelRotation() < 0) {
+        } else if (zoomDirection < 0) {
             zoomFactor = 1 + ZOOM_AMOUNT;
             child.zoom(zoomFactor);
         }
 
+        System.out.println(child.getXZoom());
+
         Point pos = getViewport().getViewPosition();
 
-        int newX = (int) (e.getX()*(zoomFactor - 1f) + (zoomFactor)*pos.x);
-        int newY = (int) (e.getY()*(zoomFactor - 1f) + (zoomFactor)*pos.y);
+        int newX = (int) (zoomPoint.getX()*(zoomFactor - 1f) + (zoomFactor)*pos.x);
+        int newY = (int) (zoomPoint.getY()*(zoomFactor - 1f) + (zoomFactor)*pos.y);
 
         getViewport().setViewPosition(new Point(newX, newY));
     }
+
 
     private void mouseDragged_moveScreen(MouseEvent e) {
         if (previousX == -1) previousX = e.getXOnScreen();
@@ -104,10 +138,12 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         previousX = e.getXOnScreen();
         previousY = e.getYOnScreen();
 
-        moveViewport(-deltaX, -deltaY);
+        moveViewportWithinBounds(-deltaX, -deltaY);
+
+        System.out.println(viewport.getViewPosition().x + " " + viewport.getViewSize().width);
     }
 
-    private void moveViewport(int xMove, int yMove) {
+    private void moveViewportWithinBounds(int xMove, int yMove) {
         Point newPosition = viewport.getViewPosition();
 
         newPosition.x += xMove;
@@ -119,12 +155,10 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         viewport.setViewPosition(newPosition);
     }
 
-    private void setViewportPosition(int xPos, int yPos) {
-        if (xPos < 0) xPos = 0;
-        if (yPos < 0) yPos = 0;
 
-        Point newPosition = new Point(xPos, yPos);
+    public C getChild() {return child;}
 
-        viewport.setViewPosition(newPosition);
-    }
+    public void setMouseMove(boolean doMouseMove) {this.doMouseMove = doMouseMove;}
+    public void setKeyMove(boolean doKeyMove) {this.doKeyMove = doKeyMove;}
+    public void setMouseZoom(boolean doKeyMove) {this.doMouseZoom = doMouseMove;}
 }

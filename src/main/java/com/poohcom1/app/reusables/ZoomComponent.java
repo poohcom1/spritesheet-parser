@@ -11,8 +11,11 @@ public class ZoomComponent extends JComponent {
     public int width;
     public int height;
 
-    public double panelXScale;
-    public double panelYScale;
+    public int marginX;
+    public int marginY;
+
+    protected double panelXScale;
+    protected double panelYScale;
 
     // Zooming
     protected double xScale = 1.0;
@@ -36,11 +39,16 @@ public class ZoomComponent extends JComponent {
 
     protected void initScale(int width, int height) {
         // Set size based on margins
-        //double marginX = Math.log(width) * 70;
-        double marginY = Math.log(height) * 70;
+        marginX = width;
 
-        double marginX = width/2.;
-        //double marginY = width/2.;
+        if (width < height) {
+            // For a vertical image, give the largest margins possible
+            marginY = width;
+        } else {
+            // For a horizontal image, minimize y margins for a smaller window size
+            marginY = (int) Math.log(height) * 70;
+        }
+
 
         panelXScale = (float) (width + marginX)/ width;
         panelYScale = (float) (height + marginY)/height;

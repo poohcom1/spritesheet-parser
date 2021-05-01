@@ -49,7 +49,6 @@ public class ZoomComponent extends JComponent {
             marginY = (int) Math.log(height) * 70;
         }
 
-
         panelXScale = (float) (width + marginX)/ width;
         panelYScale = (float) (height + marginY)/height;
     }

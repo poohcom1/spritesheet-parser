@@ -37,6 +37,7 @@ class BlobDetectionTools {
     ZoomableScrollPane<BlobCanvas> blobPanel;
     ZoomableScrollPane<SpritePlayer> spritePanel;
 
+    BlobCanvas blobCanvas;
     SpritePlayer spritePlayer;
     JPanel mainPanel;
 
@@ -58,8 +59,7 @@ class BlobDetectionTools {
         mainPanel.removeAll();
 
         image = newImage;
-
-
+        
         if (backgroundColors.length > 0) {
             this.backgroundColors = backgroundColors;
         } else {
@@ -74,9 +74,13 @@ class BlobDetectionTools {
         mainPanel.setLayout(new BorderLayout());
 
         // Components
-        blobPanel = new ZoomableScrollPane<>(new BlobCanvas(image));
-        blobPanel.getChild().addUpdateListener(this::resetSpritePlayer);
+        blobCanvas = new BlobCanvas(image);
+        
+        blobPanel = new ZoomableScrollPane<>(blobCanvas);
+        blobCanvas.addUpdateListener(this::resetSpritePlayer);
         updateBlobs();
+
+        SwingUtilities.invokeLater(blobPanel::centerViewToPoint);
 
         // Sprite player
         JPanel spritePlayerPanel = new JPanel();
@@ -107,13 +111,10 @@ class BlobDetectionTools {
 
         optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
 
-        BlobCanvas blobCanvas = blobPanel.getChild();
-
         optionsPanel.addButton(App.iconMap.get(App.ICON_MOVE), () -> blobCanvas.setTool(ToolsCanvas.MOVE_TOOL), ToolsCanvas.MOVE_TOOL);
         optionsPanel.addButton(App.iconMap.get(App.ICON_MERGE), () -> blobCanvas.setTool(BlobCanvas.MERGE_TOOL), BlobCanvas.MERGE_TOOL);
         optionsPanel.addButton(App.iconMap.get(App.ICON_DELETE), () -> blobCanvas.setTool(BlobCanvas.DELETE_TOOL), BlobCanvas.DELETE_TOOL);
         optionsPanel.addButton(App.iconMap.get(App.ICON_CUT), () -> blobCanvas.setTool(BlobCanvas.CUT_TOOL), BlobCanvas.CUT_TOOL);
-
 
         return optionsPanel;
     }
@@ -160,7 +161,7 @@ class BlobDetectionTools {
 
             countLabel.setText(String.valueOf(blobSequence.size()));
 
-            blobPanel.getChild().repaint();
+            blobCanvas.repaint();
             resetSpritePlayer();
         });
 
@@ -178,12 +179,12 @@ class BlobDetectionTools {
             countLabel.setText(String.valueOf(blobSequence.size()));
             if (blobSequence.size() == oldCount) countLabel.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
 
-            blobPanel.getChild().repaint();
+            blobCanvas.repaint();
             resetSpritePlayer();
         });
 
         // Show warning after edit to blob canvas
-        blobPanel.getChild().addUpdateListener(() -> warningLabel.setVisible(true));
+        blobCanvas.addUpdateListener(() -> warningLabel.setVisible(true));
 
         JPanel panel = new JPanel();
 
@@ -226,7 +227,7 @@ class BlobDetectionTools {
 
             blobSequence.setOrder(primaryOrder, secondaryOrder);
             blobSequence.orderBlobs();
-            blobPanel.getChild().repaint();
+            blobCanvas.repaint();
             resetSpritePlayer();
         });
 
@@ -367,14 +368,13 @@ class BlobDetectionTools {
         JCheckBox showNumbers = new JCheckBox("Show sprite number");
         JCheckBox showPoints = new JCheckBox("Show sprite pixels");
 
+        showBlobs.setSelected(blobCanvas.isShowingBlobs());
+        showNumbers.setSelected(blobCanvas.isShowingNumbers());
+        showPoints.setSelected(blobCanvas.isShowingPoints());
 
-        showBlobs.setSelected(blobPanel.getChild().isShowingBlobs());
-        showNumbers.setSelected(blobPanel.getChild().isShowingNumbers());
-        showPoints.setSelected(blobPanel.getChild().isShowingPoints());
-
-        showBlobs.addActionListener(l -> blobPanel.getChild().setShowBlobs(showBlobs.isSelected()));
-        showNumbers.addActionListener(l -> blobPanel.getChild().setShowNumbers(showNumbers.isSelected()));
-        showPoints.addActionListener(l -> blobPanel.getChild().setShowPoints(showPoints.isSelected()));
+        showBlobs.addActionListener(l -> blobCanvas.setShowBlobs(showBlobs.isSelected()));
+        showNumbers.addActionListener(l -> blobCanvas.setShowNumbers(showNumbers.isSelected()));
+        showPoints.addActionListener(l -> blobCanvas.setShowPoints(showPoints.isSelected()));
 
         panel.add(showBlobs);
         panel.add(showNumbers);
@@ -390,16 +390,16 @@ class BlobDetectionTools {
         colorChooser.setPreviewPanel(new JPanel());
 
         colorChooser.getSelectionModel().addChangeListener(l -> {
-            blobPanel.getChild().setCanvasColor(colorChooser.getColor());
+            blobCanvas.setCanvasColor(colorChooser.getColor());
         });
 
         JButton pickBackgroundColor = new JButton("Pick background color");
         pickBackgroundColor.addActionListener(l -> {
-            Color originalColor = blobPanel.getChild().getCanvasColor();
+            Color originalColor = blobCanvas.getCanvasColor();
             colorChooser.setColor(originalColor);
             JDialog colorChooserDialog = JColorChooser.createDialog(mainPanel, "Pick color", false, colorChooser,
                     null,
-                    c -> blobPanel.getChild().setCanvasColor(originalColor)
+                    c -> blobCanvas.setCanvasColor(originalColor)
             );
             colorChooserDialog.setVisible(true);
         });
@@ -457,15 +457,11 @@ class BlobDetectionTools {
 
     private void detectBlobs() {
         blobSequence = new BlobSequence(image, backgroundColors, distanceThreshold, primaryOrder, secondaryOrder);
-        BlobCanvas blobCanvas = blobPanel.getChild();
-
         blobCanvas.setBlobs(blobSequence);
     }
 
     private void updateBlobs() {
         detectBlobs();
-        System.out.println(blobSequence.getPoints().length);
-        BlobCanvas blobCanvas = blobPanel.getChild();
         blobCanvas.repaint();
     }
 

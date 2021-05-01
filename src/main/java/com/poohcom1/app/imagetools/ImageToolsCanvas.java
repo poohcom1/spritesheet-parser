@@ -17,7 +17,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
     public final static String CROP_TOOL = "Crop";
     public final static String COLOR_PICKER_TOOL = "Set background color";
 
-    public final static BufferedImage BLANK_CANVAS = new BufferedImage(175, 50, BufferedImage.TYPE_4BYTE_ABGR);
+    public final static BufferedImage BLANK_CANVAS = new BufferedImage(175, 1, BufferedImage.TYPE_4BYTE_ABGR);
 
     private BufferedImage originalImage;
     private BufferedImage image;

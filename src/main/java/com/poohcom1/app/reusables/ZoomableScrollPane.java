@@ -67,8 +67,6 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
         int childSize = child.width + child.marginX;
         int viewSize = getViewport().getViewSize().width;
 
-        double zoom = 1.0;
-
         while (childSize > viewSize) {
             viewSize *= ZOOM_AMOUNT + 1;
             child.zoom(ZOOM_AMOUNT + 1);
@@ -78,9 +76,6 @@ public class ZoomableScrollPane<C extends ZoomComponent> extends JScrollPane {
             viewSize *= 1-ZOOM_AMOUNT;
             child.zoom(1 - ZOOM_AMOUNT);
         }
-
-        repaint();
-        revalidate();
     }
 
     public void centerViewToPoint() {

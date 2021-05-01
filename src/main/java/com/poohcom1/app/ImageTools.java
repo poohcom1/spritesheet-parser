@@ -86,6 +86,7 @@ class ImageTools extends JPanel {
 
                         SwingUtilities.invokeLater(imageToolsPane::centerViewToPoint);
 
+                        // todo: Fit screen to image on initial pack
                         cropButton.setEnabled(true);
                         toolButtons.setButtonsEnabled(true);
                     } else {

@@ -14,7 +14,7 @@ sourceSets {
 }
 
 group 'com.poohcom1'
-version '1.0-SNAPSHOT'
+version '1.0.2'
 
 repositories {
     mavenCentral()
@@ -60,13 +60,12 @@ launch4j {
     jarTask = project.tasks.shadowJar
 }
 
-configurations.archives.artifacts.removeAll{
-    it.name != sourceJarName
-}
-
 publishing {
     publications {
         maven(MavenPublication) {
+            groupId = 'com.poohcom1'
+            artifactId = 'spritesheetparser'
+            version = '1.0'
             artifact(sourceJar)
         }
     }

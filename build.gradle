@@ -52,7 +52,6 @@ shadowJar {
         attributes 'Main-Class': 'com.poohcom1.app.App'
     }
 
-    processResources.include('icon.png')
     mergeServiceFiles()
 }
 

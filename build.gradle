@@ -39,11 +39,12 @@ shadowJar {
     mergeServiceFiles()
 }
 
+
 jar {
-    baseName("")
     from(sourceSets.main.output)
     exclude("com/poohcom1/app/**")
     exclude("com/poohcom1/spritesheetparser/Test.class")
+    processResources.exclude('*')
 }
 
 

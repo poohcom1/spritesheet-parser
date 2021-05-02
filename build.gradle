@@ -40,6 +40,7 @@ shadowJar {
 }
 
 jar {
+    baseName("")
     from(sourceSets.main.output)
     exclude("com/poohcom1/app/**")
     exclude("com/poohcom1/spritesheetparser/Test.class")
@@ -55,6 +56,20 @@ launch4j {
 }
 
 publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.poohcom1'
+            artifactId = 'spritesheet-parser'
+            version = "1.0.2"
+            from components.java
+
+            pom {
+                name = 'My Library'
+                description = 'A description of my library'
+            }
+        }
+    }
+
     repositories {
         maven {
             name = "GitHubPackages"

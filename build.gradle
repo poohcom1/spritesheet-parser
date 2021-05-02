@@ -31,22 +31,24 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-material2-pack:12.2.0'
 }
 
+def mainPackageName = "spritesheet-parser"
+
+jar {
+    from(sourceSets.main.output)
+    archiveName(mainPackageName)
+    exclude("com/poohcom1/app/**")
+    exclude("com/poohcom1/spritesheetparser/Test.class")
+    processResources.include('')
+}
+
 shadowJar {
     manifest {
         attributes 'Main-Class': 'com.poohcom1.app.App'
     }
 
+    processResources.include('*.png')
     mergeServiceFiles()
 }
-
-
-jar {
-    from(sourceSets.main.output)
-    exclude("com/poohcom1/app/**")
-    exclude("com/poohcom1/spritesheetparser/Test.class")
-    processResources.exclude('*')
-}
-
 
 launch4j {
     headerType="gui"
@@ -56,13 +58,16 @@ launch4j {
     jarTask = project.tasks.shadowJar
 }
 
+configurations.archives.artifacts.removeAll{
+    it.name != mainPackageName
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.poohcom1'
-            artifactId = 'spritesheet-parser'
+            artifactId = mainPackageName
             version = "1.0.2"
-            from components.java
         }
     }
 

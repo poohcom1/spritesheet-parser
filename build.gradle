@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'edu.sc.seis.launch4j' version '2.5.0'
+    id 'maven-publish'
 }
 
 sourceSets {
@@ -12,14 +13,12 @@ sourceSets {
     }
 }
 
-
 group 'com.poohcom1'
 version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
-
 
 dependencies {
     compile 'junit:junit:4.12'
@@ -49,4 +48,17 @@ launch4j {
     outfile = "Sprite Sheet Parser.exe"
     icon = "${projectDir}/src/main/resources/icon.ico"
     jarTask = project.tasks.shadowJar
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/poohcom1/spritesheet-parser"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }

@@ -65,9 +65,7 @@ configurations.archives.artifacts.removeAll{
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'com.poohcom1'
-            artifactId = mainPackageName
-            version = "1.0.2"
+            from components.java
         }
     }
 

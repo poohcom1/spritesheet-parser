@@ -58,7 +58,7 @@ public class App extends JFrame {
         pack();
 
         try {
-            BufferedImage icon = ImageIO.read(Objects.requireNonNull(App.class.getResource("/icon.png")));
+            BufferedImage icon = ImageIO.read(Objects.requireNonNull(App.class.getResource("/iconImage.png")));
             setIconImage(icon);
         } catch (IOException e) {
             e.printStackTrace();

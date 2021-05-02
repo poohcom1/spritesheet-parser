@@ -40,6 +40,7 @@ task packageJar(type: Jar, dependsOn: jar) {
         exclude("com/poohcom1/app/**")
         include("com/poohcom1/spritesheetparser/**")
         exclude("com/poohcom1/spritesheetparser/Test.class")
+        processResources.include()
     }
     archiveName(mainJarName)
 }

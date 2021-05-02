@@ -60,7 +60,7 @@ publishing {
             name = "GitHubPackages"
             url = "https://maven.pkg.github.com/poohcom1/spritesheet-parser"
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
+                username = System.getenv("poohcom1")
                 password = System.getenv("GITHUB_TOKEN")
             }
         }

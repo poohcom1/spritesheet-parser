@@ -28,18 +28,18 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-material2-pack:12.2.0'
 }
 
-def mainJarName = "spritesheet-parser.jar"
+def sourceJarName = "spritesheet-parser.jar"
 def fatJarName = "spritesheet-parser-app.jar"
 
 
-task packageJar(type: Jar, dependsOn: jar) {
+task sourceJar(type: Jar, dependsOn: jar) {
     from(sourceSets.main.output) {
         exclude("com/poohcom1/app/**")
         include("com/poohcom1/spritesheetparser/**")
         exclude("com/poohcom1/spritesheetparser/Test.class")
         processResources.include()
     }
-    archiveName(mainJarName)
+    archiveName(sourceJarName)
 }
 
 
@@ -61,13 +61,13 @@ launch4j {
 }
 
 configurations.archives.artifacts.removeAll{
-    it.name != mainJarName
+    it.name != sourceJarName
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
-            from components.java
+            artifact(sourceJar)
         }
     }
 

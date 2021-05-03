@@ -20,9 +20,13 @@ public class SpritePlayer extends ZoomComponent {
     private ScheduledExecutorService animator;
 
     public SpritePlayer(SpriteSequence sprites, long msPerFrame) {
-        super(sprites.getDimensions().width, sprites.getDimensions().height);
+        super(sprites.getDimensions().width , sprites.getDimensions().height);
         this.sprites = sprites;
         this.msPerFrame = msPerFrame;
+
+        marginX = 0;
+        marginY = 0;
+        initScale(width, height);
 
         animator = Executors.newScheduledThreadPool(1);
 

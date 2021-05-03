@@ -14,7 +14,7 @@ sourceSets {
 }
 
 group 'com.poohcom1'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     mavenCentral()
@@ -52,11 +52,13 @@ shadowJar {
     mergeServiceFiles()
 }
 
-launch4j {
+createExe {
     headerType="gui"
     mainClassName = 'com.poohcom1.app.App'
     outfile = "Sprite Sheet Parser.exe"
     icon = "${projectDir}/src/main/resources/icon.ico"
+    bundledJrePath = "jre"
+    bundledJreAsFallback = true
     jarTask = project.tasks.shadowJar
 }
 
@@ -65,7 +67,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'com.poohcom1'
             artifactId = 'spritesheetparser'
-            version = '1.0'
+            version = '1.0.2'
             artifact(sourceJar)
         }
     }

@@ -51,17 +51,12 @@ public class ImageToolsCanvas extends ToolsCanvas {
 
             System.out.println("Color picked");
 
+            Point mousePos = getPositionOnImage(e.getPoint());
+
             if (SwingUtilities.isLeftMouseButton(e)) {
                 Color color;
 
-                try {
-                    Robot robot = new Robot();
-
-                    color = robot.getPixelColor(e.getXOnScreen(), e.getYOnScreen());
-                } catch (AWTException awtException) {
-                    awtException.printStackTrace();
-                    color = new Color(0, 0, 0);
-                }
+                color = ImageUtil.rgbaIntToColor(image.getRGB(mousePos.x, mousePos.y)) ;
 
                 if (backgroundColors.size() == 0) backgroundColors.add(color);
                 else backgroundColors.set(0, color);
@@ -128,6 +123,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
         for (int i = 0; i < backgroundColorArray.length; i++) {
             backgroundColorArray[i] = backgroundColors.get(i).getRGB();
         }
+
 
         if (backgroundColorArray.length == 0) {
             return new int[] {autoBackground};

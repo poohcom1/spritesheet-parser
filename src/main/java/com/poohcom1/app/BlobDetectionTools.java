@@ -24,7 +24,7 @@ class BlobDetectionTools {
     // Parameters
     private int[] backgroundColors;
 
-    private int distanceThreshold = 3;
+    private int distanceThreshold = 2;
     private int primaryOrder = BlobSequence.LEFT_TO_RIGHT;
     private int secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
 
@@ -166,6 +166,7 @@ class BlobDetectionTools {
             countLabel.setText(String.valueOf(blobSequence.size()));
 
             blobCanvas.repaint();
+            blobPanel.revalidate();
             resetSpritePlayer();
         });
 
@@ -185,6 +186,8 @@ class BlobDetectionTools {
             if (blobSequence.size() == oldCount) countLabel.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
 
             blobCanvas.repaint();
+
+            blobPanel.revalidate();
             resetSpritePlayer();
         });
 

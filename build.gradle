@@ -14,7 +14,7 @@ sourceSets {
 }
 
 group 'com.poohcom1'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     mavenCentral()
@@ -67,7 +67,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'com.poohcom1'
             artifactId = 'spritesheetparser'
-            version = '1.0'
+            version = '1.0.2'
             artifact(sourceJar)
         }
     }

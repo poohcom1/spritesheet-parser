@@ -24,7 +24,7 @@ class BlobDetectionTools {
     // Parameters
     private int[] backgroundColors;
 
-    private int distanceThreshold = 2;
+    private int distanceThreshold = 3;
     private int primaryOrder = BlobSequence.LEFT_TO_RIGHT;
     private int secondaryOrder = BlobSequence.TOP_TO_BOTTOM;
 
@@ -58,7 +58,7 @@ class BlobDetectionTools {
         mainPanel.removeAll();
 
         image = newImage;
-        
+
         if (backgroundColors.length > 0) {
             this.backgroundColors = backgroundColors;
         } else {
@@ -74,7 +74,7 @@ class BlobDetectionTools {
 
         // Components
         blobCanvas = new BlobCanvas(image);
-        
+
         blobPanel = new ZoomableScrollPane<>(blobCanvas);
         blobCanvas.addUpdateListener(this::resetSpritePlayer);
         updateBlobs();
@@ -143,12 +143,13 @@ class BlobDetectionTools {
         Font font = countLabel.getFont();
 
         up.setFocusable(false);
+
         up.addActionListener((e) -> {
             warningLabel.setVisible(false);
             countLabel.setFont(font.deriveFont(font.getStyle() | Font.PLAIN));
             int oldCount = blobSequence.size();
 
-            if (blobSequence.size() == 2) {
+            if (blobSequence.size() <= 2) {
                 countLabel.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
                 return;
             }
@@ -156,6 +157,10 @@ class BlobDetectionTools {
             do {
                 distanceThreshold++;
                 detectBlobs();
+                if (blobSequence.size() <= 2) {
+                    countLabel.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
+                    return;
+                }
             } while (blobSequence.size() == oldCount);
 
             countLabel.setText(String.valueOf(blobSequence.size()));
@@ -171,6 +176,7 @@ class BlobDetectionTools {
             int oldCount = blobSequence.size();
             do {
                 if (distanceThreshold <= 2) break;
+                System.out.println(distanceThreshold);
                 distanceThreshold--;
                 detectBlobs();
             } while (blobSequence.size() == oldCount);
@@ -388,9 +394,7 @@ class BlobDetectionTools {
         colorChooser.removeChooserPanel(defaultPanels[4]); // CMYK
         colorChooser.setPreviewPanel(new JPanel());
 
-        colorChooser.getSelectionModel().addChangeListener(l -> {
-            blobCanvas.setCanvasColor(colorChooser.getColor());
-        });
+        colorChooser.getSelectionModel().addChangeListener(l -> blobCanvas.setCanvasColor(colorChooser.getColor()));
 
         JButton pickBackgroundColor = new JButton("Pick background color");
         pickBackgroundColor.addActionListener(l -> {

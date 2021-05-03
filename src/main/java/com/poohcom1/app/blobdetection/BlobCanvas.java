@@ -98,7 +98,7 @@ public class BlobCanvas extends ToolsCanvas {
                         Blob blob = blobs.get(i);
 
                         // If blob is in marquee
-                        if (marquee.intersects(blob)) {
+                        if (marquee.intersectTouch(blob)) {
 
                             for (int j = blob.getPoints().size() - 1; j >= 0; j--) {
                                 Point point = blob.getPoints().get(j);

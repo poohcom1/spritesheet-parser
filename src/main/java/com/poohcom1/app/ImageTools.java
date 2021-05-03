@@ -71,26 +71,22 @@ class ImageTools extends JPanel {
                 try {
                     spriteSheet = AppUtil.loadImage(file);
 
-                    if (spriteSheet != null) {
-                        System.out.println("Image loaded!");
+                    System.out.println("Image loaded!");
 
-                        imageToolsCanvas.setImage(spriteSheet);
-                        imageToolsPane.setMouseZoom(true);
+                    imageToolsCanvas.setImage(spriteSheet);
+                    imageToolsPane.setMouseZoom(true);
 
-                        mainPanel.add(imageToolsPane, BorderLayout.CENTER);
+                    mainPanel.add(imageToolsPane, BorderLayout.CENTER);
 
-                        app.packInBounds();
+                    app.packInBounds();
 
-                        imageToolsPane.findMinZoom();
+                    imageToolsPane.findMinZoom();
 
-                        SwingUtilities.invokeLater(imageToolsPane::centerViewToPoint);
+                    SwingUtilities.invokeLater(imageToolsPane::centerViewToPoint);
 
-                        // todo: Fit screen to image on initial pack
-                        cropButton.setEnabled(true);
-                        toolButtons.setButtonsEnabled(true);
-                    } else {
-                        JOptionPane.showMessageDialog(mainPanel, "Invalid file type! Please select an image file", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
+                    // todo: Fit screen to image on initial pack
+                    cropButton.setEnabled(true);
+                    toolButtons.setButtonsEnabled(true);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }

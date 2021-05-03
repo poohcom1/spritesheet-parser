@@ -6,12 +6,16 @@ import java.io.File;
 import java.io.IOException;
 
 public class AppUtil {
-    public static BufferedImage loadImage(String path) throws IOException {
-        return ImageIO.read(new File(path));
-    }
-
     public static BufferedImage loadImage(File f) throws IOException {
-        return ImageIO.read(f);
+        BufferedImage image = ImageIO.read(f);
+
+        if (image.getType() != BufferedImage.TYPE_4BYTE_ABGR) {
+            BufferedImage convertedImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+            convertedImg.getGraphics().drawImage(image, 0, 0, null);
+            return convertedImg;
+        }
+
+        return image;
     }
 
     public static File saveImage(BufferedImage image, String path, String name, String formatName) throws  IOException {

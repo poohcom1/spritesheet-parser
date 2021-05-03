@@ -129,6 +129,7 @@ public class ImageToolsCanvas extends ToolsCanvas {
             backgroundColorArray[i] = backgroundColors.get(i).getRGB();
         }
 
+
         if (backgroundColorArray.length == 0) {
             return new int[] {autoBackground};
         }

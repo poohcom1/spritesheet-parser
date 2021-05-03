@@ -21,7 +21,7 @@ public class App extends JFrame {
     public static Map<String, FontIcon> iconMap;
 
     // Components
-    static JTabbedPane tabbedPane;
+    public JTabbedPane tabbedPane;
 
     // Tabs
     static final int SPRITE_EXTRACTION_PANE_TAB = 1;
@@ -77,7 +77,7 @@ public class App extends JFrame {
      * Courtesy of users/131872/camickr: https://stackoverflow.com/questions/40577930/java-set-maximum-size-of-jframe
      * Packs frame while making sure not to overlap with taskbar
      */
-    static void packInBounds() {
+    void packInBounds() {
         GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Rectangle bounds = env.getMaximumWindowBounds();
         app.pack();

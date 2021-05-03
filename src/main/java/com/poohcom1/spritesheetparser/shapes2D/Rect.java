@@ -136,7 +136,7 @@ public class Rect extends Rectangle {
 
     @Override
     public boolean contains(Point p) {
-        return (p.x >= x && p.x <= x + width && p.y >= y && p.y <= x + height);
+        return (p.x > x-1 && p.x < x + width && p.y > y-1 && p.y < y + height);
     }
 
     @Override

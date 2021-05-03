@@ -25,8 +25,16 @@ public class ImageUtil {
         return new int[] {r, g, b, a};
     }
 
+    public static Color rgbaArrayToColor(int[] rgba) {
+        int alpha = 0;
+        if (rgba.length > 3) alpha = rgba[3];
+        return new Color(rgba[0], rgba[1], rgba[2], alpha);
+    }
+
     public static int rgbaArrayToInt(int[] rgba) {
-        return (rgba[3] << 24) + (rgba[0] << 16) + (rgba[1] << 8) + rgba[2];
+        int alpha = 0;
+        if (rgba.length > 3) alpha = rgba[3] << 24;
+        return alpha + (rgba[0] << 16) + (rgba[1] << 8) + rgba[2];
     }
 
     public static Color rgbaIntToColor(int rgba) {
@@ -144,7 +152,7 @@ public class ImageUtil {
     public static BufferedImage replaceColors(BufferedImage image, int[] colors, int replacementColor) {
         return pointProcessing(image, (rgba, x, y) -> {
             for (int color : colors) {
-                int pixel = new Color(rgba[0], rgba[1], rgba[2], rgba[3]).getRGB();
+                int pixel = rgbaArrayToColor(rgba).getRGB();
 
                 if (pixel == color) {
                     return rbgaIntToArray(replacementColor);

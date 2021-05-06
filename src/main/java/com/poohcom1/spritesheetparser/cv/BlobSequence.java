@@ -225,6 +225,9 @@ public class BlobSequence extends ArrayList<Blob> {
     public void mergeBlobs(List<Blob> blobs) {
         Rect bounds = ShapesUtil.mergeRects(blobs);
         Blob newBlob = new Blob(bounds.x, bounds.y, (int) bounds.getMaxX(), (int) bounds.getMaxY());
+        blobs.forEach(blob -> {
+            newBlob.getPoints().addAll(blob.getPoints());
+        });
 
         for (int i = size() -1; i >= 0; i--) {
             if (blobs.contains(get(i))) {

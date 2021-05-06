@@ -92,8 +92,6 @@ public class BlobCanvas extends ToolsCanvas {
                 if (marquees.size() > 0) {
                     Rect marquee = getTrueMarqueesCoords().get(0);
 
-                    System.out.println(marquee);
-
                     for (int i = blobs.size()-1; i >= 0; i--) {
                         Blob blob = blobs.get(i);
 
@@ -103,14 +101,12 @@ public class BlobCanvas extends ToolsCanvas {
                             for (int j = blob.getPoints().size() - 1; j >= 0; j--) {
                                 Point point = blob.getPoints().get(j);
 
-                                System.out.println(marquee + " -> " + point + ": " + marquee.contains(point));
 
                                 // Remove points if within marquee
                                 if (marquee.contains(point)) {
 
                                     // Remove point
                                     blob.removePoint(point);
-                                    System.out.print("\nX -> ");
 
                                     if (blob.width == 0 && blob.height == 0) {
                                         blobs.remove(blob);
@@ -120,7 +116,6 @@ public class BlobCanvas extends ToolsCanvas {
 
                                 //System.out.print("("+point.x + ", " + point.y+ ") ");
                             }
-                            System.out.println("\n\n");
 
                         } else if (marquee.contains(blob)) {
                             blobs.remove(blob);

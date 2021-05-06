@@ -15,6 +15,7 @@ public class Blob extends Rect implements Comparable<Blob> {
         super(x, y, x, y);
 
         points = new ArrayList<>();
+        points.add(new Point(x, y));
     }
 
     public Blob(int minX, int minY, int maxX, int maxY) {

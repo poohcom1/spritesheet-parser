@@ -14,7 +14,7 @@ sourceSets {
 }
 
 group 'com.poohcom1'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     mavenCentral()
@@ -28,8 +28,8 @@ dependencies {
     implementation 'org.kordamp.ikonli:ikonli-material2-pack:12.2.0'
 }
 
-def sourceJarName = "spritesheet-parser.jar"
-def fatJarName = "spritesheet-parser-app.jar"
+def sourceJarName = "spritesheet-parser${version}.jar"
+def fatJarName = "spritesheet-parser-app${version}.jar"
 
 
 task sourceJar(type: Jar, dependsOn: jar) {
@@ -65,9 +65,9 @@ createExe {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'com.poohcom1'
+            groupId = group
             artifactId = 'spritesheetparser'
-            version = '1.0.2'
+            version = version
             artifact(sourceJar)
         }
     }

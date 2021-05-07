@@ -24,10 +24,10 @@ public class ShapesUtil {
         int maxY = 0;
 
         for (Rectangle sprite : sprites) {
-            if (sprite.x < minX) minX = sprite.x;
-            if (((Rect)sprite).maxX() > maxX) maxX = ((Rect)sprite).maxX();
-            if (sprite.y < minY) minY = sprite.y;
-            if (((Rect)sprite).maxY() > maxY) maxY = ((Rect)sprite).maxY();
+            minX = Math.min(minX, sprite.x);
+            minY = Math.min(minY, sprite.y);
+            maxX = Math.max(maxX, sprite.x + sprite.width);
+            maxY = Math.max(maxY, sprite.y + sprite.height);
         }
         return new Rect(minX, minY, maxX, maxY);
     }

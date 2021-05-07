@@ -59,7 +59,6 @@ public class SpriteSequence extends ArrayList<Sprite> {
      * @param image Original image to extract the sprites from
      * @param blobSequence Blob sequence used to extract the sprites
      * @param spriteDimension The dimensions of the sprite sequence
-     * @return
      */
     public static List<Sprite> extractBlobSprites(BufferedImage image, BlobSequence blobSequence, Dimension spriteDimension) {
         if (blobSequence.size() <= 0) return new ArrayList<>();
@@ -83,8 +82,8 @@ public class SpriteSequence extends ArrayList<Sprite> {
                 }
 
                 BufferedImage subImage = image.getSubimage(blob.x, blob.y,
-                        blob.width+1,
-                        blob.height+1);
+                        blob.width,
+                        blob.height);
 
                 Sprite spr = new Sprite(subImage, xOffset, yOffset, spriteDimension.width, spriteDimension.height);
 

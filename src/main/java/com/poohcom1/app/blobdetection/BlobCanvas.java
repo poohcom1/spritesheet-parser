@@ -163,13 +163,15 @@ public class BlobCanvas extends ToolsCanvas {
                 if (showBlobs) {
                     g.setColor(blobColor);
                     ((Graphics2D) g).setStroke(new BasicStroke(
-                            (float) (1.5f / xScale),                      // Width
-                            BasicStroke.CAP_SQUARE,    // End cap
-                            BasicStroke.JOIN_BEVEL,    // Join style
-                            1.0f,                     // Miter limit
-                            new float[]{2.0f, 2.0f},          // Dash pattern
-                            0.1f));
-                    g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width + 1, rect.height + 1);
+                            (float) (1.5f / xScale)));
+//                    ((Graphics2D) g).setStroke(new BasicStroke(
+//                            (float) (1.5f / xScale),                      // Width
+//                            BasicStroke.CAP_SQUARE,    // End cap
+//                            BasicStroke.JOIN_BEVEL,    // Join style
+//                            1.0f,                     // Miter limit
+//                            new float[]{2.0f, 2.0f},          // Dash pattern
+//                            0.1f));
+                    g.drawRect(rect.x + xOffset, rect.y + yOffset, rect.width, rect.height);
                 }
 
                 if (showNumbers) {

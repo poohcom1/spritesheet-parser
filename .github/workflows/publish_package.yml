@@ -1,5 +1,7 @@
 name: Publish package to GitHub Packages
 on:
+  pull_request:
+    branches: [ master ]
   release:
     types: [published]
   workflow_dispatch:

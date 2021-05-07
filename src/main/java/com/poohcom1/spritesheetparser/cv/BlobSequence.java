@@ -148,7 +148,6 @@ public class BlobSequence extends ArrayList<Blob> {
         int maxY = 0;
 
         orderBlobs();
-        System.out.println(this);
 
         for (List<Blob> row: getRows()) {
             Rect currentBoundaries = ShapesUtil.maxBoundaries(row);
@@ -283,7 +282,7 @@ public class BlobSequence extends ArrayList<Blob> {
                 }
             }
 
-            System.out.printf("BlobDetector.java: Merged %d blobs. %d -> %d\n", mergeCount, originalSize, blobList.size());
+            //System.out.printf("BlobDetector.java: Merged %d blobs. %d -> %d\n", mergeCount, originalSize, blobList.size());
         }
     }
 

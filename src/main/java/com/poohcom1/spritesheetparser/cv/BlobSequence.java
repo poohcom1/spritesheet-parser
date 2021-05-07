@@ -28,16 +28,25 @@ public class BlobSequence extends ArrayList<Blob> {
     }
 
     public void orderBlobs() {
-        sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
+        try {
+            sort((a, b) -> a.compareTo(b, primaryOrder, secondaryOrder));
+        } catch (IllegalArgumentException e) {
+            sort(Comparator.comparingInt(a -> a.x));
+            System.out.println("Error! Check blob ordering");
+        }
     }
 
     public String toString() {
         StringBuilder text = new StringBuilder();
 
-        orderBlobs();
-
         int row = 0;
         for (int i = 0; i < size();) {
+            if (get(i).getRow() == -1) {
+                text = new StringBuilder();
+                forEach(text::append);
+                return text.toString();
+            }
+
             if (get(i).getRow() == row) {
                 text
                         .append(get(i).getRow())
@@ -133,26 +142,24 @@ public class BlobSequence extends ArrayList<Blob> {
     }
 
     public Dimension getDimensions() {
-        int width = 0;
-        int height = 0;
-
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
         int maxX = 0;
         int maxY = 0;
 
+        orderBlobs();
+        System.out.println(this);
+
         for (List<Blob> row: getRows()) {
             Rect currentBoundaries = ShapesUtil.maxBoundaries(row);
+
             minX = Math.min(minX, currentBoundaries.x);
             minY = Math.min(minY, currentBoundaries.y);
             maxX = Math.max(maxX, currentBoundaries.maxX());
             maxY = Math.max(maxY, currentBoundaries.maxY());
-
-            width = Math.max(width, maxX - minX);
-            height = Math.max(height, maxY - minY);
         }
 
-        return new Dimension(width, height);
+        return new Dimension(maxX - minX, maxY - minY);
     }
 
     public void setOrder(int primaryOrder, int secondaryOrder) {
@@ -223,11 +230,7 @@ public class BlobSequence extends ArrayList<Blob> {
      * @param blobs Blobs to merge
      */
     public void mergeBlobs(List<Blob> blobs) {
-        Rect bounds = ShapesUtil.mergeRects(blobs);
-        Blob newBlob = new Blob(bounds.x, bounds.y, (int) bounds.getMaxX(), (int) bounds.getMaxY());
-        blobs.forEach(blob -> {
-            newBlob.getPoints().addAll(blob.getPoints());
-        });
+        Blob newBlob = new Blob(blobs);
 
         for (int i = size() -1; i >= 0; i--) {
             if (blobs.contains(get(i))) {
@@ -249,33 +252,39 @@ public class BlobSequence extends ArrayList<Blob> {
      * @param blobList List of blobs to auto-merge
      */
     public static void autoMergeBlobs(List<Blob> blobList) {
-        //int mergeCount = 0;
-        //int originalSize = blobList.size();
+        int mergeCount = 1;
+        while (mergeCount != 0) {
+            int originalSize = blobList.size();
+            mergeCount = 0;
 
-        int i = 0;
-        while (i < blobList.size()) {
-            int j = blobList.size() - 1;
+            int i = 0;
+            while (i < blobList.size()) {
+                int j = blobList.size() - 1;
 
-            boolean merged = false;
+                boolean merged = false;
 
-            while (j > i) {
-                Blob mainBlob = blobList.get(i); // Main blob of this loop
-                Blob checkBlob = blobList.get(j); // Blob to check against
+                while (j > i) {
+                    Blob mainBlob = blobList.get(i); // Main blob of this loop
+                    Blob checkBlob = blobList.get(j); // Blob to check against
 
-                if (mainBlob.shouldMerge(checkBlob)) {
-                    blobList.set(i, new Blob(mainBlob, checkBlob));
-                    blobList.remove(checkBlob);
-                    merged = true;
-                    //mergeCount++;
+                    if (mainBlob.shouldMerge(checkBlob)) {
+                        blobList.set(i, new Blob(mainBlob, checkBlob));
+                        blobList.remove(checkBlob);
+                        merged = true;
+                        mergeCount++;
+                    }
+
+                    j--;
                 }
 
-                j--;
+                // If a merge was performed, check current blob again since it is a new blob
+                if (!merged) {
+                    i++;
+                }
             }
 
-            // If a merge was performed, check current blob again since it is a new blob
-            if (!merged) i++;
+            System.out.printf("BlobDetector.java: Merged %d blobs. %d -> %d\n", mergeCount, originalSize, blobList.size());
         }
-        //System.out.printf("BlobDetector.java: Merged %d blobs. %d -> %d\n", mergeCount, originalSize, blobList.size());
     }
 
     /**

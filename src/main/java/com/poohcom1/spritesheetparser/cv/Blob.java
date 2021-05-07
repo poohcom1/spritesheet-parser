@@ -12,16 +12,22 @@ public class Blob extends Rect implements Comparable<Blob> {
 
     // Init blob
     public Blob(int x, int y) {
-        super(x, y, x, y);
+        super(x, y, x+1, y+1);
 
         points = new ArrayList<>();
         points.add(new Point(x, y));
     }
 
-    public Blob(int minX, int minY, int maxX, int maxY) {
-        super(minX, minY, maxX, maxY);
+    public Blob(List<Blob> blobs) {
+        super(0, 0, 0, 0);
+        Rect r = ShapesUtil.mergeRects(blobs);
+        this.x = r.x;
+        this.y = r.y;
+        this.width = r.width;
+        this.height = r.height;
 
         this.points = new ArrayList<>();
+        blobs.forEach(b -> this.points.addAll(b.getPoints()));
     }
 
     // New blob from merging blobs blobs
@@ -33,15 +39,26 @@ public class Blob extends Rect implements Comparable<Blob> {
         points.addAll(blob2.points);
     }
 
-    public List<Point> getPoints() {return points;}
+    public Blob(int minX, int minY, int maxX, int maxY) {
+        super(minX, minY, maxX, maxY);
 
-    public boolean removePoint(Point point) {
-        points.remove(point);
-        setDimensionsFromPoints();
-        return points.size() == 0;
+        this.points = new ArrayList<>();
+
+        for (int x = minX; x < maxX; x++) {
+            for (int y = minY; y < maxY; y++) {
+                points.add(new Point(x, y));
+            }
+        }
     }
 
-    private void setDimensionsFromPoints() {
+    public List<Point> getPoints() {return points;}
+
+    public void removePoint(Point point) {
+        points.remove(point);
+        setDimensionsFromPoints();
+    }
+
+    public void setDimensionsFromPoints() {
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
         int maxX = 0;
@@ -56,8 +73,8 @@ public class Blob extends Rect implements Comparable<Blob> {
 
         x = minX;
         y = minY;
-        width = maxX - x;
-        height = maxY - y;
+        width = maxX - x + 1;
+        height = maxY - y + 1;
     }
 
     // Extends area to cover added pixels
@@ -65,6 +82,8 @@ public class Blob extends Rect implements Comparable<Blob> {
         super.add(x, y);
 
         points.add(new Point(x, y));
+
+        setDimensionsFromPoints();
     }
 
     public int squareDistance(int x, int y) {

@@ -8,13 +8,18 @@ plugins {
 sourceSets {
     main {
         java {
-            srcDir 'src'
+            srcDir 'src/main'
+        }
+    }
+    test {
+        java {
+            srcDir 'src/test'
         }
     }
 }
 
 group 'com.poohcom1'
-version '1.0.3'
+version '1.1.0'
 
 repositories {
     mavenCentral()

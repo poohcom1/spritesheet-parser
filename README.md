@@ -3,7 +3,7 @@
 A simple tool to automatically animate sprites in sprite sheets that aren't aligned with fixed rows or columns. Outputs an image sequence of the sprites that is ready to be animated.
 
 ## Web App
-https://spritesheet-parser.herokuapp.com/
+https://spritesheet-parser.herokuapp.com/ (WIP)
 
 
 ## Download

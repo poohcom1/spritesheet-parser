@@ -5,7 +5,6 @@ A simple tool to automatically animate sprites in sprite sheets that aren't alig
 ## Web App
 
  - Repo: https://github.com/poohcom1/spritesheet-parser-web
- - Site: https://spritesheet-parser.herokuapp.com/
 
 
 ## Download
